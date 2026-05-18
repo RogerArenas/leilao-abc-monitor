@@ -22,7 +22,7 @@
 body{background:var(--ink);color:var(--paper);font-family:var(--fb);min-height:100vh;overflow-x:hidden}
 /* HEADER */
 header{position:sticky;top:0;z-index:100;background:rgba(12,19,34,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--wire);padding:.85rem 2rem;display:flex;align-items:center;justify-content:space-between}
-.logo{font-family:var(--fh);font-size:19px;font-weight:800;color:var(--lime);display:flex;align-items:center;gap:10px}
+.logo{font-family:var(--fh);font-size:16px;font-weight:800;color:var(--lime);display:flex;align-items:center;gap:10px}
 .ldot{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 10px var(--lime);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .hright{display:flex;align-items:center;gap:8px}
@@ -46,9 +46,9 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,19,34,.93);backdrop-
 .stat{background:var(--ink2);border:1px solid var(--wire);border-radius:var(--r);padding:1.25rem 1.5rem;position:relative;overflow:hidden}
 .stat::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--lime);opacity:.5}
 .stat.red::after{background:var(--red)}.stat.sky::after{background:var(--sky)}.stat.amb::after{background:var(--amber)}
-.slb{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;font-family:var(--fm)}
-.svl{font-family:var(--fh);font-size:30px;font-weight:800;line-height:1}
-.ssb{font-size:11px;color:var(--dim);margin-top:6px;font-family:var(--fm)}
+.slb{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-family:var(--fm)}
+.svl{font-family:var(--fh);font-size:20px;font-weight:700;line-height:1.2}
+.ssb{font-size:11px;color:var(--dim);margin-top:4px;font-family:var(--fm)}
 /* SEARCH BAR */
 .sb{background:var(--ink2);border:1px solid var(--wire);border-radius:var(--r);padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
 .sf{display:flex;flex-direction:column;gap:5px}
@@ -89,9 +89,9 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,19,34,.93);backdrop-
 .pr{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:6px}
 .pr:last-child{margin-bottom:0}
 .prl{color:var(--dim);font-family:var(--fm);font-size:11px}
-.prv{font-family:var(--fh);font-weight:700;font-size:18px;color:var(--lime)}
+.prv{font-family:var(--fh);font-weight:700;font-size:15px;color:var(--lime)}
 .prav{color:var(--dim);text-decoration:line-through;font-size:12px;font-family:var(--fm)}
-.prd{font-family:var(--fh);font-weight:800;font-size:16px;color:var(--lime)}
+.prd{font-family:var(--fh);font-weight:700;font-size:14px;color:var(--lime)}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .mi{background:var(--ink3);border-radius:7px;padding:8px 10px}
 .mil{font-size:10px;color:var(--dim);font-family:var(--fm);display:block;margin-bottom:2px}
@@ -110,7 +110,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,19,34,.93);backdrop-
 /* CALCULADORA */
 .cwrap{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 .cpanel{background:var(--ink2);border:1px solid var(--wire);border-radius:var(--r);padding:1.75rem}
-.ctit{font-family:var(--fh);font-size:18px;font-weight:700;margin-bottom:1.5rem;color:var(--lime)}
+.ctit{font-family:var(--fh);font-size:15px;font-weight:700;margin-bottom:1.25rem;color:var(--lime)}
 .cfield{margin-bottom:1rem}
 .cfield label{font-size:11px;color:var(--dim);font-family:var(--fm);text-transform:uppercase;display:block;margin-bottom:6px}
 .cfield input,.cfield select{width:100%;background:var(--ink3);border:1px solid var(--wire2);border-radius:8px;color:var(--paper);padding:10px 14px;font-family:var(--fm);font-size:13px;outline:none}
@@ -120,10 +120,10 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,19,34,.93);backdrop-
 .crow .cl{color:var(--dim)}.crow .cv{font-weight:500}
 .ctbox{background:rgba(184,245,100,.1);border:1px solid rgba(184,245,100,.25);border-radius:8px;padding:1rem;margin-top:1rem;text-align:center;display:none}
 .ctlb{font-size:11px;color:var(--lime);font-family:var(--fm);text-transform:uppercase;margin-bottom:6px}
-.ctvl{font-family:var(--fh);font-size:32px;font-weight:800;color:var(--lime)}
+.ctvl{font-family:var(--fh);font-size:22px;font-weight:700;color:var(--lime)}
 .rbox{background:rgba(91,164,255,.1);border:1px solid rgba(91,164,255,.25);border-radius:8px;padding:1rem;margin-top:1rem;text-align:center;display:none}
 .rlb{font-size:11px;color:var(--sky);font-family:var(--fm);text-transform:uppercase;margin-bottom:6px}
-.rvl{font-family:var(--fh);font-size:32px;font-weight:800;color:var(--sky)}
+.rvl{font-family:var(--fh);font-size:22px;font-weight:700;color:var(--sky)}
 /* CADERNO */
 .cemp{text-align:center;padding:4rem 2rem;color:var(--dim)}
 .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
@@ -147,7 +147,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,19,34,.93);backdrop-
 .lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .lcard{background:var(--ink2);border:1px solid var(--wire);border-radius:var(--r);padding:1.25rem 1.5rem;transition:all .2s}
 .lcard:hover{border-color:var(--lime)}
-.lctt{font-family:var(--fh);font-weight:700;font-size:16px;margin-bottom:6px}
+.lctt{font-family:var(--fh);font-weight:700;font-size:14px;margin-bottom:6px}
 .lcds{font-size:12px;color:var(--dim);font-family:var(--fm);margin-bottom:14px;line-height:1.6}
 .lcbt{display:flex;flex-direction:column;gap:7px}
 .lbtn{display:block;text-align:center;background:var(--ink3);border:1px solid var(--wire2);border-radius:7px;padding:8px 14px;font-size:11px;font-family:var(--fm);font-weight:500;color:var(--paper);text-decoration:none;transition:all .15s}
@@ -159,7 +159,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,19,34,.93);backdrop-
 .overlay.open{display:flex}
 .modal{background:var(--ink2);border:1px solid var(--wire2);border-radius:16px;max-width:700px;width:100%;max-height:88vh;overflow-y:auto}
 .mtop{padding:1.75rem 2rem;background:linear-gradient(135deg,var(--ink3),var(--ink2));border-bottom:1px solid var(--wire);display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
-.mtit{font-family:var(--fh);font-size:22px;font-weight:800;line-height:1.3}
+.mtit{font-family:var(--fh);font-size:17px;font-weight:700;line-height:1.3}
 .msub{font-size:11px;color:var(--dim);font-family:var(--fm);margin-top:5px}
 .mx{background:none;border:none;color:var(--dim);font-size:28px;cursor:pointer;line-height:1}
 .mx:hover{color:var(--paper)}
@@ -173,7 +173,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,19,34,.93);backdrop-
 .cbox{background:var(--ink3);border-radius:8px;padding:1rem}
 .cr2{display:flex;justify-content:space-between;font-size:12px;font-family:var(--fm);padding:7px 0;border-bottom:1px solid var(--wire)}
 .cr2:last-child{border-bottom:none}
-.crt{font-weight:700;font-size:15px;color:var(--lime);border-top:1px solid var(--wire2);padding-top:12px;margin-top:6px}
+.crt{font-weight:700;font-size:13px;color:var(--lime);border-top:1px solid var(--wire2);padding-top:12px;margin-top:6px}
 .wbox{background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.25);border-radius:8px;padding:1rem;font-size:12px;font-family:var(--fm);color:#fcd34d;line-height:1.9;margin-top:1rem}
 .macts{display:flex;gap:10px;margin-top:1.5rem}
 .mab{flex:1;text-align:center;padding:12px;border-radius:8px;font-family:var(--fh);font-weight:700;font-size:13px;cursor:pointer;text-decoration:none;transition:all .15s}
@@ -295,31 +295,50 @@ footer a{color:var(--lime);text-decoration:none}
     <p style="font-size:12px;color:var(--dim);font-family:var(--fm);margin-top:4px">Links já filtrados para seus critérios — apartamentos 70-160k, região ABC</p>
   </div>
   <div class="lgrid">
-    <div class="lcard"><div class="lctt">🏦 Caixa Econômica</div><div class="lcds">Maior volume de leilões do Brasil. API pública sem bloqueios. Primeira opção.</div><div class="lcbt">
-      <a class="lbtn pri" href="https://venda.caixa.gov.br/imoveis?estado=SP&tipo=2&vlMin=70000&vlMax=160000" target="_blank" rel="noopener">Buscar (filtrado) ↗</a>
+    <div class="lcard"><div class="lctt">🏦 Caixa Econômica Federal</div><div class="lcds">Maior volume de leilões do Brasil. Dados oficiais, sem bloqueios. Primeira opção — filtre por cidade.</div><div class="lcbt">
+      <a class="lbtn pri" href="https://venda.caixa.gov.br/imoveis?estado=SP&tipo=2" target="_blank" rel="noopener">🔍 Buscar Apartamentos SP ↗</a>
       <a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SANTO+ANDRE&tipo=2" target="_blank" rel="noopener">Santo André ↗</a>
-      <a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+BERNARDO+DO+CAMPO&tipo=2" target="_blank" rel="noopener">São Bernardo ↗</a>
+      <a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+BERNARDO+DO+CAMPO&tipo=2" target="_blank" rel="noopener">São Bernardo do Campo ↗</a>
       <a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=MAUA&tipo=2" target="_blank" rel="noopener">Mauá ↗</a>
-      <a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+CAETANO+DO+SUL&tipo=2" target="_blank" rel="noopener">São Caetano ↗</a>
+      <a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+CAETANO+DO+SUL&tipo=2" target="_blank" rel="noopener">São Caetano do Sul ↗</a>
     </div></div>
-    <div class="lcard"><div class="lctt">Sold Leilões</div><div class="lcds">Plataforma moderna. Crie conta gratuita para receber alertas por e-mail.</div><div class="lcbt">
-      <a class="lbtn pri" href="https://www.sold.com.br/imovel-leilao?estado=SP&tipo=apartamento&valorMin=70000&valorMax=160000" target="_blank" rel="noopener">Buscar na Sold ↗</a>
+
+    <div class="lcard"><div class="lctt">Sold Leilões</div><div class="lcds">Plataforma com imóveis de bancos e particulares. Muitos apartamentos do ABC com bom deságio. Crie conta gratuita para alertas automáticos.</div><div class="lcbt">
+      <a class="lbtn pri" href="https://www.sold.com.br/leiloes-de-imoveis" target="_blank" rel="noopener">🔍 Ver Imóveis na Sold ↗</a>
       <a class="lbtn" href="https://www.sold.com.br" target="_blank" rel="noopener">Site principal ↗</a>
     </div></div>
-    <div class="lcard"><div class="lctt">Zuk Leilões</div><div class="lcds">Especializada em imóveis. Salve buscas e receba notificações automáticas.</div><div class="lcbt">
-      <a class="lbtn pri" href="https://www.zuk.com.br/busca?estado=SP&tipo=apartamento" target="_blank" rel="noopener">Buscar na Zuk ↗</a>
-      <a class="lbtn" href="https://www.zuk.com.br" target="_blank" rel="noopener">Site principal ↗</a>
+
+    <div class="lcard"><div class="lctt">Portal Zuk</div><div class="lcds">Especializada em leilões judiciais e extrajudiciais. Boa cobertura do ABC. Filtre por cidade e faixa de preço.</div><div class="lcbt">
+      <a class="lbtn pri" href="https://www.portalzuk.com.br/leilao-de-imoveis/c/todos-imoveis/sp/grande-sao-paulo/santo-andre" target="_blank" rel="noopener">🔍 Santo André ↗</a>
+      <a class="lbtn" href="https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp" target="_blank" rel="noopener">Todo Estado SP ↗</a>
+      <a class="lbtn" href="https://www.portalzuk.com.br" target="_blank" rel="noopener">Site principal ↗</a>
     </div></div>
-    <div class="lcard"><div class="lctt">Superbid</div><div class="lcds">Uma das maiores do Brasil. Muitos imóveis do ABC aparecem aqui.</div><div class="lcbt">
-      <a class="lbtn pri" href="https://www.superbid.net/busca?tipo=imovel&estado=SP&categoria=apartamento" target="_blank" rel="noopener">Buscar no Superbid ↗</a>
+
+    <div class="lcard"><div class="lctt">Superbid Exchange</div><div class="lcds">Maior marketplace de leilões do Brasil. Muitos imóveis do ABC e região metropolitana de SP aparecem aqui.</div><div class="lcbt">
+      <a class="lbtn pri" href="https://www.superbid.net/categorias/imoveis" target="_blank" rel="noopener">🔍 Ver Imóveis no Superbid ↗</a>
       <a class="lbtn" href="https://www.superbid.net" target="_blank" rel="noopener">Site principal ↗</a>
     </div></div>
-    <div class="lcard"><div class="lctt">Banco do Brasil</div><div class="lcds">Imóveis retomados pelo BB. Processo simples, geralmente desocupados.</div><div class="lcbt">
-      <a class="lbtn pri" href="https://leiloes.bb.com.br" target="_blank" rel="noopener">Ver leilões BB ↗</a>
+
+    <div class="lcard"><div class="lctt">🏆 Leilão Imóvel</div><div class="lcds">Agrega imóveis de mais de 400 leiloeiros numa só busca. Excelente para garimpar o ABC sem precisar entrar em vários sites.</div><div class="lcbt">
+      <a class="lbtn pri" href="https://www.leilaoimovel.com.br/leilao-de-imovel/santo-andre-sp" target="_blank" rel="noopener">🔍 Santo André ↗</a>
+      <a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-bernardo-do-campo-sp" target="_blank" rel="noopener">São Bernardo ↗</a>
+      <a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/maua-sp" target="_blank" rel="noopener">Mauá ↗</a>
+      <a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-caetano-do-sul-sp" target="_blank" rel="noopener">São Caetano ↗</a>
     </div></div>
-    <div class="lcard"><div class="lctt">📋 Consultar Débitos</div><div class="lcds">Verifique IPTU e taxas municipais antes de dar qualquer lance.</div><div class="lcbt">
+
+    <div class="lcard"><div class="lctt">WebLeilões</div><div class="lcds">Plataforma com imóveis judiciais e extrajudiciais. Costuma ter imóveis do ABC com bom deságio em 2ª praça.</div><div class="lcbt">
+      <a class="lbtn pri" href="https://www.webleiloes.com.br/" target="_blank" rel="noopener">🔍 Ver Imóveis ↗</a>
+    </div></div>
+
+    <div class="lcard"><div class="lctt">Mega Leilões</div><div class="lcds">Leiloeiro com muitos imóveis no ABC e Grande SP. Leilões judiciais com bons deságios em 2ª praça.</div><div class="lcbt">
+      <a class="lbtn pri" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/santo-andre" target="_blank" rel="noopener">🔍 Santo André ↗</a>
+      <a class="lbtn" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-bernardo-do-campo" target="_blank" rel="noopener">São Bernardo ↗</a>
+      <a class="lbtn" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/maua" target="_blank" rel="noopener">Mauá ↗</a>
+    </div></div>
+
+    <div class="lcard"><div class="lctt">📋 Consultar Débitos — Prefeituras</div><div class="lcds">Antes de dar qualquer lance, verifique o IPTU atrasado diretamente na prefeitura da cidade do imóvel.</div><div class="lcbt">
       <a class="lbtn" href="https://www.santoandre.sp.gov.br/servicos" target="_blank" rel="noopener">Prefeitura Santo André ↗</a>
-      <a class="lbtn" href="https://www.saobernardo.sp.gov.br" target="_blank" rel="noopener">Prefeitura São Bernardo ↗</a>
+      <a class="lbtn" href="https://www.saobernardo.sp.gov.br/web/sbc" target="_blank" rel="noopener">Prefeitura São Bernardo ↗</a>
       <a class="lbtn" href="https://www.maua.sp.gov.br" target="_blank" rel="noopener">Prefeitura Mauá ↗</a>
       <a class="lbtn" href="https://www.saocaetanodosul.sp.gov.br" target="_blank" rel="noopener">Prefeitura São Caetano ↗</a>
     </div></div>
