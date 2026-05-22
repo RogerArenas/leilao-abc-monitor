@@ -1,0 +1,55 @@
+name: ABC Leilao Monitor - Diario
+
+on:
+  schedule:
+    # 11:00 UTC = 08:00 em Brasilia.
+    - cron: "0 11 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  monitorar-e-publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Rodar testes
+        run: python -m unittest discover -s tests
+
+      - name: Rodar monitor
+        env:
+          WA_NUMERO: ${{ secrets.WA_NUMERO }}
+          WA_APIKEY: ${{ secrets.WA_APIKEY }}
+          EMAIL_REMETENTE: ${{ secrets.EMAIL_REMETENTE }}
+          EMAIL_SENHA: ${{ secrets.EMAIL_SENHA }}
+          EMAIL_DEST: ${{ secrets.EMAIL_DEST }}
+        run: python leilao_monitor.py
+
+      - name: Publicar dados no GitHub Pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dados.json index.html
+          git diff --staged --quiet || git commit -m "Atualiza dados do monitor"
+          git push
+
+      - name: Salvar historico como artefato
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: historico-${{ github.run_id }}
+          path: historico_*.json
+          retention-days: 30
