@@ -1,72 +1,98 @@
 """
-=============================================================
-  ABC LEILÃO MONITOR — Ferramenta pessoal de alertas
-  Apartamentos 70-160k | Santo André · SBC · Mauá · S.Caetano
-=============================================================
-  Roda todo dia via GitHub Actions (gratuito)
-  Envia resumo por WhatsApp (CallMeBot) e E-mail (Gmail)
-=============================================================
+ABC Leilao Monitor
+
+Coleta oportunidades quando a fonte permite leitura publica e sempre gera
+links de conferencia manual para os portais relevantes. O objetivo e ser util
+sem prometer scraping fragil em sites que mudam ou bloqueiam automacao.
 """
 
-import os
+from __future__ import annotations
+
 import json
-import time
 import logging
+import os
+import re
 import smtplib
-import urllib.request
+import time
 import urllib.parse
-import urllib.error
-from datetime import datetime, date
+import urllib.request
+from dataclasses import dataclass
+from datetime import date
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from pathlib import Path
+from hashlib import sha1
+from typing import Any
 
 try:
     import requests
+
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
 
 try:
     from bs4 import BeautifulSoup
+
     HAS_BS4 = True
 except ImportError:
     HAS_BS4 = False
 
-# ─────────────────────────────────────────
-#  CONFIGURAÇÕES — edite aqui
-# ─────────────────────────────────────────
+
+BASE_DIR = Path(__file__).resolve().parent
+
+
+def carregar_env(caminho: Path = BASE_DIR / ".env") -> None:
+    """Carrega variaveis de um .env simples sem sobrescrever o ambiente."""
+    if not caminho.exists():
+        return
+
+    for linha in caminho.read_text(encoding="utf-8").splitlines():
+        linha = linha.strip()
+        if not linha or linha.startswith("#") or "=" not in linha:
+            continue
+        chave, valor = linha.split("=", 1)
+        chave = chave.strip()
+        valor = valor.strip().strip('"').strip("'")
+        os.environ.setdefault(chave, valor)
+
+
+carregar_env()
+
+
 CONFIG = {
-    # Seus filtros de busca
     "filtros": {
-        "lance_min": 70_000,
-        "lance_max": 160_000,
+        "lance_min": int(os.getenv("LANCE_MIN", "70000")),
+        "lance_max": int(os.getenv("LANCE_MAX", "160000")),
         "tipo": "apartamento",
-        "cidades": ["Santo André", "São Bernardo do Campo", "Mauá", "São Caetano do Sul"],
-        "quartos_min": 2,
+        "cidades": [
+            "Santo Andre",
+            "Sao Bernardo do Campo",
+            "Maua",
+            "Sao Caetano do Sul",
+        ],
+        "quartos_min": int(os.getenv("QUARTOS_MIN", "2")),
     },
-
-    # WhatsApp via CallMeBot (gratuito)
-    # Instruções: wa.me/+5511999999999?text=I+allow+callmebot+to+send+me+messages
-    # Depois acesse: https://www.callmebot.com/blog/free-api-whatsapp-messages/
     "whatsapp": {
-        "ativo": True,
-        "numero": os.getenv("WA_NUMERO", "+55119XXXXXXXX"),   # ex: +5511999999999
-        "apikey": os.getenv("WA_APIKEY", "SUA_APIKEY_AQUI"),  # gerada no CallMeBot
+        "ativo": os.getenv("WA_ATIVO", "true").lower() == "true",
+        "numero": os.getenv("WA_NUMERO", "+55119XXXXXXXX"),
+        "apikey": os.getenv("WA_APIKEY", "SUA_APIKEY_AQUI"),
     },
-
-    # E-mail via Gmail SMTP
     "email": {
-        "ativo": True,
+        "ativo": os.getenv("EMAIL_ATIVO", "true").lower() == "true",
         "remetente": os.getenv("EMAIL_REMETENTE", "seuemail@gmail.com"),
-        "senha_app": os.getenv("EMAIL_SENHA", "xxxx xxxx xxxx xxxx"),  # Senha de App do Gmail
+        "senha_app": os.getenv("EMAIL_SENHA", "xxxx xxxx xxxx xxxx"),
         "destinatario": os.getenv("EMAIL_DEST", "seuemail@gmail.com"),
-        "assunto": "🏠 ABC Leilões — Novos apartamentos hoje",
+        "assunto": "ABC Leiloes - Novos apartamentos hoje",
+    },
+    "alertas": {
+        "somente_novos": os.getenv("ALERTAR_SOMENTE_NOVOS", "false").lower() == "true",
+        "score_minimo": int(os.getenv("ALERTAR_SCORE_MINIMO", "0")),
+        "max_itens": int(os.getenv("ALERTAR_MAX_ITENS", "5")),
     },
 }
 
-# ─────────────────────────────────────────
-#  LOGGING
-# ─────────────────────────────────────────
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -75,260 +101,185 @@ logging.basicConfig(
 log = logging.getLogger("leilao")
 
 
-# ══════════════════════════════════════════════════════════
-#  MÓDULO DE BUSCA — cada plataforma tem sua função
-# ══════════════════════════════════════════════════════════
+@dataclass(frozen=True)
+class FonteBusca:
+    nome: str
+    url: str
+    cidade: str = ""
+    tipo: str = "consulta"
 
-def buscar_caixa(filtros):
-    """
-    Busca imóveis no site da Caixa Econômica Federal.
-    URL base: https://venda.caixa.gov.br/imoveis
-    A Caixa disponibiliza listagem pública sem autenticação.
-    """
-    imoveis = []
-    cidades_caixa = {
-        "Santo André": "SANTO+ANDRE",
-        "São Bernardo do Campo": "SAO+BERNARDO+DO+CAMPO",
-        "Mauá": "MAUA",
-        "São Caetano do Sul": "SAO+CAETANO+DO+SUL",
+
+def normalizar_cidade(cidade: str) -> str:
+    mapa = {
+        "Santo André": "Santo Andre",
+        "São Bernardo do Campo": "Sao Bernardo do Campo",
+        "Mauá": "Maua",
+        "São Caetano do Sul": "Sao Caetano do Sul",
     }
+    return mapa.get(cidade, cidade)
 
-    for cidade_pt, cidade_enc in cidades_caixa.items():
-        if cidade_pt not in filtros["cidades"]:
-            continue
 
-        url = (
-            f"https://venda.caixa.gov.br/imoveis"
-            f"?estado=SP&cidade={cidade_enc}"
-            f"&bairro=&categ=&tipo=2"       # tipo=2 → apartamento
-            f"&vlMin={filtros['lance_min']}"
-            f"&vlMax={filtros['lance_max']}"
-            f"&submit=Pesquisar"
+def cidade_para_interface(cidade: str) -> str:
+    mapa = {
+        "Santo Andre": "Santo André",
+        "Sao Bernardo do Campo": "São Bernardo do Campo",
+        "Maua": "Mauá",
+        "Sao Caetano do Sul": "São Caetano do Sul",
+    }
+    return mapa.get(cidade, cidade)
+
+
+def slug_cidade(cidade: str) -> str:
+    return {
+        "Santo Andre": "santo-andre",
+        "Sao Bernardo do Campo": "sao-bernardo-do-campo",
+        "Maua": "maua",
+        "Sao Caetano do Sul": "sao-caetano-do-sul",
+    }[normalizar_cidade(cidade)]
+
+
+def caixa_cidade(cidade: str) -> str:
+    return {
+        "Santo Andre": "SANTO+ANDRE",
+        "Sao Bernardo do Campo": "SAO+BERNARDO+DO+CAMPO",
+        "Maua": "MAUA",
+        "Sao Caetano do Sul": "SAO+CAETANO+DO+SUL",
+    }[normalizar_cidade(cidade)]
+
+
+def http_get(url: str, timeout: int = 20) -> str:
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125 Safari/537.36"
         )
+    }
+    if HAS_REQUESTS:
+        resp = requests.get(url, timeout=timeout, headers=headers)
+        resp.raise_for_status()
+        return resp.text
 
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req, timeout=timeout) as resposta:
+        return resposta.read().decode("utf-8", errors="ignore")
+
+
+def montar_url_caixa(cidade: str, filtros: dict[str, Any]) -> str:
+    return (
+        "https://venda.caixa.gov.br/imoveis"
+        f"?estado=SP&cidade={caixa_cidade(cidade)}"
+        "&bairro=&categ=&tipo=2"
+        f"&vlMin={filtros['lance_min']}"
+        f"&vlMax={filtros['lance_max']}"
+        "&submit=Pesquisar"
+    )
+
+
+def montar_fontes_consulta(filtros: dict[str, Any]) -> list[FonteBusca]:
+    fontes: list[FonteBusca] = []
+    for cidade in filtros["cidades"]:
+        cidade_norm = normalizar_cidade(cidade)
+        cidade_ui = cidade_para_interface(cidade_norm)
+        cidade_url = urllib.parse.quote(cidade_ui)
+        slug = slug_cidade(cidade_norm)
+
+        fontes.extend(
+            [
+                FonteBusca("Caixa", montar_url_caixa(cidade_norm, filtros), cidade_ui),
+                FonteBusca(
+                    "Sold",
+                    "https://www.sold.com.br/leiloes-de-imoveis",
+                    cidade_ui,
+                ),
+                FonteBusca(
+                    "Portal Zuk",
+                    f"https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp?search={cidade_url}",
+                    cidade_ui,
+                ),
+                FonteBusca(
+                    "Superbid",
+                    "https://www.superbid.net/categorias/imoveis",
+                    cidade_ui,
+                ),
+                FonteBusca(
+                    "Leilao Imovel",
+                    f"https://www.leilaoimovel.com.br/leilao-de-imovel/{slug}-sp",
+                    cidade_ui,
+                ),
+                FonteBusca(
+                    "Mega Leiloes",
+                    f"https://www.megaleiloes.com.br/imoveis/apartamentos/sp/{slug}",
+                    cidade_ui,
+                ),
+            ]
+        )
+    return fontes
+
+
+def extrair_numero(texto: str | None) -> float | None:
+    """Extrai valores em formato brasileiro, como R$ 98.500,00."""
+    if not texto:
+        return None
+
+    candidatos = re.findall(r"\d[\d.,]*", texto)
+    for candidato in candidatos:
+        valor = candidato.replace(".", "").replace(",", ".")
         try:
-            log.info(f"[Caixa] Buscando em {cidade_pt}...")
-            if HAS_REQUESTS:
-                resp = requests.get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
-                html = resp.text
-            else:
-                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-                with urllib.request.urlopen(req, timeout=20) as r:
-                    html = r.read().decode("utf-8", errors="ignore")
-
-            if HAS_BS4:
-                soup = BeautifulSoup(html, "html.parser")
-                cards = soup.select(".item-imovel, .imovel-card, [class*='imovel']")
-                for card in cards[:10]:
-                    try:
-                        titulo = card.select_one("h2, h3, .titulo, .descricao")
-                        preco_el = card.select_one(".preco, .valor, [class*='preco'], [class*='valor']")
-                        link_el = card.select_one("a[href]")
-
-                        titulo_txt = titulo.get_text(strip=True) if titulo else f"Apartamento em {cidade_pt}"
-                        preco_txt = preco_el.get_text(strip=True) if preco_el else ""
-                        link = link_el["href"] if link_el else url
-
-                        preco_num = extrair_numero(preco_txt)
-                        if preco_num and filtros["lance_min"] <= preco_num <= filtros["lance_max"]:
-                            imoveis.append(montar_imovel(
-                                titulo=titulo_txt,
-                                cidade=cidade_pt,
-                                lance=preco_num,
-                                fonte="Caixa",
-                                url=link if link.startswith("http") else "https://venda.caixa.gov.br" + link,
-                            ))
-                    except Exception:
-                        continue
-            else:
-                # Sem BeautifulSoup, monta link direto para o usuário acessar
-                imoveis.append({
-                    "titulo": f"Ver apartamentos Caixa em {cidade_pt}",
-                    "cidade": cidade_pt,
-                    "lance": 0,
-                    "avaliado": 0,
-                    "desagio": 0,
-                    "fonte": "Caixa",
-                    "url": url,
-                    "ocupado": None,
-                    "debito_iptu": 0,
-                    "debito_cond": 0,
-                    "area": 0,
-                    "quartos": 0,
-                    "data_leilao": "Consulte o site",
-                    "praca": "?",
-                    "custo_total": 0,
-                })
-
-            time.sleep(2)  # respeitar o servidor
-
-        except Exception as e:
-            log.warning(f"[Caixa] Erro em {cidade_pt}: {e}")
-
-    return imoveis
-
-
-def buscar_sold(filtros):
-    """
-    Sold Leilões — https://www.sold.com.br
-    Plataforma com imóveis de bancos e particulares.
-    """
-    imoveis = []
-    for cidade in filtros["cidades"]:
-        url = (
-            f"https://www.sold.com.br/imoveis"
-            f"?tipo=apartamento&estado=SP"
-            f"&cidade={urllib.parse.quote(cidade)}"
-            f"&preco_min={filtros['lance_min']}"
-            f"&preco_max={filtros['lance_max']}"
-        )
-        imoveis.append({
-            "titulo": f"🔍 Ver apartamentos Sold em {cidade}",
-            "cidade": cidade,
-            "lance": 0,
-            "avaliado": 0,
-            "desagio": 0,
-            "fonte": "Sold",
-            "url": url,
-            "ocupado": None,
-            "debito_iptu": 0,
-            "debito_cond": 0,
-            "area": 0,
-            "quartos": 0,
-            "data_leilao": "Consulte o site",
-            "praca": "?",
-            "custo_total": 0,
-        })
-    return imoveis
-
-
-def buscar_zuk(filtros):
-    """Zuk Leilões — https://www.zuk.com.br"""
-    imoveis = []
-    for cidade in filtros["cidades"]:
-        url = (
-            f"https://www.zuk.com.br/busca"
-            f"?tipo=apartamento&uf=SP"
-            f"&cidade={urllib.parse.quote(cidade)}"
-            f"&lance_min={filtros['lance_min']}"
-            f"&lance_max={filtros['lance_max']}"
-        )
-        imoveis.append({
-            "titulo": f"🔍 Ver apartamentos Zuk em {cidade}",
-            "cidade": cidade,
-            "lance": 0,
-            "avaliado": 0,
-            "desagio": 0,
-            "fonte": "Zuk",
-            "url": url,
-            "ocupado": None,
-            "debito_iptu": 0,
-            "debito_cond": 0,
-            "area": 0,
-            "quartos": 0,
-            "data_leilao": "Consulte o site",
-            "praca": "?",
-            "custo_total": 0,
-        })
-    return imoveis
-
-
-def buscar_superbid(filtros):
-    """Superbid — https://www.superbid.net"""
-    imoveis = []
-    for cidade in filtros["cidades"]:
-        url = (
-            f"https://www.superbid.net/busca"
-            f"?q=apartamento&estado=SP"
-            f"&cidade={urllib.parse.quote(cidade)}"
-            f"&preco_de={filtros['lance_min']}"
-            f"&preco_ate={filtros['lance_max']}"
-        )
-        imoveis.append({
-            "titulo": f"🔍 Ver apartamentos Superbid em {cidade}",
-            "cidade": cidade,
-            "lance": 0,
-            "avaliado": 0,
-            "desagio": 0,
-            "fonte": "Superbid",
-            "url": url,
-            "ocupado": None,
-            "debito_iptu": 0,
-            "debito_cond": 0,
-            "area": 0,
-            "quartos": 0,
-            "data_leilao": "Consulte o site",
-            "praca": "?",
-            "custo_total": 0,
-        })
-    return imoveis
-
-
-def buscar_banco_brasil(filtros):
-    """Banco do Brasil — https://leiloes.bb.com.br"""
-    imoveis = []
-    for cidade in filtros["cidades"]:
-        url = (
-            f"https://leiloes.bb.com.br/imoveis"
-            f"?estado=SP&cidade={urllib.parse.quote(cidade)}"
-            f"&tipo=apartamento"
-            f"&valor_de={filtros['lance_min']}"
-            f"&valor_ate={filtros['lance_max']}"
-        )
-        imoveis.append({
-            "titulo": f"🔍 Ver apartamentos BB em {cidade}",
-            "cidade": cidade,
-            "lance": 0,
-            "avaliado": 0,
-            "desagio": 0,
-            "fonte": "Banco do Brasil",
-            "url": url,
-            "ocupado": None,
-            "debito_iptu": 0,
-            "debito_cond": 0,
-            "area": 0,
-            "quartos": 0,
-            "data_leilao": "Consulte o site",
-            "praca": "?",
-            "custo_total": 0,
-        })
-    return imoveis
-
-
-# ══════════════════════════════════════════════════════════
-#  UTILITÁRIOS
-# ══════════════════════════════════════════════════════════
-
-def extrair_numero(texto):
-    """Extrai valor numérico de strings como 'R$ 98.500,00'"""
-    import re
-    txt = texto.replace("R$", "").replace(".", "").replace(",", ".").strip()
-    nums = re.findall(r"\d+(?:\.\d+)?", txt)
-    if nums:
-        return float(nums[0])
+            numero = float(valor)
+        except ValueError:
+            continue
+        if numero >= 1_000:
+            return numero
     return None
 
 
-def montar_imovel(titulo, cidade, lance, fonte, url,
-                  avaliado=None, area=0, quartos=0,
-                  data_leilao="Consulte o site", praca="?", ocupado=None):
-    """Monta dicionário padrão de imóvel com cálculos automáticos"""
+def extrair_area(texto: str) -> int:
+    achou = re.search(r"(\d{2,3})\s*m", texto, flags=re.IGNORECASE)
+    return int(achou.group(1)) if achou else 0
+
+
+def extrair_quartos(texto: str) -> int:
+    achou = re.search(r"(\d+)\s*(?:quarto|dorm)", texto, flags=re.IGNORECASE)
+    return int(achou.group(1)) if achou else 0
+
+
+def esta_na_faixa(valor: float | None, filtros: dict[str, Any]) -> bool:
+    return bool(valor and filtros["lance_min"] <= valor <= filtros["lance_max"])
+
+
+def montar_imovel(
+    titulo: str,
+    cidade: str,
+    lance: float,
+    fonte: str,
+    url: str,
+    avaliado: float | None = None,
+    area: int = 0,
+    quartos: int = 0,
+    data_leilao: str = "Consulte o site",
+    praca: str = "?",
+    ocupado: bool | None = None,
+    bairro: str = "",
+    matricula: str = "",
+) -> dict[str, Any]:
     if avaliado is None:
-        avaliado = lance * 1.3  # estimativa quando não disponível
+        avaliado = lance * 1.3
 
     desagio = round(((avaliado - lance) / avaliado) * 100) if avaliado > 0 else 0
-
-    # Cálculo de custo real total
     comissao = round(lance * 0.05)
     itbi = round(lance * 0.03)
     cartorio = 3_500
     reforma = round(area * 400) if area > 0 else 15_000
-    custo_total = lance + comissao + itbi + cartorio + reforma
 
-    return {
-        "titulo": titulo,
-        "cidade": cidade,
-        "lance": lance,
+    investimento_total = round(lance + comissao + itbi + cartorio + reforma)
+    lucro_potencial = round(avaliado - investimento_total)
+    roi_potencial = round((lucro_potencial / investimento_total) * 100, 1) if investimento_total else 0
+
+    imovel = {
+        "titulo": titulo.strip() or f"Apartamento em {cidade_para_interface(cidade)}",
+        "cidade": cidade_para_interface(cidade),
+        "bairro": bairro,
+        "lance": round(lance),
         "avaliado": round(avaliado),
         "desagio": desagio,
         "fonte": fonte,
@@ -340,247 +291,463 @@ def montar_imovel(titulo, cidade, lance, fonte, url,
         "quartos": quartos,
         "data_leilao": data_leilao,
         "praca": praca,
-        "custo_total": custo_total,
+        "matricula": matricula,
+        "custo_total": investimento_total,
+        "valor_mercado_estimado": round(avaliado),
+        "lucro_potencial": lucro_potencial,
+        "roi_potencial": roi_potencial,
+        "qualidade_localizacao": estimar_qualidade_localizacao(cidade, bairro),
+        "estrategia_sugerida": sugerir_estrategia(area, quartos, roi_potencial, ocupado),
+    }
+    imovel["score"] = calcular_score(imovel)
+    imovel["score_motivos"] = explicar_score(imovel)
+    imovel["id"] = gerar_id_imovel(imovel)
+    imovel["novo"] = True
+    imovel["visto_antes"] = False
+    imovel["mudanca"] = ""
+    return imovel
+
+
+def estimar_qualidade_localizacao(cidade: str, bairro: str = "") -> int:
+    cidade_norm = normalizar_cidade(cidade)
+    base = {
+        "Santo Andre": 78,
+        "Sao Bernardo do Campo": 76,
+        "Sao Caetano do Sul": 86,
+        "Maua": 66,
+    }.get(cidade_norm, 65)
+    bairros_fortes = ("centro", "paraiso", "vila bastos", "boa vista", "santo antonio", "baeta")
+    if bairro and any(b in bairro.lower() for b in bairros_fortes):
+        base += 6
+    return max(0, min(100, base))
+
+
+def sugerir_estrategia(area: int, quartos: int, roi: float, ocupado: bool | None) -> str:
+    if ocupado is True:
+        return "Aguardar/regularizar posse"
+    if roi >= 18 and area >= 45:
+        return "Revenda com margem"
+    if quartos >= 2 and area >= 50:
+        return "Moradia ou aluguel tradicional"
+    if area and area <= 45:
+        return "Locacao compacta"
+    return "Analisar edital e mercado"
+
+
+def montar_link_consulta(fonte: FonteBusca) -> dict[str, Any]:
+    return {
+        "titulo": f"Conferir apartamentos em {fonte.cidade} - {fonte.nome}",
+        "cidade": fonte.cidade,
+        "lance": 0,
+        "avaliado": 0,
+        "desagio": 0,
+        "fonte": fonte.nome,
+        "url": fonte.url,
+        "ocupado": None,
+        "debito_iptu": 0,
+        "debito_cond": 0,
+        "area": 0,
+        "quartos": 0,
+        "data_leilao": "Consulte o site",
+        "praca": "?",
+        "custo_total": 0,
+        "tipo": fonte.tipo,
     }
 
 
-def formatar_reais(valor):
-    """Formata número como moeda brasileira"""
+def parse_caixa_cards(html: str, cidade: str, filtros: dict[str, Any], url_base: str) -> list[dict[str, Any]]:
+    if not HAS_BS4:
+        return []
+
+    soup = BeautifulSoup(html, "html.parser")
+    candidatos = soup.select(
+        ".item-imovel, .imovel-card, .resultado-busca, .card, li, tr, [class*='imovel']"
+    )
+    imoveis: list[dict[str, Any]] = []
+    vistos: set[tuple[str, int]] = set()
+
+    for card in candidatos:
+        texto = " ".join(card.get_text(" ", strip=True).split())
+        if not texto or "apartamento" not in texto.lower():
+            continue
+
+        lance = extrair_numero(texto)
+        if not esta_na_faixa(lance, filtros):
+            continue
+
+        link_el = card.select_one("a[href]")
+        link = link_el["href"] if link_el else url_base
+        if link.startswith("/"):
+            link = "https://venda.caixa.gov.br" + link
+
+        titulo_el = card.select_one("h2, h3, h4, .titulo, .descricao")
+        titulo = titulo_el.get_text(" ", strip=True) if titulo_el else texto[:110]
+        chave = (link, round(lance or 0))
+        if chave in vistos:
+            continue
+        vistos.add(chave)
+
+        imoveis.append(
+            montar_imovel(
+                titulo=titulo,
+                cidade=cidade,
+                lance=lance or 0,
+                fonte="Caixa",
+                url=link,
+                area=extrair_area(texto),
+                quartos=extrair_quartos(texto),
+                ocupado=None if "ocupado" not in texto.lower() else True,
+            )
+        )
+
+    return imoveis
+
+
+def buscar_caixa(filtros: dict[str, Any]) -> list[dict[str, Any]]:
+    imoveis: list[dict[str, Any]] = []
+    for cidade in filtros["cidades"]:
+        cidade_norm = normalizar_cidade(cidade)
+        url = montar_url_caixa(cidade_norm, filtros)
+        try:
+            log.info("[Caixa] Buscando em %s", cidade_para_interface(cidade_norm))
+            html = http_get(url)
+            encontrados = parse_caixa_cards(html, cidade_norm, filtros, url)
+            log.info("[Caixa] %s item(ns) com preco confirmado", len(encontrados))
+            imoveis.extend(encontrados)
+            time.sleep(1)
+        except Exception as exc:
+            log.warning("[Caixa] Falha em %s: %s", cidade_para_interface(cidade_norm), exc)
+    return imoveis
+
+
+def buscar_links_consulta(filtros: dict[str, Any]) -> list[dict[str, Any]]:
+    return [montar_link_consulta(fonte) for fonte in montar_fontes_consulta(filtros)]
+
+
+def gerar_id_imovel(imovel: dict[str, Any]) -> str:
+    base = "|".join(
+        [
+            str(imovel.get("fonte", "")).lower(),
+            str(imovel.get("url", "")).split("?")[0].lower(),
+            str(imovel.get("cidade", "")).lower(),
+            str(imovel.get("titulo", "")).lower(),
+        ]
+    )
+    return sha1(base.encode("utf-8")).hexdigest()[:16]
+
+
+def carregar_historico_anterior() -> list[dict[str, Any]]:
+    hoje = f"historico_{date.today().isoformat()}.json"
+    arquivos = sorted(BASE_DIR.glob("historico_*.json"), reverse=True)
+    for arquivo in arquivos:
+        if arquivo.name == hoje:
+            continue
+        try:
+            dados = json.loads(arquivo.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if isinstance(dados, list):
+            return dados
+    return []
+
+
+def anotar_historico(
+    imoveis: list[dict[str, Any]],
+    historico_anterior: list[dict[str, Any]] | None = None,
+) -> dict[str, int]:
+    historico_anterior = historico_anterior if historico_anterior is not None else carregar_historico_anterior()
+    anteriores: dict[str, dict[str, Any]] = {}
+
+    for item in historico_anterior:
+        if item.get("lance", 0) <= 0:
+            continue
+        item_id = item.get("id") or gerar_id_imovel(item)
+        anteriores[item_id] = item
+
+    novos = 0
+    alterados = 0
+    confirmados = 0
+
+    for item in imoveis:
+        if item.get("lance", 0) <= 0:
+            continue
+        confirmados += 1
+        item_id = item.get("id") or gerar_id_imovel(item)
+        item["id"] = item_id
+        anterior = anteriores.get(item_id)
+        item["visto_antes"] = anterior is not None
+        item["novo"] = anterior is None
+        item["mudanca"] = ""
+
+        if anterior is None:
+            novos += 1
+            continue
+
+        lance_anterior = int(anterior.get("lance", 0) or 0)
+        lance_atual = int(item.get("lance", 0) or 0)
+        if lance_anterior and lance_atual and lance_anterior != lance_atual:
+            alterados += 1
+            delta = lance_atual - lance_anterior
+            sinal = "+" if delta > 0 else "-"
+            item["mudanca"] = f"Lance {sinal}{formatar_reais(abs(delta))} desde a ultima coleta"
+
+    return {
+        "confirmados": confirmados,
+        "novos": novos,
+        "recorrentes": confirmados - novos,
+        "alterados": alterados,
+    }
+
+
+def formatar_reais(valor: float) -> str:
     return f"R$ {valor:,.0f}".replace(",", ".")
 
 
-def emoji_status(im):
-    if im.get("ocupado") is True:
-        return "⚠️"
-    if im.get("ocupado") is False:
-        return "✅"
-    return "🔍"
+def calcular_score(imovel: dict[str, Any]) -> int:
+    pontos = 100
+    if imovel.get("ocupado") is True:
+        pontos -= 30
+    if imovel.get("praca") == "2":
+        pontos -= 10
+    if imovel.get("debito_iptu", 0) > 0:
+        pontos -= 15
+    if imovel.get("debito_cond", 0) > 0:
+        pontos -= 10
+    if imovel.get("desagio", 0) >= 35:
+        pontos += 10
+    if imovel.get("desagio", 0) < 20:
+        pontos -= 10
+    if not imovel.get("area"):
+        pontos -= 3
+    if not imovel.get("quartos"):
+        pontos -= 3
+    return max(0, min(100, pontos))
 
 
-# ══════════════════════════════════════════════════════════
-#  WHATSAPP — CallMeBot (100% gratuito)
-# ══════════════════════════════════════════════════════════
+def explicar_score(imovel: dict[str, Any]) -> list[str]:
+    razoes: list[str] = []
+    if imovel.get("ocupado") is True:
+        razoes.append("ocupado exige plano de posse")
+    elif imovel.get("ocupado") is False:
+        razoes.append("desocupado tende a ser mais simples")
+    else:
+        razoes.append("ocupacao precisa ser confirmada")
 
-def enviar_whatsapp(imoveis, config):
-    """
-    Envia mensagem WhatsApp via CallMeBot.
-    Ativação: salve o número +34 644 44 44 49 e mande:
-      'I allow callmebot to send me messages'
-    Depois acesse callmebot.com para pegar sua API Key.
-    """
+    if imovel.get("desagio", 0) >= 35:
+        razoes.append("desagio forte")
+    elif imovel.get("desagio", 0) < 20:
+        razoes.append("desagio baixo")
+
+    if imovel.get("debito_iptu", 0) or imovel.get("debito_cond", 0):
+        razoes.append("ha debitos informados")
+    if not imovel.get("area") or not imovel.get("quartos"):
+        razoes.append("dados incompletos")
+    return razoes
+
+
+def dica_do_dia(imoveis_reais: list[dict[str, Any]]) -> str:
+    if not imoveis_reais:
+        return "Quando nao houver preco confirmado, use os links por cidade e procure venda direta ou edital com ocupacao clara."
+    if any(i.get("ocupado") is True for i in imoveis_reais):
+        return "Imovel ocupado pode exigir acao de imissao na posse; coloque prazo e custo juridico na conta."
+    if any(i.get("desagio", 0) >= 35 for i in imoveis_reais):
+        return "Desagio alto chama atencao, mas so vira oportunidade depois de checar edital, matricula e debitos."
+    return "Compare o lance com o custo total, nao apenas com o valor de avaliacao."
+
+
+def filtrar_para_alerta(
+    imoveis_reais: list[dict[str, Any]],
+    config: dict[str, Any],
+) -> list[dict[str, Any]]:
+    alertas = config.get("alertas", {})
+    score_minimo = int(alertas.get("score_minimo", 0))
+    somente_novos = bool(alertas.get("somente_novos", False))
+
+    itens = [i for i in imoveis_reais if calcular_score(i) >= score_minimo]
+    if somente_novos:
+        itens = [i for i in itens if i.get("novo")]
+    return sorted(itens, key=calcular_score, reverse=True)
+
+
+def emoji_status(imovel: dict[str, Any]) -> str:
+    if imovel.get("ocupado") is True:
+        return "ATENCAO"
+    if imovel.get("ocupado") is False:
+        return "OK"
+    return "VERIFICAR"
+
+
+def enviar_whatsapp(imoveis: list[dict[str, Any]], config: dict[str, Any]) -> None:
     if not config["whatsapp"]["ativo"]:
-        log.info("WhatsApp desativado nas configurações.")
+        log.info("WhatsApp desativado.")
         return
 
     numero = config["whatsapp"]["numero"]
     apikey = config["whatsapp"]["apikey"]
-
     if "APIKEY" in apikey or "XXXXXXXX" in numero:
-        log.warning("Configure WA_NUMERO e WA_APIKEY no .env ou GitHub Secrets!")
+        log.warning("Configure WA_NUMERO e WA_APIKEY no .env ou GitHub Secrets.")
         return
 
     hoje = date.today().strftime("%d/%m/%Y")
-    imoveis_reais = [i for i in imoveis if i["lance"] > 0]
-    links = [i for i in imoveis if i["lance"] == 0]
+    imoveis_reais = [i for i in imoveis if i.get("lance", 0) > 0]
+    imoveis_alerta = filtrar_para_alerta(imoveis_reais, config)
+    links = [i for i in imoveis if i.get("lance", 0) == 0]
+    novos = sum(1 for i in imoveis_reais if i.get("novo"))
+    max_itens = int(config.get("alertas", {}).get("max_itens", 5))
 
-    linhas = [f"🏠 *ABC Leilões — {hoje}*\n"]
-
-    if imoveis_reais:
-        linhas.append(f"📌 *{len(imoveis_reais)} apartamento(s) na faixa 70–160k:*\n")
-        for i, im in enumerate(imoveis_reais[:5], 1):
+    linhas = [
+        f"*ABC Leiloes - {hoje}*",
+        "",
+        f"Resumo: {len(imoveis_reais)} com preco confirmado | {novos} novo(s) | {len(links)} links para conferencia.",
+        f"Dica: {dica_do_dia(imoveis_reais)}",
+    ]
+    if imoveis_alerta:
+        linhas.append("\nMelhores oportunidades:")
+        for indice, imovel in enumerate(imoveis_alerta[:max_itens], 1):
+            score = calcular_score(imovel)
+            razoes = "; ".join(explicar_score(imovel)[:3])
+            etiqueta = "NOVO" if imovel.get("novo") else "recorrente"
+            mudanca = f" | {imovel['mudanca']}" if imovel.get("mudanca") else ""
             linhas.append(
-                f"{i}️⃣ *{im['titulo']}*\n"
-                f"📍 {im['cidade']}\n"
-                f"💰 Lance: {formatar_reais(im['lance'])} | Deságio: {im['desagio']}%\n"
-                f"{emoji_status(im)} {'Ocupado' if im.get('ocupado') else 'Ver edital'}\n"
-                f"🔗 {im['url']}\n"
+                "\n".join(
+                    [
+                        f"{indice}. [{etiqueta}] {imovel['titulo']}",
+                        f"Cidade: {imovel['cidade']}",
+                        f"Lance: {formatar_reais(imovel['lance'])} | Desagio: {imovel['desagio']}%",
+                        f"Score: {score}/100 | {emoji_status(imovel)} | {razoes}{mudanca}",
+                        imovel["url"],
+                    ]
+                )
             )
+    else:
+        linhas.append("\nNenhum imovel passou pelos filtros de alerta de hoje.")
 
     if links:
-        linhas.append("🔎 *Busque também nestes sites:*")
-        fontes_vistas = set()
-        for im in links:
-            if im["fonte"] not in fontes_vistas:
-                linhas.append(f"• {im['fonte']}: {im['url']}")
-                fontes_vistas.add(im["fonte"])
+        linhas.append("\nConferir manualmente:")
+        fontes_vistas: set[str] = set()
+        for link in links:
+            chave = f"{link['fonte']}|{link['cidade']}"
+            if chave in fontes_vistas:
+                continue
+            fontes_vistas.add(chave)
+            linhas.append(f"- {link['fonte']} ({link['cidade']}): {link['url']}")
 
-    linhas.append("\n💡 Lembre-se: leia o edital completo antes de dar o lance!")
-
+    linhas.append("\nChecklist minimo: edital, matricula, IPTU, condominio, ocupacao e lance maximo.")
     mensagem = "\n".join(linhas)
-
     url = (
-        f"https://api.callmebot.com/whatsapp.php"
+        "https://api.callmebot.com/whatsapp.php"
         f"?phone={urllib.parse.quote(numero)}"
         f"&text={urllib.parse.quote(mensagem)}"
-        f"&apikey={apikey}"
+        f"&apikey={urllib.parse.quote(apikey)}"
     )
 
     try:
         log.info("Enviando WhatsApp...")
         if HAS_REQUESTS:
             resp = requests.get(url, timeout=15)
-            if resp.status_code == 200:
-                log.info("✅ WhatsApp enviado!")
-            else:
-                log.warning(f"WhatsApp retornou {resp.status_code}: {resp.text[:200]}")
+            if resp.status_code != 200:
+                log.warning("WhatsApp retornou %s: %s", resp.status_code, resp.text[:200])
         else:
-            with urllib.request.urlopen(url, timeout=15) as r:
-                log.info(f"✅ WhatsApp enviado! Status: {r.status}")
-    except Exception as e:
-        log.error(f"Erro ao enviar WhatsApp: {e}")
+            with urllib.request.urlopen(url, timeout=15):
+                pass
+        log.info("WhatsApp enviado.")
+    except Exception as exc:
+        log.error("Erro ao enviar WhatsApp: %s", exc)
 
 
-# ══════════════════════════════════════════════════════════
-#  E-MAIL — Gmail SMTP
-# ══════════════════════════════════════════════════════════
-
-def gerar_html_email(imoveis, filtros):
-    """Gera e-mail HTML bonito com tabela de imóveis"""
+def gerar_html_email(
+    imoveis: list[dict[str, Any]],
+    filtros: dict[str, Any],
+    config: dict[str, Any] | None = None,
+) -> str:
     hoje = date.today().strftime("%d/%m/%Y")
-    imoveis_reais = [i for i in imoveis if i["lance"] > 0]
-    links_busca = [i for i in imoveis if i["lance"] == 0]
+    imoveis_reais = [i for i in imoveis if i.get("lance", 0) > 0]
+    imoveis_alerta = filtrar_para_alerta(imoveis_reais, config or {})
+    links_busca = [i for i in imoveis if i.get("lance", 0) == 0]
+    novos = sum(1 for i in imoveis_reais if i.get("novo"))
 
-    # Remover fontes duplicadas nos links
-    fontes_unicas = {}
-    for im in links_busca:
-        if im["fonte"] not in fontes_unicas:
-            fontes_unicas[im["fonte"]] = im["url"]
+    rows = []
+    for imovel in imoveis_alerta:
+        score = calcular_score(imovel)
+        razoes = "; ".join(explicar_score(imovel))
+        etiqueta = "NOVO" if imovel.get("novo") else "recorrente"
+        mudanca = f"<br><small>{imovel['mudanca']}</small>" if imovel.get("mudanca") else ""
+        rows.append(
+            f"""
+            <tr>
+              <td><strong>{imovel['titulo']}</strong><br><small>{etiqueta} - {imovel['cidade']} - {imovel['fonte']}</small>{mudanca}</td>
+              <td>{formatar_reais(imovel['lance'])}</td>
+              <td>{imovel['desagio']}%</td>
+              <td>{score}/100<br><small>{razoes}</small></td>
+              <td>{imovel['data_leilao']}</td>
+              <td><a href="{imovel['url']}">Ver edital</a></td>
+            </tr>
+            """
+        )
 
-    rows_imoveis = ""
-    for im in imoveis_reais:
-        cor_ocupado = "#ef4444" if im.get("ocupado") else "#10b981"
-        txt_ocupado = "⚠️ Ocupado" if im.get("ocupado") else "✅ Livre"
-        desagio_cor = "#10b981" if im["desagio"] >= 30 else "#f59e0b"
+    links = []
+    vistos: set[str] = set()
+    for item in links_busca:
+        chave = f"{item['fonte']}|{item['cidade']}"
+        if chave in vistos:
+            continue
+        vistos.add(chave)
+        links.append(f'<li><a href="{item["url"]}">{item["fonte"]} - {item["cidade"]}</a></li>')
 
-        rows_imoveis += f"""
-        <tr style="border-bottom:1px solid #e5e7eb">
-          <td style="padding:12px 10px;font-size:14px">
-            <strong>{im['titulo']}</strong><br>
-            <span style="color:#6b7280;font-size:12px">📍 {im['cidade']} · {im['fonte']}</span>
-          </td>
-          <td style="padding:12px 10px;text-align:center;font-weight:600;color:#1d4ed8;font-size:14px">
-            {formatar_reais(im['lance'])}
-          </td>
-          <td style="padding:12px 10px;text-align:center;font-weight:600;color:{desagio_cor}">
-            -{im['desagio']}%
-          </td>
-          <td style="padding:12px 10px;text-align:center;font-size:13px;color:{cor_ocupado}">
-            {txt_ocupado}
-          </td>
-          <td style="padding:12px 10px;text-align:center;font-size:13px">
-            {im['data_leilao']}
-          </td>
-          <td style="padding:12px 10px;text-align:center">
-            <a href="{im['url']}" style="background:#1d4ed8;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:12px;font-weight:600">Ver edital</a>
-          </td>
-        </tr>"""
+    corpo = (
+        "".join(rows)
+        if rows
+        else '<tr><td colspan="6">Nenhum imovel com preco confirmado na coleta automatica de hoje.</td></tr>'
+    )
 
-    links_html = ""
-    for fonte, url in fontes_unicas.items():
-        links_html += f"""
-        <a href="{url}" style="display:inline-block;margin:4px 6px;background:#f3f4f6;border:1px solid #d1d5db;
-           border-radius:8px;padding:8px 16px;text-decoration:none;color:#374151;font-size:13px;font-weight:500">
-          🔗 {fonte}
-        </a>"""
-
-    html = f"""<!DOCTYPE html>
+    return f"""<!doctype html>
 <html lang="pt-BR">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f9fafb;font-family:'Segoe UI',sans-serif">
-<div style="max-width:680px;margin:0 auto;padding:24px 16px">
-
-  <!-- Header -->
-  <div style="background:linear-gradient(135deg,#1e3a5f,#1d4ed8);border-radius:16px;padding:32px 28px;margin-bottom:20px;color:#fff">
-    <div style="font-size:28px;margin-bottom:8px">🏠 ABC Leilões</div>
-    <div style="font-size:16px;opacity:.85">Relatório diário — {hoje}</div>
-    <div style="margin-top:16px;background:rgba(255,255,255,.12);border-radius:10px;padding:12px 16px;font-size:13px">
-      Filtros ativos: Apartamentos · {formatar_reais(filtros['lance_min'])} – {formatar_reais(filtros['lance_max'])} · ABC + São Caetano
-    </div>
-  </div>
-
-  <!-- Resumo -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px">
-    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;text-align:center">
-      <div style="font-size:24px;font-weight:700;color:#1d4ed8">{len(imoveis_reais)}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:4px">Imóveis encontrados</div>
-    </div>
-    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;text-align:center">
-      <div style="font-size:24px;font-weight:700;color:#10b981">{len(fontes_unicas) + (1 if imoveis_reais else 0)}</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:4px">Plataformas verificadas</div>
-    </div>
-    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;text-align:center">
-      <div style="font-size:24px;font-weight:700;color:#f59e0b">{max((i['desagio'] for i in imoveis_reais), default=0)}%</div>
-      <div style="font-size:12px;color:#6b7280;margin-top:4px">Maior deságio</div>
-    </div>
-  </div>
-
-  <!-- Tabela de imóveis -->
-  {"" if not imoveis_reais else f'''
-  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:20px;overflow:hidden">
-    <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb">
-      <strong>📋 Apartamentos na faixa de preço</strong>
-    </div>
-    <div style="overflow-x:auto">
-    <table style="width:100%;border-collapse:collapse">
-      <thead>
-        <tr style="background:#f9fafb">
-          <th style="padding:10px 10px;text-align:left;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">Imóvel</th>
-          <th style="padding:10px 10px;text-align:center;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">Lance</th>
-          <th style="padding:10px 10px;text-align:center;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">Deságio</th>
-          <th style="padding:10px 10px;text-align:center;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">Situação</th>
-          <th style="padding:10px 10px;text-align:center;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">Data</th>
-          <th style="padding:10px 10px;text-align:center;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">Link</th>
-        </tr>
-      </thead>
-      <tbody>{rows_imoveis}</tbody>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {{ font-family: Arial, sans-serif; background:#f6f7fb; color:#172033; }}
+    .box {{ max-width: 760px; margin: 0 auto; background:#fff; padding:24px; border-radius:12px; }}
+    table {{ width:100%; border-collapse: collapse; margin-top:16px; }}
+    th, td {{ border-bottom:1px solid #e5e7eb; padding:10px; text-align:left; }}
+    th {{ background:#f9fafb; font-size:12px; text-transform:uppercase; color:#6b7280; }}
+    a {{ color:#1d4ed8; }}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>ABC Leiloes - {hoje}</h1>
+    <p>Filtros: apartamentos de {formatar_reais(filtros['lance_min'])} a {formatar_reais(filtros['lance_max'])}.</p>
+    <p><strong>Resumo:</strong> {len(imoveis_reais)} imoveis com preco confirmado, {novos} novo(s), {len(imoveis_alerta)} dentro do filtro de alerta e {len(links_busca)} links de conferencia.</p>
+    <p><strong>Dica do dia:</strong> {dica_do_dia(imoveis_reais)}</p>
+    <table>
+      <thead><tr><th>Imovel</th><th>Lance</th><th>Desagio</th><th>Score</th><th>Data</th><th>Link</th></tr></thead>
+      <tbody>{corpo}</tbody>
     </table>
-    </div>
-  </div>'''}
-
-  <!-- Links de busca -->
-  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px">
-    <div style="font-weight:600;margin-bottom:12px">🔎 Buscar agora nas plataformas</div>
-    <div style="font-size:13px;color:#6b7280;margin-bottom:12px">Clique nos links abaixo para ver todos os apartamentos disponíveis hoje com os seus filtros:</div>
-    {links_html}
-  </div>
-
-  <!-- Checklist rápido -->
-  <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:12px;padding:20px;margin-bottom:20px">
-    <div style="font-weight:600;color:#92400e;margin-bottom:10px">📋 Antes de dar um lance — cheque isso:</div>
-    <ul style="margin:0;padding-left:18px;color:#78350f;font-size:13px;line-height:2">
-      <li>Leia o <strong>edital completo</strong> no site do leiloeiro</li>
-      <li>Verifique <strong>IPTU atrasado</strong> no portal da prefeitura</li>
-      <li>Ligue para o síndico/administradora para saber o <strong>débito de condomínio</strong></li>
-      <li>Consulte a <strong>matrícula do imóvel</strong> no Cartório de Registro de Imóveis</li>
-      <li>Verifique se o imóvel está <strong>ocupado</strong> e qual o prazo de desocupação</li>
-      <li>Defina seu <strong>lance máximo</strong> antes do leilão e não passe dele</li>
+    <h2>Conferencia manual recomendada</h2>
+    <ul>{"".join(links)}</ul>
+    <h2>Guia rapido</h2>
+    <ul>
+      <li><strong>Venda direta:</strong> preco mais previsivel, mas ainda depende de edital e debitos.</li>
+      <li><strong>Venda online:</strong> disputa pela internet; confirme cadastro, caucao e horario final.</li>
+      <li><strong>Licitacao aberta:</strong> proposta formal conforme criterio do edital.</li>
+      <li><strong>2a praca:</strong> pode ter desconto maior, mas merece verificacao redobrada.</li>
     </ul>
+    <p><strong>Checklist:</strong> leia o edital, consulte IPTU, confirme condominio, matricula, ocupacao e custo total.</p>
   </div>
-
-  <!-- Footer -->
-  <div style="text-align:center;color:#9ca3af;font-size:12px;padding:16px">
-    Monitoramento automático pessoal · ABC Leilões<br>
-    Este e-mail é para uso pessoal e não constitui assessoria jurídica ou financeira.
-  </div>
-
-</div>
 </body>
 </html>"""
-    return html
 
 
-def enviar_email(imoveis, config, filtros):
-    """Envia e-mail HTML via Gmail SMTP"""
+def enviar_email(imoveis: list[dict[str, Any]], config: dict[str, Any], filtros: dict[str, Any]) -> None:
     if not config["email"]["ativo"]:
-        log.info("E-mail desativado nas configurações.")
+        log.info("E-mail desativado.")
         return
 
     remetente = config["email"]["remetente"]
     senha = config["email"]["senha_app"]
     destinatario = config["email"]["destinatario"]
-
-    if "gmail.com" not in remetente or len(senha) < 10:
-        log.warning("Configure EMAIL_REMETENTE e EMAIL_SENHA nas variáveis de ambiente!")
+    if remetente == "seuemail@gmail.com" or len(senha.replace(" ", "")) < 16:
+        log.warning("Configure EMAIL_REMETENTE e EMAIL_SENHA no .env ou GitHub Secrets.")
         return
 
     try:
@@ -589,81 +756,58 @@ def enviar_email(imoveis, config, filtros):
         msg["Subject"] = config["email"]["assunto"]
         msg["From"] = remetente
         msg["To"] = destinatario
-
-        html_content = gerar_html_email(imoveis, filtros)
-        msg.attach(MIMEText(html_content, "html", "utf-8"))
+        msg.attach(MIMEText(gerar_html_email(imoveis, filtros, config), "html", "utf-8"))
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(remetente, senha)
             server.sendmail(remetente, destinatario, msg.as_string())
-
-        log.info("✅ E-mail enviado com sucesso!")
-    except Exception as e:
-        log.error(f"Erro ao enviar e-mail: {e}")
-
-
-# ══════════════════════════════════════════════════════════
-#  SALVAR LOG LOCAL
-# ══════════════════════════════════════════════════════════
-
-def salvar_log(imoveis):
-    """Salva os imóveis encontrados em JSON para histórico"""
-    hoje = date.today().isoformat()
-    arquivo = f"historico_{hoje}.json"
-    with open(arquivo, "w", encoding="utf-8") as f:
-        json.dump(imoveis, f, ensure_ascii=False, indent=2, default=str)
-    log.info(f"Log salvo em {arquivo}")
+        log.info("E-mail enviado.")
+    except Exception as exc:
+        log.error("Erro ao enviar e-mail: %s", exc)
 
 
-# ══════════════════════════════════════════════════════════
-#  MAIN — Orquestração principal
-# ══════════════════════════════════════════════════════════
+def salvar_log(imoveis: list[dict[str, Any]]) -> Path:
+    arquivo = BASE_DIR / f"historico_{date.today().isoformat()}.json"
+    arquivo.write_text(json.dumps(imoveis, ensure_ascii=False, indent=2), encoding="utf-8")
+    log.info("Historico salvo em %s", arquivo.name)
+    return arquivo
 
-def main():
+
+def coletar_imoveis(filtros: dict[str, Any]) -> list[dict[str, Any]]:
+    imoveis = buscar_caixa(filtros)
+    links = buscar_links_consulta(filtros)
+    return imoveis + links
+
+
+def main() -> None:
     log.info("=" * 55)
-    log.info("  ABC LEILÃO MONITOR — Iniciando busca")
+    log.info("ABC Leilao Monitor - iniciando")
     log.info("=" * 55)
 
     filtros = CONFIG["filtros"]
-    todos_imoveis = []
+    todos_imoveis = coletar_imoveis(filtros)
+    resumo_historico = anotar_historico(todos_imoveis)
+    imoveis_reais = [i for i in todos_imoveis if i.get("lance", 0) > 0]
+    links = [i for i in todos_imoveis if i.get("lance", 0) == 0]
 
-    # Busca em cada plataforma
-    log.info("Buscando na Caixa Econômica Federal...")
-    todos_imoveis += buscar_caixa(filtros)
+    log.info(
+        "Total: %s item(ns), %s com preco confirmado, %s novo(s), %s links de conferencia",
+        len(todos_imoveis),
+        len(imoveis_reais),
+        resumo_historico["novos"],
+        len(links),
+    )
 
-    log.info("Buscando na Sold...")
-    todos_imoveis += buscar_sold(filtros)
-
-    log.info("Buscando na Zuk...")
-    todos_imoveis += buscar_zuk(filtros)
-
-    log.info("Buscando na Superbid...")
-    todos_imoveis += buscar_superbid(filtros)
-
-    log.info("Buscando no Banco do Brasil...")
-    todos_imoveis += buscar_banco_brasil(filtros)
-
-    imoveis_reais = [i for i in todos_imoveis if i["lance"] > 0]
-    log.info(f"Total: {len(todos_imoveis)} resultados · {len(imoveis_reais)} com preço confirmado")
-
-    # Salvar histórico local
     salvar_log(todos_imoveis)
 
-    # Salvar dados.json para o site GitHub Pages
-    try:
-        from salvar_json import salvar_dados_json
-        salvar_dados_json(todos_imoveis)
-    except Exception as e:
-        log.warning(f"Erro ao salvar dados.json: {e}")
+    from salvar_json import salvar_dados_json
 
-    # Enviar alertas
+    salvar_dados_json(todos_imoveis, filtros=filtros)
     enviar_whatsapp(todos_imoveis, CONFIG)
-    time.sleep(3)
+    time.sleep(1)
     enviar_email(todos_imoveis, CONFIG, filtros)
 
-    log.info("=" * 55)
-    log.info("  Monitoramento concluído!")
-    log.info("=" * 55)
+    log.info("Monitoramento concluido.")
 
 
 if __name__ == "__main__":
