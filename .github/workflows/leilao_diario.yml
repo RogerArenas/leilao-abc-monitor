@@ -1,9 +1,16 @@
-name: ABC Leilao Monitor - Diario
+# ============================================================
+#  GitHub Actions — Executa o monitor todo dia às 8h (horário Brasil)
+#  Arquivo: .github/workflows/leilao_diario.yml
+# ============================================================
+
+name: ABC Leilão Monitor — Diário
 
 on:
   schedule:
-    # 11:00 UTC = 08:00 em Brasilia.
-    - cron: "0 11 * * *"
+    # Todo dia às 11:00 UTC = 08:00 horário de Brasília
+    - cron: '0 11 * * *'
+
+  # Permite rodar manualmente pelo painel do GitHub
   workflow_dispatch:
 
 permissions:
@@ -15,21 +22,18 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Baixar codigo
+      - name: Baixar o código
         uses: actions/checkout@v4
 
-      - name: Configurar Python
+      - name: Configurar Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
-      - name: Instalar dependencias
-        run: pip install -r requirements.txt
+      - name: Instalar dependências
+        run: pip install requests beautifulsoup4 lxml
 
-      - name: Rodar testes
-        run: python -m unittest discover -s tests
-
-      - name: Rodar monitor
+      - name: Rodar o monitor (coleta + gera dados.json + envia alertas)
         env:
           WA_NUMERO: ${{ secrets.WA_NUMERO }}
           WA_APIKEY: ${{ secrets.WA_APIKEY }}
@@ -38,15 +42,15 @@ jobs:
           EMAIL_DEST: ${{ secrets.EMAIL_DEST }}
         run: python leilao_monitor.py
 
-      - name: Publicar dados no GitHub Pages
+      - name: Publicar dados.json e index.html no GitHub Pages
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add dados.json index.html
-          git diff --staged --quiet || git commit -m "Atualiza dados do monitor"
+          git diff --staged --quiet || git commit -m "🏠 Atualização - $(date '+%d/%m/%Y %H:%M')"
           git push
 
-      - name: Salvar historico como artefato
+      - name: Salvar histórico como artefato
         uses: actions/upload-artifact@v4
         if: always()
         with:

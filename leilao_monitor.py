@@ -355,7 +355,122 @@ def montar_link_consulta(fonte: FonteBusca) -> dict[str, Any]:
     }
 
 
+def buscar_caixa_csv(filtros: dict[str, Any]) -> list[dict[str, Any]]:
+    """
+    Usa o endpoint CSV público da Caixa — sem JS, sem scraping frágil.
+    URL: https://venda.caixa.gov.br/Downloads/imovel_download.asp
+    Retorna CSV com todos os imóveis disponíveis em SP.
+    """
+    import io
+    import csv
+
+    URL_CSV = "https://venda.caixa.gov.br/Downloads/imovel_download.asp"
+    HEADERS = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Referer": "https://venda.caixa.gov.br/imoveis",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    }
+
+    cidades_busca = {normalizar_cidade(c).lower() for c in filtros["cidades"]}
+    imoveis: list[dict[str, Any]] = []
+    vistos: set[str] = set()
+
+    try:
+        log.info("[Caixa CSV] Baixando arquivo CSV oficial...")
+        if HAS_REQUESTS:
+            resp = requests.get(URL_CSV, headers=HEADERS, timeout=30)
+            resp.encoding = "latin-1"
+            conteudo = resp.text
+        else:
+            req = urllib.request.Request(URL_CSV, headers=HEADERS)
+            with urllib.request.urlopen(req, timeout=30) as r:
+                conteudo = r.read().decode("latin-1", errors="ignore")
+
+        leitor = csv.DictReader(
+            io.StringIO(conteudo),
+            delimiter=";",
+        )
+
+        for row in leitor:
+            # Normalizar chaves (CSV da Caixa tem cabeçalhos variados)
+            row = {k.strip().lower().replace(" ", "_"): (v or "").strip() for k, v in row.items()}
+
+            # Filtrar por estado SP
+            uf = row.get("uf", row.get("estado", "")).upper()
+            if uf and uf != "SP":
+                continue
+
+            # Cidade
+            cidade_csv = row.get("cidade", row.get("municipio", "")).strip()
+            cidade_norm = normalizar_cidade(cidade_csv)
+            if cidades_busca and cidade_norm.lower() not in cidades_busca:
+                continue
+
+            # Tipo — apartamento
+            tipo_csv = row.get("tipo", row.get("tipo_imovel", "")).lower()
+            if "apto" not in tipo_csv and "apartamento" not in tipo_csv:
+                continue
+
+            # Lance / valor
+            lance_txt = (
+                row.get("valor_avaliacao", "")
+                or row.get("preco_avaliacao", "")
+                or row.get("valor_minimo", "")
+                or row.get("lance_minimo", "")
+                or ""
+            )
+            lance = extrair_numero(lance_txt)
+            if not esta_na_faixa(lance, filtros):
+                continue
+
+            avaliado_txt = row.get("valor_avaliacao", row.get("avaliacao", ""))
+            avaliado = extrair_numero(avaliado_txt) or (lance * 1.3 if lance else 0)
+
+            # Endereço
+            bairro = row.get("bairro", "")
+            endereco = row.get("endereco", row.get("logradouro", ""))
+
+            # Link do edital
+            matricula = row.get("matricula", row.get("num_imovel", ""))
+            url_edital = (
+                f"https://venda.caixa.gov.br/imoveis/{matricula}"
+                if matricula
+                else f"https://venda.caixa.gov.br/imoveis?estado=SP&cidade={urllib.parse.quote(cidade_norm)}&tipo=2"
+            )
+
+            # Deduplicar
+            chave = matricula or f"{cidade_norm}|{lance}|{bairro}"
+            if chave in vistos:
+                continue
+            vistos.add(chave)
+
+            area_txt = row.get("area_total", row.get("area_privativa", row.get("area", "")))
+            quartos_txt = row.get("quartos", row.get("dormitorios", ""))
+
+            imoveis.append(montar_imovel(
+                titulo=f"Apto {cidade_para_interface(cidade_norm)}" + (f" — {bairro}" if bairro else ""),
+                cidade=cidade_para_interface(cidade_norm),
+                lance=lance or 0,
+                avaliado=avaliado,
+                fonte="Caixa",
+                url=url_edital,
+                area=extrair_area(area_txt) if area_txt else 0,
+                quartos=extrair_quartos(quartos_txt) if quartos_txt else 0,
+                bairro=bairro,
+                matricula=matricula,
+                ocupado=None,
+            ))
+
+        log.info("[Caixa CSV] %d imóveis encontrados na faixa e cidades", len(imoveis))
+
+    except Exception as exc:
+        log.warning("[Caixa CSV] Falha no CSV: %s — usando links de consulta", exc)
+
+    return imoveis
+
+
 def parse_caixa_cards(html: str, cidade: str, filtros: dict[str, Any], url_base: str) -> list[dict[str, Any]]:
+    """Fallback HTML — mantido caso CSV falhe."""
     if not HAS_BS4:
         return []
 
@@ -404,20 +519,26 @@ def parse_caixa_cards(html: str, cidade: str, filtros: dict[str, Any], url_base:
 
 
 def buscar_caixa(filtros: dict[str, Any]) -> list[dict[str, Any]]:
-    imoveis: list[dict[str, Any]] = []
+    """Tenta CSV oficial primeiro; cai no parser HTML se falhar."""
+    imoveis = buscar_caixa_csv(filtros)
+    if imoveis:
+        return imoveis
+    # Fallback: parser HTML cidade por cidade
+    log.info("[Caixa] CSV vazio ou falhou — tentando HTML por cidade")
+    resultado: list[dict[str, Any]] = []
     for cidade in filtros["cidades"]:
         cidade_norm = normalizar_cidade(cidade)
         url = montar_url_caixa(cidade_norm, filtros)
         try:
-            log.info("[Caixa] Buscando em %s", cidade_para_interface(cidade_norm))
+            log.info("[Caixa HTML] Buscando em %s", cidade_para_interface(cidade_norm))
             html = http_get(url)
             encontrados = parse_caixa_cards(html, cidade_norm, filtros, url)
-            log.info("[Caixa] %s item(ns) com preco confirmado", len(encontrados))
-            imoveis.extend(encontrados)
+            log.info("[Caixa HTML] %s item(ns)", len(encontrados))
+            resultado.extend(encontrados)
             time.sleep(1)
         except Exception as exc:
-            log.warning("[Caixa] Falha em %s: %s", cidade_para_interface(cidade_norm), exc)
-    return imoveis
+            log.warning("[Caixa HTML] Falha em %s: %s", cidade_para_interface(cidade_norm), exc)
+    return resultado
 
 
 def buscar_links_consulta(filtros: dict[str, Any]) -> list[dict[str, Any]]:
