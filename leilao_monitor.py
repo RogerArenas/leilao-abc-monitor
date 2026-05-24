@@ -110,13 +110,34 @@ class FonteBusca:
 
 
 def normalizar_cidade(cidade: str) -> str:
+    """Normaliza nomes de cidade removendo acentos e padronizando maiúsculas."""
+    import unicodedata
+    cidade_stripped = cidade.strip()
+    # Mapa direto (com e sem acentos)
     mapa = {
         "Santo André": "Santo Andre",
+        "Santo Andre": "Santo Andre",
         "São Bernardo do Campo": "Sao Bernardo do Campo",
+        "Sao Bernardo do Campo": "Sao Bernardo do Campo",
+        "SAO BERNARDO DO CAMPO": "Sao Bernardo do Campo",
+        "SANTO ANDRE": "Santo Andre",
         "Mauá": "Maua",
+        "Maua": "Maua",
+        "MAUA": "Maua",
         "São Caetano do Sul": "Sao Caetano do Sul",
+        "Sao Caetano do Sul": "Sao Caetano do Sul",
+        "SAO CAETANO DO SUL": "Sao Caetano do Sul",
     }
-    return mapa.get(cidade, cidade)
+    if cidade_stripped in mapa:
+        return mapa[cidade_stripped]
+    # Fallback: remover acentos e comparar case-insensitive
+    def sem_acento(s: str) -> str:
+        return unicodedata.normalize("NFD", s).encode("ascii", "ignore").decode("ascii")
+    cidade_norm = sem_acento(cidade_stripped).upper()
+    for k, v in mapa.items():
+        if sem_acento(k).upper() == cidade_norm:
+            return v
+    return cidade_stripped
 
 
 def cidade_para_interface(cidade: str) -> str:
@@ -391,9 +412,16 @@ def buscar_caixa_csv(filtros: dict[str, Any]) -> list[dict[str, Any]]:
             delimiter=";",
         )
 
+        # Logar cabeçalhos na primeira leitura para facilitar debug
+        cabecalhos_logados = False
+
         for row in leitor:
             # Normalizar chaves (CSV da Caixa tem cabeçalhos variados)
             row = {k.strip().lower().replace(" ", "_"): (v or "").strip() for k, v in row.items()}
+
+            if not cabecalhos_logados:
+                log.info("[Caixa CSV] Cabeçalhos encontrados: %s", list(row.keys()))
+                cabecalhos_logados = True
 
             # Filtrar por estado SP
             uf = row.get("uf", row.get("estado", "")).upper()
@@ -411,20 +439,29 @@ def buscar_caixa_csv(filtros: dict[str, Any]) -> list[dict[str, Any]]:
             if "apto" not in tipo_csv and "apartamento" not in tipo_csv:
                 continue
 
-            # Lance / valor
+            # Lance / valor — prioridade: lance_minimo > valor_minimo > preco_minimo > valor_avaliacao
+            # O CSV da Caixa usa "valor_minimo" ou "preco_minimo" como o lance de entrada,
+            # e "valor_avaliacao" como o valor de mercado avaliado. NÃO invertir essa ordem.
             lance_txt = (
-                row.get("valor_avaliacao", "")
-                or row.get("preco_avaliacao", "")
+                row.get("lance_minimo", "")
                 or row.get("valor_minimo", "")
-                or row.get("lance_minimo", "")
+                or row.get("preco_minimo", "")
+                or row.get("valor_1_praca", "")
+                or row.get("valor_2_praca", "")
                 or ""
             )
             lance = extrair_numero(lance_txt)
             if not esta_na_faixa(lance, filtros):
                 continue
 
-            avaliado_txt = row.get("valor_avaliacao", row.get("avaliacao", ""))
-            avaliado = extrair_numero(avaliado_txt) or (lance * 1.3 if lance else 0)
+            # Valor avaliado — buscar campo específico de avaliação
+            avaliado_txt = (
+                row.get("valor_avaliacao", "")
+                or row.get("preco_avaliacao", "")
+                or row.get("avaliacao", "")
+                or ""
+            )
+            avaliado = extrair_numero(avaliado_txt) or (lance * 1.35 if lance else 0)
 
             # Endereço
             bairro = row.get("bairro", "")
@@ -445,7 +482,13 @@ def buscar_caixa_csv(filtros: dict[str, Any]) -> list[dict[str, Any]]:
             vistos.add(chave)
 
             area_txt = row.get("area_total", row.get("area_privativa", row.get("area", "")))
-            quartos_txt = row.get("quartos", row.get("dormitorios", ""))
+            quartos_txt = row.get("quartos", row.get("dormitorios", row.get("dorms", "")))
+            quartos_int = extrair_quartos(quartos_txt) if quartos_txt else 0
+
+            # Filtrar por quartos mínimos se configurado
+            quartos_min = filtros.get("quartos_min", 0)
+            if quartos_min and quartos_int and quartos_int < quartos_min:
+                continue
 
             imoveis.append(montar_imovel(
                 titulo=f"Apto {cidade_para_interface(cidade_norm)}" + (f" — {bairro}" if bairro else ""),
@@ -455,7 +498,7 @@ def buscar_caixa_csv(filtros: dict[str, Any]) -> list[dict[str, Any]]:
                 fonte="Caixa",
                 url=url_edital,
                 area=extrair_area(area_txt) if area_txt else 0,
-                quartos=extrair_quartos(quartos_txt) if quartos_txt else 0,
+                quartos=quartos_int,
                 bairro=bairro,
                 matricula=matricula,
                 ocupado=None,

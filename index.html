@@ -3,495 +3,669 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0c1322">
-<meta name="description" content="Monitor pessoal de apartamentos em leilão no ABC">
+<meta name="theme-color" content="#1a2744">
+<meta name="description" content="Monitor pessoal de apartamentos em leilão no ABC Paulista">
 <link rel="manifest" href="manifest.json">
 <title>ABC Leilões — Monitor Pessoal</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --ink:#0c1322;--ink2:#111a2e;--ink3:#172038;--ink4:#1e2a45;
-  --wire:rgba(255,255,255,.07);--wire2:rgba(255,255,255,.13);
-  --paper:#e6ecf8;--dim:#8896b8;
-  --lime:#b8f564;--lime2:#d4ff80;
-  --red:#ff5c5c;--amber:#ffb547;--sky:#5ba4ff;
-  --r:10px;
-  --fh:'Syne',sans-serif;--fb:'Lato',sans-serif;--fm:'DM Mono',monospace;
+  --bg:#f0f2f7;--surface:#ffffff;--surface2:#f8f9fc;--border:#e2e6ef;--border2:#d0d6e4;
+  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --primary:#1a2744;--primary-light:#253660;
+  --accent:#f97316;--accent2:#fb923c;
+  --green:#16a34a;--green-bg:#dcfce7;--green-border:#bbf7d0;
+  --amber:#d97706;--amber-bg:#fef3c7;--amber-border:#fde68a;
+  --red:#dc2626;--red-bg:#fee2e2;--red-border:#fecaca;
+  --blue:#2563eb;--blue-bg:#dbeafe;--blue-border:#bfdbfe;
+  --r:12px;--r2:8px;--r3:6px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 12px rgba(0,0,0,.10),0 2px 4px rgba(0,0,0,.06);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.08);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--ink);color:var(--paper);font-family:var(--fb);min-height:100vh;overflow-x:hidden}
-/* HEADER */
-header{position:sticky;top:0;z-index:100;background:rgba(12,19,34,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--wire);padding:.85rem 2rem;display:flex;align-items:center;justify-content:space-between}
-.logo{font-family:var(--fh);font-size:16px;font-weight:800;color:var(--lime);display:flex;align-items:center;gap:10px}
-.ldot{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 10px var(--lime);animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.hright{display:flex;align-items:center;gap:8px}
-.pill{font-family:var(--fm);font-size:11px;padding:4px 12px;border-radius:20px;font-weight:500}
-.pl{background:rgba(184,245,100,.12);color:var(--lime);border:1px solid rgba(184,245,100,.25)}
-.pd{background:var(--ink3);color:var(--dim);border:1px solid var(--wire)}
-.bico{background:var(--ink3);border:1px solid var(--wire);border-radius:8px;padding:6px 14px;font-family:var(--fm);font-size:12px;color:var(--dim);cursor:pointer;transition:all .2s}
-.bico:hover{border-color:var(--lime);color:var(--lime)}
-/* TABS */
-.tabs-nav{display:flex;background:var(--ink2);border-bottom:1px solid var(--wire);padding:0 2rem;overflow-x:auto}
-.tb{font-family:var(--fh);font-size:13px;font-weight:600;padding:14px 20px;background:none;border:none;border-bottom:2px solid transparent;color:var(--dim);cursor:pointer;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:7px}
-.tb.active{color:var(--lime);border-bottom-color:var(--lime)}
-.tb:hover{color:var(--paper)}
-.tbadge{background:var(--ink3);color:var(--dim);border-radius:10px;padding:1px 7px;font-size:10px;font-family:var(--fm)}
-.tbadge.on{background:rgba(184,245,100,.15);color:var(--lime)}
-/* SECTIONS */
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--primary);color:#fff;padding:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:11px;border-bottom:2px solid var(--accent)}
+.topbar-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.topbar-left{display:flex;align-items:center;gap:1.25rem;color:rgba(255,255,255,.7)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;display:inline-block;margin-right:5px;animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.topbar-right{display:flex;align-items:center;gap:.75rem}
+.tbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:4px 12px;color:rgba(255,255,255,.85);font-size:11px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s}
+.tbtn:hover{background:rgba(255,255,255,.18);color:#fff}
+
+/* ── HEADER ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 0;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.header-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:40px;height:40px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.logo-text{font-size:18px;font-weight:800;color:var(--primary);line-height:1.1}
+.logo-sub{font-size:11px;font-weight:500;color:var(--text3);font-family:'JetBrains Mono',monospace;display:block}
+.header-pills{display:flex;align-items:center;gap:.5rem}
+.pill{font-size:11px;font-family:'JetBrains Mono',monospace;padding:4px 10px;border-radius:20px;font-weight:500;white-space:nowrap}
+.pill-live{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.pill-demo{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+.pill-info{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+
+/* ── NAV TABS ── */
+.nav{background:var(--surface);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex;overflow-x:auto;gap:0}
+.ntab{display:flex;align-items:center;gap:7px;padding:13px 18px;font-size:13px;font-weight:600;color:var(--text2);background:none;border:none;border-bottom:2.5px solid transparent;cursor:pointer;white-space:nowrap;transition:all .18s;position:relative}
+.ntab:hover{color:var(--text)}
+.ntab.active{color:var(--primary);border-bottom-color:var(--accent)}
+.nbadge{background:var(--border);color:var(--text3);border-radius:20px;padding:1px 7px;font-size:10px;font-family:'JetBrains Mono',monospace;transition:all .2s}
+.nbadge.on{background:var(--accent);color:#fff}
+
+/* ── SECTIONS ── */
 .sec{display:none}.sec.active{display:block}
-.cnt{max-width:1340px;margin:0 auto;padding:2rem}
-/* STATS */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:2rem}
-.stat{background:var(--ink2);border:1px solid var(--wire);border-radius:var(--r);padding:1.25rem 1.5rem;position:relative;overflow:hidden}
-.stat::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--lime);opacity:.5}
-.stat.red::after{background:var(--red)}.stat.sky::after{background:var(--sky)}.stat.amb::after{background:var(--amber)}
-.slb{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-family:var(--fm)}
-.svl{font-family:var(--fh);font-size:20px;font-weight:700;line-height:1.2}
-.ssb{font-size:11px;color:var(--dim);margin-top:4px;font-family:var(--fm)}
-/* SEARCH BAR */
-.sb{background:var(--ink2);border:1px solid var(--wire);border-radius:var(--r);padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.page{max-width:1400px;margin:0 auto;padding:1.75rem 1.5rem}
+
+/* ── HERO SEARCH ── */
+.hero{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);padding:2.5rem 0;margin-bottom:0}
+.hero-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem}
+.hero-title{font-size:26px;font-weight:800;color:#fff;margin-bottom:6px}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.65);font-family:'JetBrains Mono',monospace;margin-bottom:1.75rem}
+.search-box{background:#fff;border-radius:var(--r);padding:1.25rem 1.5rem;display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr auto;gap:12px;align-items:end;box-shadow:var(--shadow-lg)}
 .sf{display:flex;flex-direction:column;gap:5px}
-.sf label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-family:var(--fm)}
-.sf select,.sf input{background:var(--ink3);border:1px solid var(--wire2);border-radius:8px;color:var(--paper);padding:8px 12px;font-family:var(--fm);font-size:12px;outline:none;min-width:130px}
-.sf select:focus,.sf input:focus{border-color:var(--lime)}
-.bbuscar{background:var(--lime);color:var(--ink);border:none;border-radius:8px;padding:8px 22px;font-family:var(--fh);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;align-self:flex-end}
-.bbuscar:hover{background:var(--lime2)}
-/* CHIPS */
-.chips{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
-.chip{background:var(--ink2);border:1px solid var(--wire);border-radius:20px;padding:5px 14px;font-size:11px;font-family:var(--fm);cursor:pointer;color:var(--dim);transition:all .15s}
-.chip.active{border-color:var(--lime);background:rgba(184,245,100,.1);color:var(--lime)}
-/* INFO BAR */
-.ibar{background:var(--ink2);border:1px solid var(--wire);border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:11px;font-family:var(--fm);color:var(--dim);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-/* GRID / CARDS */
-.rmeta{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
-.rmeta span{font-size:12px;color:var(--dim);font-family:var(--fm)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px}
-.card{background:var(--ink2);border:1px solid var(--wire);border-radius:var(--r);overflow:hidden;transition:all .22s;cursor:pointer;display:flex;flex-direction:column;animation:fu .35s ease both}
-@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.card:hover{border-color:var(--lime);transform:translateY(-3px);box-shadow:0 10px 30px rgba(184,245,100,.07)}
-.cstripe{height:3px;width:100%}
-.sv{background:var(--lime)}.sa{background:var(--amber)}.sr{background:var(--red)}
-.chead{padding:1rem 1.25rem;border-bottom:1px solid var(--wire)}
-.ctitle{font-family:var(--fh);font-weight:700;font-size:15px;margin-bottom:5px;line-height:1.35}
-.cloc{font-size:12px;color:var(--dim);font-family:var(--fm);margin-bottom:8px}
-.cchips{display:flex;gap:5px;flex-wrap:wrap}
-.cc{font-size:10px;padding:2px 8px;border-radius:6px;font-family:var(--fm);font-weight:500}
-.ccf{background:rgba(91,164,255,.12);color:var(--sky)}
-.ccp{background:rgba(255,181,71,.12);color:var(--amber)}
-.cco{background:rgba(184,245,100,.12);color:var(--lime)}
-.ccd{background:rgba(255,92,92,.12);color:var(--red)}
-.cbody{padding:1rem 1.25rem;flex:1}
-.dp{border-radius:8px;padding:.6rem .9rem;margin-bottom:.9rem;font-size:12px;font-family:var(--fm);line-height:1.5}
-.dpok{background:rgba(184,245,100,.08);border:1px solid rgba(184,245,100,.2);color:#a3d45e}
-.dpbad{background:rgba(255,92,92,.08);border:1px solid rgba(255,92,92,.2);color:#ff9898}
-.pbox{background:var(--ink3);border-radius:8px;padding:.9rem;border-left:3px solid var(--lime);margin-bottom:.9rem}
-.pr{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:6px}
-.pr:last-child{margin-bottom:0}
-.prl{color:var(--dim);font-family:var(--fm);font-size:11px}
-.prv{font-family:var(--fh);font-weight:700;font-size:15px;color:var(--lime)}
-.prav{color:var(--dim);text-decoration:line-through;font-size:12px;font-family:var(--fm)}
-.prd{font-family:var(--fh);font-weight:700;font-size:14px;color:var(--lime)}
-.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.mi{background:var(--ink3);border-radius:7px;padding:8px 10px}
-.mil{font-size:10px;color:var(--dim);font-family:var(--fm);display:block;margin-bottom:2px}
-.miv{font-size:13px;font-weight:500}
-.cfoot{padding:.9rem 1.25rem;border-top:1px solid var(--wire);display:flex;gap:8px;align-items:center}
-.bfav{background:var(--ink3);border:1px solid var(--wire);border-radius:7px;padding:7px 10px;font-size:14px;cursor:pointer;transition:all .15s;line-height:1}
-.bfav:hover,.bfav.favd{background:rgba(255,181,71,.1);border-color:var(--amber)}
-.bedital{flex:1;text-align:center;background:transparent;border:1px solid var(--lime);color:var(--lime);border-radius:7px;padding:7px;font-size:11px;font-weight:600;font-family:var(--fm);cursor:pointer;text-decoration:none;transition:all .15s}
-.bedital:hover{background:rgba(184,245,100,.08)}
-.banal{flex:1;background:var(--lime);color:var(--ink);border:none;border-radius:7px;padding:7px;font-size:11px;font-weight:700;font-family:var(--fh);cursor:pointer;transition:all .15s}
-.banal:hover{background:var(--lime2)}
-/* LOADING/EMPTY */
-.loading,.empty{text-align:center;padding:5rem 2rem;color:var(--dim)}
-.spinner{width:36px;height:36px;border:2px solid var(--wire2);border-top-color:var(--lime);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem}
+.sf label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:'JetBrains Mono',monospace}
+.sf select,.sf input{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r2);color:var(--text);padding:9px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:500;outline:none;transition:border-color .15s;width:100%}
+.sf select:focus,.sf input:focus{border-color:var(--primary)}
+.btn-search{background:var(--accent);color:#fff;border:none;border-radius:var(--r2);padding:10px 24px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-search:hover{background:var(--accent2);transform:translateY(-1px)}
+
+/* ── SOURCE CHIPS ── */
+.chips-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:.75rem 0}
+.chips-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;cursor:pointer;border:1.5px solid var(--border);color:var(--text2);background:var(--surface);transition:all .15s;font-family:'JetBrains Mono',monospace}
+.chip:hover{border-color:var(--primary);color:var(--primary)}
+.chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.chip-label{font-size:11px;color:var(--text3);font-weight:500;margin-right:4px}
+
+/* ── STATS BAR ── */
+.stats-bar{background:var(--surface);padding:1rem 0;border-bottom:1px solid var(--border)}
+.stats-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex;gap:0;align-items:stretch;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;padding:.25rem 1.75rem .25rem 0;margin-right:1.75rem;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:'JetBrains Mono',monospace;margin-bottom:3px}
+.stat-value{font-size:22px;font-weight:800;color:var(--text);line-height:1}
+.stat-value.green{color:var(--green)}
+.stat-value.amber{color:var(--amber)}
+.stat-value.red{color:var(--red)}
+.stat-sub{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+/* ── STATUS BAR ── */
+.status-bar{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:.65rem 1rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace;flex-wrap:wrap;gap:.5rem}
+.status-next{color:var(--blue);font-weight:500}
+
+/* ── RESULTS META ── */
+.results-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.results-count{font-size:13px;color:var(--text2);font-weight:500}
+
+/* ── CARD GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:14px}
+
+/* ── PROPERTY CARD ── */
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;transition:all .22s;cursor:pointer;display:flex;flex-direction:column;animation:slideUp .3s ease both}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card:hover{border-color:var(--primary);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+
+.card-top{padding:1rem 1.125rem .875rem}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem;gap:.5rem}
+.card-title{font-size:14px;font-weight:700;color:var(--text);line-height:1.35;flex:1}
+.card-source{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:500;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);border-radius:var(--r3);padding:2px 7px;white-space:nowrap;flex-shrink:0}
+.card-location{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:.75rem;display:flex;align-items:center;gap:4px}
+
+/* score stripe */
+.card-score{display:flex;align-items:center;gap:8px;margin-bottom:.875rem}
+.score-bar-wrap{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.score-bar{height:100%;border-radius:3px;transition:width .5s ease}
+.score-bar.good{background:var(--green)}
+.score-bar.med{background:var(--amber)}
+.score-bar.bad{background:var(--red)}
+.score-label{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:700;border-radius:var(--r3);padding:2px 7px}
+.score-label.good{background:var(--green-bg);color:var(--green)}
+.score-label.med{background:var(--amber-bg);color:var(--amber)}
+.score-label.bad{background:var(--red-bg);color:var(--red)}
+
+/* tags */
+.card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.875rem}
+.tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--r3);font-family:'JetBrains Mono',monospace;border:1px solid}
+.tag-new{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
+.tag-rec{background:var(--surface2);color:var(--text3);border-color:var(--border)}
+.tag-free{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.tag-occ{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.tag-unk{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.tag-praca{background:var(--surface2);color:var(--text2);border-color:var(--border)}
+
+/* debt alert */
+.debt-alert{background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--r2);padding:.5rem .75rem;font-size:11px;color:var(--red);font-family:'JetBrains Mono',monospace;margin-bottom:.875rem}
+.no-debt{background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--r2);padding:.5rem .75rem;font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace;margin-bottom:.875rem}
+
+/* price block */
+.price-block{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r2);padding:.875rem 1rem;margin-bottom:.75rem}
+.price-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem}
+.price-row:last-child{margin-bottom:0;padding-top:.5rem;border-top:1px solid var(--border);margin-top:.35rem}
+.price-key{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.price-old{font-size:12px;color:var(--text3);text-decoration:line-through;font-family:'JetBrains Mono',monospace}
+.price-main{font-size:20px;font-weight:800;color:var(--primary)}
+.price-discount{font-size:13px;font-weight:700;color:var(--green);background:var(--green-bg);border-radius:var(--r3);padding:2px 8px;font-family:'JetBrains Mono',monospace}
+
+/* meta grid */
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:.75rem}
+.meta-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:7px 10px}
+.meta-key{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:2px;font-weight:700}
+.meta-val{font-size:13px;font-weight:600;color:var(--text)}
+
+/* card actions */
+.card-actions{padding:.875rem 1.125rem;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--surface2)}
+.btn-fav{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r2);padding:8px 10px;font-size:15px;cursor:pointer;transition:all .15s;line-height:1;flex-shrink:0}
+.btn-fav:hover,.btn-fav.active{background:var(--amber-bg);border-color:var(--amber)}
+.btn-edital{flex:1;text-align:center;background:transparent;border:1.5px solid var(--primary);color:var(--primary);border-radius:var(--r2);padding:8px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;cursor:pointer;text-decoration:none;transition:all .15s;display:block}
+.btn-edital:hover{background:var(--primary);color:#fff}
+.btn-detail{flex:1;background:var(--primary);color:#fff;border:none;border-radius:var(--r2);padding:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-detail:hover{background:var(--primary-light)}
+
+/* ── EMPTY / LOADING ── */
+.empty{text-align:center;padding:5rem 2rem;color:var(--text3)}
+.empty-icon{font-size:52px;margin-bottom:1rem}
+.empty-title{font-size:16px;font-weight:700;color:var(--text2);margin-bottom:.5rem}
+.spinner{width:32px;height:32px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .65s linear infinite;margin:0 auto 1rem}
 @keyframes spin{to{transform:rotate(360deg)}}
-/* CALCULADORA */
-.cwrap{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.cpanel{background:var(--ink2);border:1px solid var(--wire);border-radius:var(--r);padding:1.75rem}
-.ctit{font-family:var(--fh);font-size:15px;font-weight:700;margin-bottom:1.25rem;color:var(--lime)}
-.cfield{margin-bottom:1rem}
-.cfield label{font-size:11px;color:var(--dim);font-family:var(--fm);text-transform:uppercase;display:block;margin-bottom:6px}
-.cfield input,.cfield select{width:100%;background:var(--ink3);border:1px solid var(--wire2);border-radius:8px;color:var(--paper);padding:10px 14px;font-family:var(--fm);font-size:13px;outline:none}
-.cfield input:focus,.cfield select:focus{border-color:var(--lime)}
-.crow{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--wire);font-size:13px;font-family:var(--fm)}
-.crow:last-child{border-bottom:none}
-.crow .cl{color:var(--dim)}.crow .cv{font-weight:500}
-.ctbox{background:rgba(184,245,100,.1);border:1px solid rgba(184,245,100,.25);border-radius:8px;padding:1rem;margin-top:1rem;text-align:center;display:none}
-.ctlb{font-size:11px;color:var(--lime);font-family:var(--fm);text-transform:uppercase;margin-bottom:6px}
-.ctvl{font-family:var(--fh);font-size:22px;font-weight:700;color:var(--lime)}
-.rbox{background:rgba(91,164,255,.1);border:1px solid rgba(91,164,255,.25);border-radius:8px;padding:1rem;margin-top:1rem;text-align:center;display:none}
-.rlb{font-size:11px;color:var(--sky);font-family:var(--fm);text-transform:uppercase;margin-bottom:6px}
-.rvl{font-family:var(--fh);font-size:22px;font-weight:700;color:var(--sky)}
-/* CADERNO */
-.cemp{text-align:center;padding:4rem 2rem;color:var(--dim)}
-.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
-.fcard{background:var(--ink2);border:1px solid var(--wire);border-radius:var(--r);padding:1.25rem}
-.fhead{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem}
-.ftit{font-family:var(--fh);font-weight:700;font-size:14px}
-.bdel{background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px}
-.bdel:hover{color:var(--red)}
-.fmeta{font-size:11px;color:var(--dim);font-family:var(--fm);margin-bottom:1rem}
-.fnota textarea{width:100%;background:var(--ink3);border:1px solid var(--wire2);border-radius:7px;color:var(--paper);padding:8px 10px;font-family:var(--fm);font-size:12px;resize:vertical;min-height:60px;outline:none}
-.fnota textarea:focus{border-color:var(--lime)}
-.fci{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--wire);font-size:12px;font-family:var(--fm);cursor:pointer}
-.fci:last-child{border-bottom:none}
-.fci input[type=checkbox]{width:14px;height:14px;accent-color:var(--lime);cursor:pointer}
-.fci.done{color:var(--dim);text-decoration:line-through}
-.sbdg{display:inline-block;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;font-family:var(--fm)}
-.sbv{background:rgba(184,245,100,.15);color:var(--lime)}
-.sba{background:rgba(255,181,71,.15);color:var(--amber)}
-.sbr{background:rgba(255,92,92,.15);color:var(--red)}
-/* LINKS */
-.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-.lcard{background:var(--ink2);border:1px solid var(--wire);border-radius:var(--r);padding:1.25rem 1.5rem;transition:all .2s}
-.lcard:hover{border-color:var(--lime)}
-.lctt{font-family:var(--fh);font-weight:700;font-size:14px;margin-bottom:6px}
-.lcds{font-size:12px;color:var(--dim);font-family:var(--fm);margin-bottom:14px;line-height:1.6}
-.lcbt{display:flex;flex-direction:column;gap:7px}
-.lbtn{display:block;text-align:center;background:var(--ink3);border:1px solid var(--wire2);border-radius:7px;padding:8px 14px;font-size:11px;font-family:var(--fm);font-weight:500;color:var(--paper);text-decoration:none;transition:all .15s}
-.lbtn:hover{border-color:var(--lime);color:var(--lime)}
-.lbtn.pri{background:var(--lime);color:var(--ink);border-color:var(--lime);font-weight:700}
-.lbtn.pri:hover{background:var(--lime2)}
-/* GUIA */
-.guide-hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-bottom:1.5rem}
-.guide-panel{background:var(--ink2);border:1px solid var(--wire);border-radius:var(--r);padding:1.5rem}
-.guide-title{font-family:var(--fh);font-size:22px;font-weight:800;margin-bottom:8px;color:var(--lime)}
-.guide-sub{font-size:13px;color:var(--dim);font-family:var(--fm);line-height:1.7}
-.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:1rem}
-.flow-step{background:var(--ink3);border:1px solid var(--wire);border-radius:8px;padding:1rem}
-.flow-step strong{display:block;font-family:var(--fh);font-size:14px;margin-bottom:6px}
-.flow-step span{display:block;font-size:12px;color:var(--dim);font-family:var(--fm);line-height:1.5}
-.mode-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:1.5rem}
-.mode-card{background:var(--ink2);border:1px solid var(--wire);border-radius:var(--r);padding:1.25rem;position:relative;overflow:hidden}
-.mode-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--sky)}
-.mode-card.good::before{background:var(--lime)}.mode-card.warn::before{background:var(--amber)}.mode-card.risk::before{background:var(--red)}
-.mode-name{font-family:var(--fh);font-weight:800;font-size:15px;margin-bottom:8px}
-.mode-desc{font-size:12px;color:var(--dim);font-family:var(--fm);line-height:1.7;margin-bottom:12px}
-.mode-tags{display:flex;gap:6px;flex-wrap:wrap}
-.mode-tag{font-size:10px;font-family:var(--fm);border-radius:6px;padding:3px 8px;background:var(--ink3);color:var(--dim);border:1px solid var(--wire)}
-.dict-grid{columns:2 320px;column-gap:16px}
-.dict-item{break-inside:avoid;background:var(--ink2);border:1px solid var(--wire);border-radius:8px;padding:1rem;margin-bottom:12px}
-.dict-item strong{font-family:var(--fh);font-size:13px;color:var(--paper)}
-.dict-item p{font-size:12px;color:var(--dim);font-family:var(--fm);line-height:1.6;margin-top:6px}
-.risk-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
-.risk-item{background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.22);border-radius:8px;padding:1rem;font-size:12px;font-family:var(--fm);line-height:1.6;color:#fcd34d}
-.score-note{background:var(--ink3);border:1px solid var(--wire);border-radius:8px;padding:.65rem .85rem;margin-top:.8rem;font-size:11px;color:var(--dim);font-family:var(--fm);line-height:1.5}
-/* MODAL */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+
+/* ── LINKS CONSULTA ── */
+.links-grid-small{display:flex;flex-direction:column;gap:8px;margin-top:1rem;max-width:500px;margin-left:auto;margin-right:auto}
+.link-item{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px 14px;font-size:12px;text-decoration:none;color:var(--text);transition:all .15s;font-weight:500}
+.link-item:hover{border-color:var(--primary);color:var(--primary)}
+.link-item .li-src{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--text3)}
+.link-arrow{color:var(--text3);font-size:14px}
+
+/* ── CALCULADORA ── */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.calc-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:1.75rem;box-shadow:var(--shadow)}
+.calc-title{font-size:15px;font-weight:800;color:var(--primary);margin-bottom:.5rem}
+.calc-desc{font-size:12px;color:var(--text2);margin-bottom:1.5rem;font-family:'JetBrains Mono',monospace;line-height:1.6}
+.calc-field{margin-bottom:1rem}
+.calc-field label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:5px}
+.calc-field input,.calc-field select{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r2);color:var(--text);padding:10px 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:500;outline:none;transition:border-color .15s}
+.calc-field input:focus,.calc-field select:focus{border-color:var(--primary)}
+.calc-rows{border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-top:1.25rem}
+.calc-row{display:flex;justify-content:space-between;padding:10px 14px;font-size:12px;border-bottom:1px solid var(--border);align-items:center}
+.calc-row:last-child{border-bottom:none}
+.calc-row .cr-k{color:var(--text2);font-family:'JetBrains Mono',monospace}
+.calc-row .cr-v{font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace}
+.calc-result{background:var(--primary);color:#fff;border-radius:var(--r2);padding:1.25rem;margin-top:1rem;text-align:center;display:none}
+.calc-result-label{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.7;margin-bottom:5px}
+.calc-result-value{font-size:26px;font-weight:800}
+.calc-result-sub{font-size:11px;opacity:.6;font-family:'JetBrains Mono',monospace;margin-top:4px}
+.calc-result-blue{background:linear-gradient(135deg,#1d4ed8,#2563eb)}
+
+/* ── CADERNO ── */
+.caderno-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.caderno-title{font-size:20px;font-weight:800}
+.btn-ghost{background:none;border:1.5px solid var(--border);border-radius:var(--r2);padding:7px 14px;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-ghost:hover{border-color:var(--text);color:var(--text)}
+.fav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.fav-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:var(--shadow)}
+.fav-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem}
+.fav-title{font-size:13px;font-weight:700;color:var(--text);flex:1;margin-right:.5rem}
+.fav-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:2px}
+.fav-del:hover{color:var(--red)}
+.fav-meta{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:.875rem;line-height:1.7}
+.fav-nota textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r2);color:var(--text);padding:9px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;resize:vertical;min-height:60px;outline:none;transition:border-color .15s}
+.fav-nota textarea:focus{border-color:var(--primary)}
+.fav-check{margin-top:.875rem}
+.fav-ci{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer;color:var(--text2)}
+.fav-ci:last-child{border-bottom:none}
+.fav-ci input[type=checkbox]{width:14px;height:14px;accent-color:var(--primary);cursor:pointer;flex-shrink:0}
+.fav-ci.done{color:var(--text3);text-decoration:line-through}
+.fav-link{display:block;margin-top:.875rem;text-align:center;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r2);padding:8px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--primary);text-decoration:none;font-weight:600;transition:all .15s}
+.fav-link:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+.caderno-empty{text-align:center;padding:4rem 2rem}
+.caderno-empty .ei{font-size:48px;margin-bottom:1rem}
+.caderno-empty p{font-size:14px;color:var(--text2)}
+.caderno-empty small{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:.5rem;display:block}
+
+/* ── GUIA ── */
+.guide-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:20px;margin-bottom:1.5rem}
+.guide-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:1.75rem;box-shadow:var(--shadow)}
+.guide-hero-title{font-size:22px;font-weight:800;color:var(--primary);margin-bottom:8px}
+.guide-sub{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:1.5rem}
+.flow-steps{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.flow-step{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:1rem}
+.flow-step-num{width:24px;height:24px;background:var(--primary);color:#fff;border-radius:6px;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:.5rem;font-family:'JetBrains Mono',monospace}
+.flow-step strong{font-size:13px;font-weight:700;display:block;margin-bottom:4px}
+.flow-step span{font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;line-height:1.5}
+.section-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:.5rem}
+.section-sub{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:1.25rem}
+.mode-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:1.5rem}
+.mode-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:1.25rem;border-top:3px solid var(--blue);box-shadow:var(--shadow)}
+.mode-card.good{border-top-color:var(--green)}.mode-card.warn{border-top-color:var(--amber)}.mode-card.risk{border-top-color:var(--red)}
+.mode-name{font-size:14px;font-weight:800;margin-bottom:7px;color:var(--text)}
+.mode-desc{font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace;line-height:1.6;margin-bottom:.875rem}
+.mode-tags{display:flex;gap:5px;flex-wrap:wrap}
+.mode-tag{font-size:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r3);padding:2px 8px;color:var(--text2);font-family:'JetBrains Mono',monospace}
+.risk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:1.5rem}
+.risk-item{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--r2);padding:1rem;font-size:12px;font-family:'JetBrains Mono',monospace;line-height:1.6;color:#78350f}
+.dict-grid{columns:2 300px;column-gap:16px;margin-bottom:1.5rem}
+.dict-item{break-inside:avoid;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r2);padding:1rem;margin-bottom:12px;box-shadow:var(--shadow)}
+.dict-item strong{font-size:13px;font-weight:700;color:var(--primary)}
+.dict-item p{font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace;line-height:1.6;margin-top:5px}
+
+/* ── INTELIGÊNCIA ── */
+.intel-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:1.75rem}
+.intel-stat{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:var(--shadow)}
+.intel-stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:5px}
+.intel-stat-value{font-size:24px;font-weight:800;color:var(--primary);line-height:1}
+
+/* ── LINKS ── */
+.links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.link-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:1.5rem;transition:all .2s;box-shadow:var(--shadow)}
+.link-card:hover{border-color:var(--primary);box-shadow:var(--shadow-md)}
+.link-card-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:6px}
+.link-card-desc{font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-bottom:1.25rem;line-height:1.7}
+.link-card-btns{display:flex;flex-direction:column;gap:7px}
+.lbtn{display:block;text-align:center;border-radius:var(--r2);padding:8px 14px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600;text-decoration:none;transition:all .15s;border:1.5px solid var(--border);color:var(--text2);background:var(--surface2)}
+.lbtn:hover{border-color:var(--primary);color:var(--primary)}
+.lbtn.pri{background:var(--primary);color:#fff;border-color:var(--primary)}
+.lbtn.pri:hover{background:var(--primary-light)}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
 .overlay.open{display:flex}
-.modal{background:var(--ink2);border:1px solid var(--wire2);border-radius:16px;max-width:700px;width:100%;max-height:88vh;overflow-y:auto}
-.mtop{padding:1.75rem 2rem;background:linear-gradient(135deg,var(--ink3),var(--ink2));border-bottom:1px solid var(--wire);display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
-.mtit{font-family:var(--fh);font-size:17px;font-weight:700;line-height:1.3}
-.msub{font-size:11px;color:var(--dim);font-family:var(--fm);margin-top:5px}
-.mx{background:none;border:none;color:var(--dim);font-size:28px;cursor:pointer;line-height:1}
-.mx:hover{color:var(--paper)}
-.mbody{padding:1.75rem 2rem}
-.ms{margin-bottom:1.75rem}
-.mst{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--lime);font-family:var(--fm);margin-bottom:.9rem}
-.mr{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--wire);font-size:13px;font-family:var(--fm)}
-.mr:last-child{border-bottom:none}
-.mrl{color:var(--dim)}.mrv{font-weight:500}
-.mrg{color:var(--lime);font-weight:700}.mrr{color:var(--red);font-weight:700}
-.cbox{background:var(--ink3);border-radius:8px;padding:1rem}
-.cr2{display:flex;justify-content:space-between;font-size:12px;font-family:var(--fm);padding:7px 0;border-bottom:1px solid var(--wire)}
-.cr2:last-child{border-bottom:none}
-.crt{font-weight:700;font-size:13px;color:var(--lime);border-top:1px solid var(--wire2);padding-top:12px;margin-top:6px}
-.wbox{background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.25);border-radius:8px;padding:1rem;font-size:12px;font-family:var(--fm);color:#fcd34d;line-height:1.9;margin-top:1rem}
-.macts{display:flex;gap:10px;margin-top:1.5rem}
-.mab{flex:1;text-align:center;padding:12px;border-radius:8px;font-family:var(--fh);font-weight:700;font-size:13px;cursor:pointer;text-decoration:none;transition:all .15s}
-.map{background:var(--lime);color:var(--ink);border:none}
-.map:hover{background:var(--lime2)}
-.mas{background:transparent;border:1px solid var(--lime);color:var(--lime)}
-.mas:hover{background:rgba(184,245,100,.08)}
-footer{text-align:center;padding:2rem;font-size:11px;color:var(--dim);font-family:var(--fm);border-top:1px solid var(--wire);margin-top:3rem}
-footer a{color:var(--lime);text-decoration:none}
-@media(max-width:900px){.cwrap{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.lgrid{grid-template-columns:1fr}.guide-hero{grid-template-columns:1fr}}
-@media(max-width:600px){.cnt{padding:1rem}header{padding:.75rem 1rem}.stats{grid-template-columns:1fr 1fr}.sb{flex-direction:column}.sf select,.sf input{min-width:100%}.bbuscar{width:100%}.mtop{flex-direction:column}.mbody{padding:1.25rem}.tabs-nav{padding:0 1rem}}
+.modal{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-top{padding:1.5rem 1.75rem;background:var(--primary);color:#fff;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+.modal-title{font-size:16px;font-weight:800;line-height:1.3}
+.modal-sub{font-size:11px;opacity:.65;font-family:'JetBrains Mono',monospace;margin-top:4px}
+.modal-close{background:rgba(255,255,255,.15);border:none;border-radius:8px;color:#fff;font-size:20px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.modal-close:hover{background:rgba(255,255,255,.25)}
+.modal-body{padding:1.5rem 1.75rem}
+.modal-section{margin-bottom:1.5rem}
+.modal-section-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-family:'JetBrains Mono',monospace;margin-bottom:.875rem}
+.modal-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;align-items:center}
+.modal-row:last-child{border-bottom:none}
+.modal-row-key{color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:12px}
+.modal-row-val{font-weight:600;color:var(--text)}
+.modal-row-val.green{color:var(--green)}.modal-row-val.red{color:var(--red)}
+.cost-table{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.cost-row{display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;font-family:'JetBrains Mono',monospace}
+.cost-row:last-child{border-bottom:none;background:var(--primary);color:#fff;font-weight:700;font-size:13px}
+.cost-row .ck{color:var(--text2)}.cost-row .cv{font-weight:600;color:var(--text)}
+.cost-row:last-child .ck,.cost-row:last-child .cv{color:#fff}
+.checklist-box{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--r2);padding:1.125rem;font-size:12px;font-family:'JetBrains Mono',monospace;line-height:1.9;color:#78350f}
+.modal-actions{display:flex;gap:10px;margin-top:1.5rem}
+.modal-btn{flex:1;text-align:center;padding:12px;border-radius:var(--r2);font-weight:700;font-size:13px;cursor:pointer;text-decoration:none;transition:all .15s}
+.modal-btn-primary{background:var(--primary);color:#fff;border:none}
+.modal-btn-primary:hover{background:var(--primary-light)}
+.modal-btn-secondary{background:transparent;border:1.5px solid var(--primary);color:var(--primary)}
+.modal-btn-secondary:hover{background:var(--primary);color:#fff}
+
+/* ── FOOTER ── */
+footer{text-align:center;padding:2rem;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;border-top:1px solid var(--border);margin-top:2rem}
+footer a{color:var(--primary);text-decoration:none}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1000px){
+  .search-box{grid-template-columns:1fr 1fr 1fr;}.calc-grid{grid-template-columns:1fr}
+  .guide-grid{grid-template-columns:1fr}.intel-stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:680px){
+  .search-box{grid-template-columns:1fr 1fr}.stats-bar{display:none}
+  .grid{grid-template-columns:1fr}.topbar-left span{display:none}
+  .topbar-inner{gap:.5rem}.page{padding:1rem}.hero-inner{padding:0 1rem}
+  .header-inner{padding:0 1rem}.nav-inner{padding:0 1rem}
+  .modal-body{padding:1.25rem}.modal-top{padding:1.25rem}
+  .chips-inner{padding:0 1rem}.intel-stats{grid-template-columns:1fr 1fr}
+  .flow-steps{grid-template-columns:1fr}.guide-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-left">
+      <span><span class="live-dot"></span>ABC Leilões Monitor</span>
+      <span id="t-updated">Carregando...</span>
+    </div>
+    <div class="topbar-right">
+      <span class="pill pill-info" id="t-badge">● Ao vivo</span>
+      <button class="tbtn" onclick="carregarDados()">↻ Atualizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
 <header>
-  <div class="logo"><div class="ldot"></div>ABC Leilões</div>
-  <div class="hright">
-    <span class="pill pl" id="hbadge">● Ao vivo</span>
-    <span class="pill pd" id="hatual">Carregando...</span>
-    <button class="bico" onclick="carregarDados()">↻ Atualizar</button>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🏠</div>
+      <div>
+        <div class="logo-text">ABC Leilões</div>
+        <span class="logo-sub">Monitor Pessoal · ABC Paulista</span>
+      </div>
+    </div>
+    <div class="header-pills">
+      <span class="pill pill-info" id="h-count">— imóveis</span>
+    </div>
   </div>
 </header>
 
-<nav class="tabs-nav">
-  <button class="tb active" onclick="showTab('busca',this)">🔍 Buscar <span class="tbadge on" id="tbusca">0</span></button>
-  <button class="tb" onclick="showTab('calc',this)">🧮 Calculadora</button>
-  <button class="tb" onclick="showTab('caderno',this)">⭐ Caderno <span class="tbadge" id="tfav">0</span></button>
-  <button class="tb" onclick="showTab('guia',this)">🧭 Guia</button>
-  <button class="tb" onclick="showTab('intel',this)">📊 Inteligência</button>
-  <button class="tb" onclick="showTab('links',this)">🔗 Sites Reais</button>
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="ntab active" onclick="showTab('busca',this)">🔍 Buscar <span class="nbadge on" id="nb-busca">0</span></button>
+    <button class="ntab" onclick="showTab('calc',this)">🧮 Calculadora</button>
+    <button class="ntab" onclick="showTab('caderno',this)">⭐ Caderno <span class="nbadge" id="nb-fav">0</span></button>
+    <button class="ntab" onclick="showTab('guia',this)">🧭 Guia</button>
+    <button class="ntab" onclick="showTab('intel',this)">📊 Inteligência</button>
+    <button class="ntab" onclick="showTab('links',this)">🔗 Sites</button>
+  </div>
 </nav>
 
-<!-- ═══ TAB BUSCA ═══ -->
-<div id="tab-busca" class="sec active"><div class="cnt">
-  <div class="stats">
-    <div class="stat"><div class="slb">Imóveis</div><div class="svl" id="st1" style="color:var(--lime)">—</div><div class="ssb">encontrados</div></div>
-    <div class="stat sky"><div class="slb">Menor Lance</div><div class="svl" id="st2" style="color:var(--sky)">—</div><div class="ssb">na faixa</div></div>
-    <div class="stat amb"><div class="slb">Maior Deságio</div><div class="svl" id="st3" style="color:var(--amber)">—</div><div class="ssb">encontrado</div></div>
-    <div class="stat amb"><div class="slb">Novos</div><div class="svl" id="st4" style="color:var(--amber)">—</div><div class="ssb">desde a última coleta</div></div>
-    <div class="stat red"><div class="slb">Com Débitos</div><div class="svl" id="st5" style="color:var(--red)">—</div><div class="ssb">atenção ⚠️</div></div>
-  </div>
-  <div class="sb">
-    <div class="sf"><label>Cidade</label><select id="fc"><option value="">Todas</option><option>Santo André</option><option>São Bernardo do Campo</option><option>Mauá</option><option>São Caetano do Sul</option></select></div>
-    <div class="sf"><label>Lance Mín</label><input type="number" id="fmi" value="70000"></div>
-    <div class="sf"><label>Lance Máx</label><input type="number" id="fma" value="160000"></div>
-    <div class="sf"><label>Quartos</label><select id="fq"><option value="">Todos</option><option value="1">1 quarto</option><option value="2">2 quartos</option><option value="3">3+</option></select></div>
-    <div class="sf"><label>Situação</label><select id="fo"><option value="">Todos</option><option value="livre">✅ Desocupado</option><option value="ocp">⚠️ Ocupado</option></select></div>
-    <div class="sf"><label>Ordenar</label><select id="fs"><option value="novo">Novidades</option><option value="score">Melhor score</option><option value="desagio">Maior deságio</option><option value="lance">Menor lance</option></select></div>
-    <button class="bbuscar" onclick="aplicarFiltros()">Filtrar</button>
-  </div>
-  <div class="chips">
-    <div class="chip active" onclick="setFonte('',this)">Todas</div>
-    <div class="chip" onclick="setFonte('Caixa',this)">🏦 Caixa</div>
-    <div class="chip" onclick="setFonte('Sold',this)">Sold</div>
-    <div class="chip" onclick="setFonte('Zuk',this)">Zuk</div>
-    <div class="chip" onclick="setFonte('Superbid',this)">Superbid</div>
-    <div class="chip" onclick="setFonte('Banco do Brasil',this)">Banco do Brasil</div>
-  </div>
-  <div class="ibar">
-    <span id="ist">🔄 Carregando...</span>
-    <span style="color:var(--lime)" id="iprx"></span>
-  </div>
-  <div class="rmeta"><span id="rcnt">—</span></div>
-  <div id="resultado"><div class="loading"><div class="spinner"></div><p>Buscando apartamentos...</p></div></div>
-</div></div>
-
-<!-- ═══ TAB CALC ═══ -->
-<div id="tab-calc" class="sec"><div class="cnt">
-  <div class="cwrap">
-    <div class="cpanel">
-      <div class="ctit">🧮 Custo Real Total</div>
-      <p style="font-size:13px;color:var(--dim);margin-bottom:1.5rem;font-family:var(--fm)">Digite o lance e veja o investimento total com todos os custos.</p>
-      <div class="cfield"><label>Lance / Valor arrematado (R$)</label><input type="number" id="cl" placeholder="Ex: 120000" oninput="calcC()"></div>
-      <div class="cfield"><label>Área do imóvel (m²)</label><input type="number" id="ca" placeholder="Ex: 60" oninput="calcC()"></div>
-      <div class="cfield"><label>Débitos (IPTU + condomínio)</label><input type="number" id="cd" placeholder="Ex: 5000" oninput="calcC()"></div>
-      <div style="margin-top:1.25rem">
-        <div class="crow"><span class="cl">Lance base</span><span class="cv" id="r1">R$ —</span></div>
-        <div class="crow"><span class="cl">Comissão leiloeiro (5%)</span><span class="cv" id="r2">R$ —</span></div>
-        <div class="crow"><span class="cl">ITBI — Imp. transferência (3%)</span><span class="cv" id="r3">R$ —</span></div>
-        <div class="crow"><span class="cl">Escritura / Cartório</span><span class="cv" id="r4">R$ —</span></div>
-        <div class="crow"><span class="cl">Reforma estimada (R$400/m²)</span><span class="cv" id="r5">R$ —</span></div>
-        <div class="crow"><span class="cl">Débitos assumidos</span><span class="cv" id="r6">R$ —</span></div>
-      </div>
-      <div class="ctbox" id="ctb"><div class="ctlb">💰 Custo Total Real</div><div class="ctvl" id="ctv">R$ —</div><div style="font-size:11px;color:var(--dim);font-family:var(--fm);margin-top:6px" id="cts"></div></div>
-    </div>
-    <div class="cpanel">
-      <div class="ctit">🎯 Lance Máximo</div>
-      <p style="font-size:13px;color:var(--dim);margin-bottom:1.5rem;font-family:var(--fm)">Informe seu orçamento total e descubra até quanto pode dar de lance.</p>
-      <div class="cfield"><label>Orçamento total disponível (R$)</label><input type="number" id="ro" placeholder="Ex: 160000" oninput="calcR()"></div>
-      <div class="cfield"><label>Área do imóvel (m²)</label><input type="number" id="ra" placeholder="Ex: 60" oninput="calcR()"></div>
-      <div class="cfield"><label>Débitos estimados (R$)</label><input type="number" id="rd" placeholder="Ex: 0" oninput="calcR()"></div>
-      <div class="cfield"><label>Reforma estimada — 0 = calcular por m²</label><input type="number" id="rr" placeholder="Ex: 20000" oninput="calcR()"></div>
-      <div style="margin-top:1.25rem">
-        <div class="crow"><span class="cl">Orçamento total</span><span class="cv" id="rr1">R$ —</span></div>
-        <div class="crow"><span class="cl">(-) Comissão + ITBI (8%)</span><span class="cv" id="rr2">R$ —</span></div>
-        <div class="crow"><span class="cl">(-) Cartório</span><span class="cv">R$ 3.500</span></div>
-        <div class="crow"><span class="cl">(-) Reforma</span><span class="cv" id="rr3">R$ —</span></div>
-        <div class="crow"><span class="cl">(-) Débitos</span><span class="cv" id="rr4">R$ —</span></div>
-      </div>
-      <div class="rbox" id="rb"><div class="rlb">🎯 Seu Lance Máximo</div><div class="rvl" id="rv">R$ —</div><div style="font-size:11px;color:var(--dim);font-family:var(--fm);margin-top:6px">Não dê um centavo acima disso</div></div>
-    </div>
-  </div>
-</div></div>
-
-<!-- ═══ TAB CADERNO ═══ -->
-<div id="tab-caderno" class="sec"><div class="cnt">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
-    <div>
-      <h2 style="font-family:var(--fh);font-size:20px;font-weight:800">⭐ Meu Caderno</h2>
-      <p style="font-size:12px;color:var(--dim);font-family:var(--fm);margin-top:4px">Favoritos com anotações e checklist de verificação</p>
-    </div>
-    <button onclick="limparFavs()" style="background:none;border:1px solid var(--wire);border-radius:7px;padding:7px 14px;color:var(--dim);font-size:11px;font-family:var(--fm);cursor:pointer">Limpar tudo</button>
-  </div>
-  <div id="caderno"></div>
-</div></div>
-
-<!-- ═══ TAB GUIA ═══ -->
-<div id="tab-guia" class="sec"><div class="cnt">
-  <div class="guide-hero">
-    <div class="guide-panel">
-      <div class="guide-title">Mapa do Leilão para Iniciantes</div>
-      <div class="guide-sub">Use esta aba para entender a modalidade, separar oportunidade de armadilha e montar uma rotina segura antes de dar qualquer lance.</div>
-      <div class="flow">
-        <div class="flow-step"><strong>1. Entenda a venda</strong><span>Leia a modalidade, forma de pagamento, caução, comissão e prazo.</span></div>
-        <div class="flow-step"><strong>2. Valide o risco</strong><span>Confira ocupação, débitos, matrícula e regras de responsabilidade.</span></div>
-        <div class="flow-step"><strong>3. Calcule tudo</strong><span>Some lance, comissão, ITBI, cartório, reforma, condomínio e IPTU.</span></div>
-        <div class="flow-step"><strong>4. Defina limite</strong><span>Entre no leilão já sabendo o lance máximo e não ultrapasse.</span></div>
-      </div>
-    </div>
-    <div class="guide-panel">
-      <div class="ctit">Regra de bolso</div>
-      <div class="risk-list">
-        <div class="risk-item">Iniciante deve preferir imóvel desocupado, edital claro e preço abaixo do orçamento total.</div>
-        <div class="risk-item">Desconto grande não compensa se a posse, débitos ou matrícula forem incertos.</div>
+<!-- ═══ BUSCA ═══ -->
+<div id="tab-busca" class="sec active">
+  <div class="hero">
+    <div class="hero-inner">
+      <h1 class="hero-title">Encontre seu apartamento no ABC</h1>
+      <p class="hero-sub">Santo André · São Bernardo · Mauá · São Caetano do Sul — R$ 70k–160k</p>
+      <div class="search-box">
+        <div class="sf">
+          <label>Cidade</label>
+          <select id="fc">
+            <option value="">Todas as cidades</option>
+            <option>Santo André</option>
+            <option>São Bernardo do Campo</option>
+            <option>Mauá</option>
+            <option>São Caetano do Sul</option>
+          </select>
+        </div>
+        <div class="sf">
+          <label>Lance Mínimo (R$)</label>
+          <input type="number" id="fmi" value="70000" placeholder="70000">
+        </div>
+        <div class="sf">
+          <label>Lance Máximo (R$)</label>
+          <input type="number" id="fma" value="160000" placeholder="160000">
+        </div>
+        <div class="sf">
+          <label>Quartos</label>
+          <select id="fq">
+            <option value="">Todos</option>
+            <option value="1">1 quarto</option>
+            <option value="2">2 quartos</option>
+            <option value="3">3+</option>
+          </select>
+        </div>
+        <div class="sf">
+          <label>Situação</label>
+          <select id="fo">
+            <option value="">Todos</option>
+            <option value="livre">✅ Desocupado</option>
+            <option value="ocp">⚠️ Ocupado</option>
+          </select>
+        </div>
+        <button class="btn-search" onclick="aplicarFiltros()">Buscar →</button>
       </div>
     </div>
   </div>
 
-  <div style="margin-bottom:1rem">
-    <h2 style="font-family:var(--fh);font-size:20px;font-weight:800">Modalidades mais comuns</h2>
-    <p style="font-size:12px;color:var(--dim);font-family:var(--fm);margin-top:4px">O nome pode variar por portal, mas estes modelos cobrem a maioria dos casos que aparecem no ABC.</p>
-  </div>
-  <div class="mode-grid">
-    <div class="mode-card good"><div class="mode-name">Venda Direta</div><div class="mode-desc">Compra por preço definido, normalmente sem disputa intensa de lances. É mais previsível para iniciantes, mas ainda exige edital, débitos e matrícula.</div><div class="mode-tags"><span class="mode-tag">mais previsível</span><span class="mode-tag">atenção a débitos</span></div></div>
-    <div class="mode-card"><div class="mode-name">Venda Online</div><div class="mode-desc">Disputa pela internet, com início e encerramento definidos. Exige cadastro, aceite do edital e atenção ao relógio de encerramento.</div><div class="mode-tags"><span class="mode-tag">disputa digital</span><span class="mode-tag">cadastro prévio</span></div></div>
-    <div class="mode-card warn"><div class="mode-name">Licitação Aberta</div><div class="mode-desc">Interessados apresentam propostas conforme regras do edital. Pode vencer maior oferta, melhor condição ou critério específico informado no documento.</div><div class="mode-tags"><span class="mode-tag">proposta formal</span><span class="mode-tag">leia critérios</span></div></div>
-    <div class="mode-card"><div class="mode-name">1ª Praça</div><div class="mode-desc">Primeira tentativa de venda, geralmente próxima ao valor de avaliação. Costuma ter desconto menor, mas pode ser mais simples de analisar.</div><div class="mode-tags"><span class="mode-tag">menor desconto</span><span class="mode-tag">valor avaliado</span></div></div>
-    <div class="mode-card warn"><div class="mode-name">2ª Praça</div><div class="mode-desc">Segunda tentativa, normalmente aceita lance menor. É onde aparecem descontos maiores, junto com maior necessidade de checagem.</div><div class="mode-tags"><span class="mode-tag">maior desconto</span><span class="mode-tag">mais risco</span></div></div>
-    <div class="mode-card risk"><div class="mode-name">Imóvel Ocupado</div><div class="mode-desc">Pode exigir negociação ou ação de imissão na posse. Não é proibido para iniciante, mas precisa de reserva, prazo e tolerância a conflito.</div><div class="mode-tags"><span class="mode-tag">posse incerta</span><span class="mode-tag">custo jurídico</span></div></div>
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stats-inner">
+      <div class="stat">
+        <span class="stat-label">Imóveis</span>
+        <span class="stat-value" id="st1">—</span>
+        <span class="stat-sub">encontrados</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Menor Lance</span>
+        <span class="stat-value green" id="st2">—</span>
+        <span class="stat-sub">na faixa</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Maior Deságio</span>
+        <span class="stat-value amber" id="st3">—</span>
+        <span class="stat-sub">encontrado</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Novos</span>
+        <span class="stat-value amber" id="st4">—</span>
+        <span class="stat-sub">desde última coleta</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Com Débitos</span>
+        <span class="stat-value red" id="st5">—</span>
+        <span class="stat-sub">⚠️ atenção</span>
+      </div>
+    </div>
   </div>
 
-  <div class="guide-panel" style="margin-bottom:1.5rem">
-    <div class="ctit">Sinais de alerta antes do lance</div>
-    <div class="risk-list">
+  <!-- CHIPS -->
+  <div class="chips-bar">
+    <div class="chips-inner">
+      <span class="chip-label">Fonte:</span>
+      <div class="chip active" onclick="setFonte('',this)">Todas</div>
+      <div class="chip" onclick="setFonte('Caixa',this)">🏦 Caixa</div>
+      <div class="chip" onclick="setFonte('Sold',this)">Sold</div>
+      <div class="chip" onclick="setFonte('Zuk',this)">Zuk</div>
+      <div class="chip" onclick="setFonte('Superbid',this)">Superbid</div>
+      <div class="chip" onclick="setFonte('Banco do Brasil',this)">Banco do Brasil</div>
+      <select id="fs" style="margin-left:auto;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r2);padding:5px 10px;font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace;cursor:pointer;outline:none" onchange="aplicarFiltros()">
+        <option value="novo">Novidades primeiro</option>
+        <option value="score">Melhor score</option>
+        <option value="desagio">Maior deságio</option>
+        <option value="lance">Menor lance</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="status-bar">
+      <span id="ist">🔄 Carregando dados...</span>
+      <span class="status-next" id="iprx"></span>
+    </div>
+    <div class="results-meta">
+      <span class="results-count" id="rcnt">—</span>
+    </div>
+    <div id="resultado">
+      <div class="empty">
+        <div class="spinner"></div>
+        <p>Buscando apartamentos...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CALCULADORA ═══ -->
+<div id="tab-calc" class="sec">
+  <div class="page">
+    <div class="calc-grid">
+      <div class="calc-panel">
+        <div class="calc-title">🧮 Custo Real Total</div>
+        <div class="calc-desc">Digite o lance e veja o investimento total com todos os custos embutidos.</div>
+        <div class="calc-field"><label>Lance / Valor arrematado (R$)</label><input type="number" id="cl" placeholder="120000" oninput="calcC()"></div>
+        <div class="calc-field"><label>Área do imóvel (m²)</label><input type="number" id="ca" placeholder="60" oninput="calcC()"></div>
+        <div class="calc-field"><label>Débitos assumidos (R$)</label><input type="number" id="cd" placeholder="0" oninput="calcC()"></div>
+        <div class="calc-rows">
+          <div class="calc-row"><span class="cr-k">Lance base</span><span class="cr-v" id="r1">—</span></div>
+          <div class="calc-row"><span class="cr-k">Comissão leiloeiro (5%)</span><span class="cr-v" id="r2">—</span></div>
+          <div class="calc-row"><span class="cr-k">ITBI — Imp. transferência (3%)</span><span class="cr-v" id="r3">—</span></div>
+          <div class="calc-row"><span class="cr-k">Escritura / Cartório</span><span class="cr-v" id="r4">—</span></div>
+          <div class="calc-row"><span class="cr-k">Reforma est. (R$400/m²)</span><span class="cr-v" id="r5">—</span></div>
+          <div class="calc-row"><span class="cr-k">Débitos assumidos</span><span class="cr-v" id="r6">—</span></div>
+        </div>
+        <div class="calc-result" id="ctb">
+          <div class="calc-result-label">💰 Custo Total Real</div>
+          <div class="calc-result-value" id="ctv">—</div>
+          <div class="calc-result-sub" id="cts"></div>
+        </div>
+      </div>
+      <div class="calc-panel">
+        <div class="calc-title">🎯 Lance Máximo Reverso</div>
+        <div class="calc-desc">Informe seu orçamento total e descubra até quanto pode dar de lance.</div>
+        <div class="calc-field"><label>Orçamento total disponível (R$)</label><input type="number" id="ro" placeholder="160000" oninput="calcR()"></div>
+        <div class="calc-field"><label>Área do imóvel (m²)</label><input type="number" id="ra" placeholder="60" oninput="calcR()"></div>
+        <div class="calc-field"><label>Débitos estimados (R$)</label><input type="number" id="rd" placeholder="0" oninput="calcR()"></div>
+        <div class="calc-field"><label>Reforma (0 = calcular por m²)</label><input type="number" id="rr" placeholder="20000" oninput="calcR()"></div>
+        <div class="calc-rows">
+          <div class="calc-row"><span class="cr-k">Orçamento total</span><span class="cr-v" id="rr1">—</span></div>
+          <div class="calc-row"><span class="cr-k">(-) Comissão + ITBI (8%)</span><span class="cr-v" id="rr2">—</span></div>
+          <div class="calc-row"><span class="cr-k">(-) Cartório</span><span class="cr-v">R$ 3.500</span></div>
+          <div class="calc-row"><span class="cr-k">(-) Reforma</span><span class="cr-v" id="rr3">—</span></div>
+          <div class="calc-row"><span class="cr-k">(-) Débitos</span><span class="cr-v" id="rr4">—</span></div>
+        </div>
+        <div class="calc-result calc-result-blue" id="rb">
+          <div class="calc-result-label">🎯 Seu Lance Máximo</div>
+          <div class="calc-result-value" id="rv">—</div>
+          <div class="calc-result-sub">Não dê um centavo acima disso</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CADERNO ═══ -->
+<div id="tab-caderno" class="sec">
+  <div class="page">
+    <div class="caderno-header">
+      <div>
+        <h2 class="caderno-title">⭐ Meu Caderno</h2>
+        <p style="font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px">Favoritos com anotações e checklist de due diligence</p>
+      </div>
+      <button class="btn-ghost" onclick="limparFavs()">Limpar tudo</button>
+    </div>
+    <div id="caderno"></div>
+  </div>
+</div>
+
+<!-- ═══ GUIA ═══ -->
+<div id="tab-guia" class="sec">
+  <div class="page">
+    <div class="guide-grid">
+      <div class="guide-panel">
+        <div class="guide-hero-title">Mapa do Leilão para Iniciantes</div>
+        <div class="guide-sub">Entenda a modalidade, separe oportunidade de armadilha e monte uma rotina segura antes de dar qualquer lance.</div>
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num">1</div><strong>Entenda a venda</strong><span>Leia a modalidade, pagamento, caução, comissão e prazo.</span></div>
+          <div class="flow-step"><div class="flow-step-num">2</div><strong>Valide o risco</strong><span>Confira ocupação, débitos, matrícula e regras.</span></div>
+          <div class="flow-step"><div class="flow-step-num">3</div><strong>Calcule tudo</strong><span>Some lance, comissão, ITBI, cartório, reforma, IPTU e cond.</span></div>
+          <div class="flow-step"><div class="flow-step-num">4</div><strong>Defina limite</strong><span>Entre sabendo o lance máximo e não ultrapasse.</span></div>
+        </div>
+      </div>
+      <div class="guide-panel">
+        <div class="calc-title">Regra de bolso</div>
+        <div class="risk-grid" style="grid-template-columns:1fr;margin-bottom:0">
+          <div class="risk-item">Iniciante deve preferir imóvel desocupado, edital claro e preço abaixo do orçamento total.</div>
+          <div class="risk-item">Desconto grande não compensa se a posse, débitos ou matrícula forem incertos.</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">Modalidades mais comuns</div>
+    <div class="section-sub">O nome pode variar por portal, mas estes modelos cobrem a maioria dos casos no ABC.</div>
+    <div class="mode-grid">
+      <div class="mode-card good"><div class="mode-name">Venda Direta</div><div class="mode-desc">Compra por preço fixo, sem disputa. Mais previsível para iniciantes, ainda exige edital e débitos.</div><div class="mode-tags"><span class="mode-tag">mais previsível</span><span class="mode-tag">atenção a débitos</span></div></div>
+      <div class="mode-card"><div class="mode-name">Venda Online</div><div class="mode-desc">Disputa pela internet, com início e encerramento definidos. Exige cadastro e atenção ao relógio.</div><div class="mode-tags"><span class="mode-tag">disputa digital</span><span class="mode-tag">cadastro prévio</span></div></div>
+      <div class="mode-card warn"><div class="mode-name">1ª Praça</div><div class="mode-desc">Primeira tentativa de venda, próxima ao valor de avaliação. Menor desconto, análise mais simples.</div><div class="mode-tags"><span class="mode-tag">menor desconto</span><span class="mode-tag">valor avaliado</span></div></div>
+      <div class="mode-card warn"><div class="mode-name">2ª Praça</div><div class="mode-desc">Segunda tentativa. Descontos maiores, maior necessidade de checagem. Onde ocorrem as melhores oportunidades.</div><div class="mode-tags"><span class="mode-tag">maior desconto</span><span class="mode-tag">mais risco</span></div></div>
+      <div class="mode-card risk"><div class="mode-name">Imóvel Ocupado</div><div class="mode-desc">Pode exigir negociação ou ação de imissão na posse. Exige reserva financeira, prazo e tolerância a conflito.</div><div class="mode-tags"><span class="mode-tag">posse incerta</span><span class="mode-tag">custo jurídico</span></div></div>
+    </div>
+    <div class="section-title">Sinais de alerta</div>
+    <div class="section-sub">Identifique antes de dar o lance.</div>
+    <div class="risk-grid">
       <div class="risk-item">Edital transfere condomínio, IPTU ou taxas ao comprador.</div>
       <div class="risk-item">Matrícula com penhora, usufruto, indisponibilidade ou processo complexo.</div>
       <div class="risk-item">Ocupação não informada, ou posse depende de medida judicial.</div>
       <div class="risk-item">Pagamento à vista sem margem para ITBI, cartório, reforma e comissão.</div>
     </div>
-  </div>
-
-  <div style="margin-bottom:1rem">
-    <h2 style="font-family:var(--fh);font-size:20px;font-weight:800">Dicionário rápido</h2>
-  </div>
-  <div class="dict-grid">
-    <div class="dict-item"><strong>Edital</strong><p>Documento principal. Define regras da venda, pagamento, comissão, débitos, ocupação e responsabilidades.</p></div>
-    <div class="dict-item"><strong>Caução</strong><p>Valor ou garantia exigida para participar. Pode ser condição para habilitação no leilão.</p></div>
-    <div class="dict-item"><strong>Arrematação</strong><p>Momento em que o lance vencedor é aceito. Depois disso começam obrigações de pagamento e formalização.</p></div>
-    <div class="dict-item"><strong>Comissão do leiloeiro</strong><p>Percentual pago ao leiloeiro, frequentemente 5%, além do valor do lance.</p></div>
-    <div class="dict-item"><strong>Matrícula</strong><p>Registro oficial do imóvel. Mostra proprietário, ônus, penhoras, alienações e histórico jurídico.</p></div>
-    <div class="dict-item"><strong>Ônus</strong><p>Gravame ou responsabilidade ligada ao imóvel, como hipoteca, penhora, usufruto ou restrição judicial.</p></div>
-    <div class="dict-item"><strong>Imissão na posse</strong><p>Medida para obter posse quando o imóvel não é entregue espontaneamente. Pode levar meses.</p></div>
-    <div class="dict-item"><strong>Débito propter rem</strong><p>Dívida ligada ao próprio imóvel, como condomínio. Pode acompanhar o bem em alguns cenários.</p></div>
-  </div>
-</div></div>
-
-<!-- ═══ TAB INTELIGENCIA ═══ -->
-<div id="tab-intel" class="sec"><div class="cnt">
-  <div class="guide-hero">
-    <div class="guide-panel">
-      <div class="guide-title">Inteligência de Oportunidade</div>
-      <div class="guide-sub">Camada inspirada em ferramentas profissionais: valor estimado, custo total, ROI, estratégia sugerida, localização e pendências. Tudo em linguagem prática para decidir o próximo passo.</div>
-      <div class="flow" id="intel-resumo">
-        <div class="flow-step"><strong>Imóveis</strong><span id="ir1">Carregando...</span></div>
-        <div class="flow-step"><strong>ROI médio</strong><span id="ir2">—</span></div>
-        <div class="flow-step"><strong>Melhor score</strong><span id="ir3">—</span></div>
-        <div class="flow-step"><strong>Novos</strong><span id="ir4">—</span></div>
-      </div>
-    </div>
-    <div class="guide-panel">
-      <div class="ctit">De/Para de funcionalidades</div>
-      <div class="dict-item"><strong>Índice de Potencial</strong><p>No nosso app vira Score + ROI + motivos de risco.</p></div>
-      <div class="dict-item"><strong>Valor de mercado</strong><p>Usamos valor avaliado/coletado como estimativa inicial e calculamos margem líquida.</p></div>
-      <div class="dict-item"><strong>Checklist legal</strong><p>Transformado em pendências: ocupação, débitos, matrícula, edital e documentos.</p></div>
+    <div class="section-title" style="margin-top:1.5rem">Dicionário rápido</div>
+    <div class="dict-grid">
+      <div class="dict-item"><strong>Edital</strong><p>Documento principal. Define regras da venda, pagamento, comissão, débitos e responsabilidades.</p></div>
+      <div class="dict-item"><strong>Caução</strong><p>Valor ou garantia exigida para participar. Condição de habilitação no leilão.</p></div>
+      <div class="dict-item"><strong>Arrematação</strong><p>Momento em que o lance vencedor é aceito. Início das obrigações de pagamento.</p></div>
+      <div class="dict-item"><strong>Comissão do leiloeiro</strong><p>Percentual pago ao leiloeiro, frequentemente 5%, além do valor do lance.</p></div>
+      <div class="dict-item"><strong>Matrícula</strong><p>Registro oficial do imóvel: proprietário, ônus, penhoras, histórico jurídico.</p></div>
+      <div class="dict-item"><strong>Imissão na posse</strong><p>Medida para obter posse quando o imóvel não é entregue espontaneamente.</p></div>
+      <div class="dict-item"><strong>ITBI</strong><p>Imposto de Transmissão de Bens Imóveis. Pago ao município, geralmente 3% do lance.</p></div>
+      <div class="dict-item"><strong>Débito propter rem</strong><p>Dívida ligada ao imóvel (ex: condomínio). Pode acompanhar o bem ao novo dono.</p></div>
     </div>
   </div>
-  <div style="margin-bottom:1rem">
-    <h2 style="font-family:var(--fh);font-size:20px;font-weight:800">Radar de oportunidades</h2>
-    <p style="font-size:12px;color:var(--dim);font-family:var(--fm);margin-top:4px">Quando houver imóveis confirmados, esta área ordena por potencial econômico e risco.</p>
+</div>
+
+<!-- ═══ INTELIGÊNCIA ═══ -->
+<div id="tab-intel" class="sec">
+  <div class="page">
+    <div style="margin-bottom:1.5rem">
+      <h2 class="section-title">📊 Radar de Oportunidades</h2>
+      <p class="section-sub">Imóveis ordenados por potencial econômico e risco calculado automaticamente.</p>
+    </div>
+    <div class="intel-stats">
+      <div class="intel-stat"><div class="intel-stat-label">Imóveis Confirmados</div><div class="intel-stat-value" id="ir1">—</div></div>
+      <div class="intel-stat"><div class="intel-stat-label">ROI Médio</div><div class="intel-stat-value" id="ir2">—</div></div>
+      <div class="intel-stat"><div class="intel-stat-label">Melhor Score</div><div class="intel-stat-value" id="ir3">—</div></div>
+      <div class="intel-stat"><div class="intel-stat-label">Novos Hoje</div><div class="intel-stat-value" id="ir4">—</div></div>
+    </div>
+    <div id="intel-lista"></div>
   </div>
-  <div id="intel-lista"></div>
-</div></div>
+</div>
 
-<!-- ═══ TAB LINKS ═══ -->
-<div id="tab-links" class="sec"><div class="cnt">
-  <div style="margin-bottom:1.5rem">
-    <h2 style="font-family:var(--fh);font-size:20px;font-weight:800">🔗 Sites com Dados 100% Reais</h2>
-    <p style="font-size:12px;color:var(--dim);font-family:var(--fm);margin-top:4px">Links já filtrados para seus critérios — apartamentos 70-160k, região ABC</p>
+<!-- ═══ SITES ═══ -->
+<div id="tab-links" class="sec">
+  <div class="page">
+    <div style="margin-bottom:1.5rem">
+      <h2 class="section-title">🔗 Sites com Dados 100% Reais</h2>
+      <p class="section-sub">Links filtrados para seus critérios — apartamentos R$ 70–160k, região ABC</p>
+    </div>
+    <div class="links-grid">
+      <div class="link-card"><div class="link-card-title">🏦 Caixa Econômica Federal</div><div class="link-card-desc">Maior volume de leilões do Brasil. Dados oficiais. Filtre por cidade e faixa de preço.</div><div class="link-card-btns"><a class="lbtn pri" href="https://venda.caixa.gov.br/imoveis?estado=SP&tipo=2" target="_blank" rel="noopener">Buscar Apartamentos SP ↗</a><a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SANTO+ANDRE&tipo=2" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+BERNARDO+DO+CAMPO&tipo=2" target="_blank" rel="noopener">São Bernardo ↗</a><a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=MAUA&tipo=2" target="_blank" rel="noopener">Mauá ↗</a><a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+CAETANO+DO+SUL&tipo=2" target="_blank" rel="noopener">São Caetano ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">Sold Leilões</div><div class="link-card-desc">Plataforma com imóveis de bancos e particulares. Muitos apartamentos do ABC com bom deságio.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.sold.com.br/leiloes-de-imoveis" target="_blank" rel="noopener">Ver Imóveis na Sold ↗</a><a class="lbtn" href="https://www.sold.com.br" target="_blank" rel="noopener">Site principal ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">Portal Zuk</div><div class="link-card-desc">Leilões judiciais e extrajudiciais com boa cobertura do ABC. Filtre por cidade e faixa de preço.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.portalzuk.com.br/leilao-de-imoveis/c/todos-imoveis/sp/grande-sao-paulo/santo-andre" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp" target="_blank" rel="noopener">Todo Estado SP ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">Superbid Exchange</div><div class="link-card-desc">Maior marketplace de leilões do Brasil. Muitos imóveis do ABC e Grande SP.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.superbid.net/categorias/imoveis" target="_blank" rel="noopener">Ver Imóveis no Superbid ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">🏆 Leilão Imóvel</div><div class="link-card-desc">Agrega imóveis de mais de 400 leiloeiros numa só busca. Ideal para garimpar o ABC.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.leilaoimovel.com.br/leilao-de-imovel/santo-andre-sp" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-bernardo-do-campo-sp" target="_blank" rel="noopener">São Bernardo ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/maua-sp" target="_blank" rel="noopener">Mauá ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-caetano-do-sul-sp" target="_blank" rel="noopener">São Caetano ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">Mega Leilões</div><div class="link-card-desc">Leiloeiro com muitos imóveis no ABC. Leilões judiciais com bons deságios em 2ª praça.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/santo-andre" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-bernardo-do-campo" target="_blank" rel="noopener">São Bernardo ↗</a><a class="lbtn" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/maua" target="_blank" rel="noopener">Mauá ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">📋 Consultar Débitos — Prefeituras</div><div class="link-card-desc">Verifique o IPTU atrasado diretamente na prefeitura da cidade do imóvel antes de dar qualquer lance.</div><div class="link-card-btns"><a class="lbtn" href="https://www.santoandre.sp.gov.br/servicos" target="_blank" rel="noopener">Prefeitura Santo André ↗</a><a class="lbtn" href="https://www.saobernardo.sp.gov.br/web/sbc" target="_blank" rel="noopener">Prefeitura São Bernardo ↗</a><a class="lbtn" href="https://www.maua.sp.gov.br" target="_blank" rel="noopener">Prefeitura Mauá ↗</a><a class="lbtn" href="https://www.saocaetanodosul.sp.gov.br" target="_blank" rel="noopener">Prefeitura São Caetano ↗</a></div></div>
+    </div>
   </div>
-  <div class="lgrid">
-    <div class="lcard"><div class="lctt">🏦 Caixa Econômica Federal</div><div class="lcds">Maior volume de leilões do Brasil. Dados oficiais, sem bloqueios. Primeira opção — filtre por cidade.</div><div class="lcbt">
-      <a class="lbtn pri" href="https://venda.caixa.gov.br/imoveis?estado=SP&tipo=2" target="_blank" rel="noopener">🔍 Buscar Apartamentos SP ↗</a>
-      <a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SANTO+ANDRE&tipo=2" target="_blank" rel="noopener">Santo André ↗</a>
-      <a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+BERNARDO+DO+CAMPO&tipo=2" target="_blank" rel="noopener">São Bernardo do Campo ↗</a>
-      <a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=MAUA&tipo=2" target="_blank" rel="noopener">Mauá ↗</a>
-      <a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+CAETANO+DO+SUL&tipo=2" target="_blank" rel="noopener">São Caetano do Sul ↗</a>
-    </div></div>
+</div>
 
-    <div class="lcard"><div class="lctt">Sold Leilões</div><div class="lcds">Plataforma com imóveis de bancos e particulares. Muitos apartamentos do ABC com bom deságio. Crie conta gratuita para alertas automáticos.</div><div class="lcbt">
-      <a class="lbtn pri" href="https://www.sold.com.br/leiloes-de-imoveis" target="_blank" rel="noopener">🔍 Ver Imóveis na Sold ↗</a>
-      <a class="lbtn" href="https://www.sold.com.br" target="_blank" rel="noopener">Site principal ↗</a>
-    </div></div>
-
-    <div class="lcard"><div class="lctt">Portal Zuk</div><div class="lcds">Especializada em leilões judiciais e extrajudiciais. Boa cobertura do ABC. Filtre por cidade e faixa de preço.</div><div class="lcbt">
-      <a class="lbtn pri" href="https://www.portalzuk.com.br/leilao-de-imoveis/c/todos-imoveis/sp/grande-sao-paulo/santo-andre" target="_blank" rel="noopener">🔍 Santo André ↗</a>
-      <a class="lbtn" href="https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp" target="_blank" rel="noopener">Todo Estado SP ↗</a>
-      <a class="lbtn" href="https://www.portalzuk.com.br" target="_blank" rel="noopener">Site principal ↗</a>
-    </div></div>
-
-    <div class="lcard"><div class="lctt">Superbid Exchange</div><div class="lcds">Maior marketplace de leilões do Brasil. Muitos imóveis do ABC e região metropolitana de SP aparecem aqui.</div><div class="lcbt">
-      <a class="lbtn pri" href="https://www.superbid.net/categorias/imoveis" target="_blank" rel="noopener">🔍 Ver Imóveis no Superbid ↗</a>
-      <a class="lbtn" href="https://www.superbid.net" target="_blank" rel="noopener">Site principal ↗</a>
-    </div></div>
-
-    <div class="lcard"><div class="lctt">🏆 Leilão Imóvel</div><div class="lcds">Agrega imóveis de mais de 400 leiloeiros numa só busca. Excelente para garimpar o ABC sem precisar entrar em vários sites.</div><div class="lcbt">
-      <a class="lbtn pri" href="https://www.leilaoimovel.com.br/leilao-de-imovel/santo-andre-sp" target="_blank" rel="noopener">🔍 Santo André ↗</a>
-      <a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-bernardo-do-campo-sp" target="_blank" rel="noopener">São Bernardo ↗</a>
-      <a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/maua-sp" target="_blank" rel="noopener">Mauá ↗</a>
-      <a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-caetano-do-sul-sp" target="_blank" rel="noopener">São Caetano ↗</a>
-    </div></div>
-
-    <div class="lcard"><div class="lctt">WebLeilões</div><div class="lcds">Plataforma com imóveis judiciais e extrajudiciais. Costuma ter imóveis do ABC com bom deságio em 2ª praça.</div><div class="lcbt">
-      <a class="lbtn pri" href="https://www.webleiloes.com.br/" target="_blank" rel="noopener">🔍 Ver Imóveis ↗</a>
-    </div></div>
-
-    <div class="lcard"><div class="lctt">Mega Leilões</div><div class="lcds">Leiloeiro com muitos imóveis no ABC e Grande SP. Leilões judiciais com bons deságios em 2ª praça.</div><div class="lcbt">
-      <a class="lbtn pri" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/santo-andre" target="_blank" rel="noopener">🔍 Santo André ↗</a>
-      <a class="lbtn" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-bernardo-do-campo" target="_blank" rel="noopener">São Bernardo ↗</a>
-      <a class="lbtn" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/maua" target="_blank" rel="noopener">Mauá ↗</a>
-    </div></div>
-
-    <div class="lcard"><div class="lctt">📋 Consultar Débitos — Prefeituras</div><div class="lcds">Antes de dar qualquer lance, verifique o IPTU atrasado diretamente na prefeitura da cidade do imóvel.</div><div class="lcbt">
-      <a class="lbtn" href="https://www.santoandre.sp.gov.br/servicos" target="_blank" rel="noopener">Prefeitura Santo André ↗</a>
-      <a class="lbtn" href="https://www.saobernardo.sp.gov.br/web/sbc" target="_blank" rel="noopener">Prefeitura São Bernardo ↗</a>
-      <a class="lbtn" href="https://www.maua.sp.gov.br" target="_blank" rel="noopener">Prefeitura Mauá ↗</a>
-      <a class="lbtn" href="https://www.saocaetanodosul.sp.gov.br" target="_blank" rel="noopener">Prefeitura São Caetano ↗</a>
-    </div></div>
-  </div>
-</div></div>
-
+<!-- FOOTER -->
 <footer>
   <strong>ABC Leilões — Monitor Pessoal</strong> · Atualizado diariamente às 8h via GitHub Actions<br>
   Sempre leia o edital oficial antes de dar um lance ·
   <a href="https://venda.caixa.gov.br" target="_blank">Caixa</a> ·
   <a href="https://www.sold.com.br" target="_blank">Sold</a> ·
-  <a href="https://www.zuk.com.br" target="_blank">Zuk</a> ·
-  <a href="https://www.superbid.net" target="_blank">Superbid</a> ·
-  <a href="https://leiloes.bb.com.br" target="_blank">BB</a>
+  <a href="https://www.portalzuk.com.br" target="_blank">Zuk</a> ·
+  <a href="https://www.superbid.net" target="_blank">Superbid</a>
 </footer>
 
 <!-- MODAL -->
 <div class="overlay" id="modal" onclick="if(event.target===this)fecharModal()">
   <div class="modal">
-    <div class="mtop">
-      <div><div class="mtit" id="mtit">—</div><div class="msub" id="msub">—</div></div>
-      <button class="mx" onclick="fecharModal()">×</button>
+    <div class="modal-top">
+      <div><div class="modal-title" id="mtit">—</div><div class="modal-sub" id="msub">—</div></div>
+      <button class="modal-close" onclick="fecharModal()">×</button>
     </div>
-    <div class="mbody" id="mbody"></div>
+    <div class="modal-body" id="mbody"></div>
   </div>
 </div>
 
 <script>
 var TODOS=[],FILT=[],FAVS={},FONTE='',LINKS=[];
 
+/* ── TABS ── */
 function showTab(n,el){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+n).classList.add('active');
   el.classList.add('active');
   if(n==='caderno')renderCaderno();
   if(n==='intel')renderInteligencia();
 }
 
+/* ── SCORE ── */
 function score(im){
   var p=100;
   if(im.ocupado===true)p-=30;
@@ -500,29 +674,30 @@ function score(im){
   if((im.debito_cond||0)>0)p-=10;
   if(im.desagio>=35)p+=10;
   if(im.desagio<20)p-=10;
+  if(!im.area)p-=3;if(!im.quartos)p-=3;
   return Math.max(0,Math.min(100,p));
 }
 function scoreRazoes(im){
   var r=[];
   if(im.ocupado===true)r.push('Ocupado: exige plano para posse');
   if(im.ocupado===false)r.push('Desocupado: posse tende a ser mais simples');
-  if(im.praca==='2')r.push('2ª praça: desconto maior, confira regras');
-  if((im.debito_iptu||0)>0)r.push('Há IPTU informado');
-  if((im.debito_cond||0)>0)r.push('Há condomínio informado');
+  if(im.praca==='2')r.push('2ª praça: confira regras do edital');
+  if((im.debito_iptu||0)>0)r.push('Há IPTU informado — verifique valor total');
+  if((im.debito_cond||0)>0)r.push('Há débito de condomínio informado');
   if(im.desagio>=35)r.push('Deságio forte frente ao avaliado');
   if(im.desagio<20)r.push('Deságio baixo para risco de leilão');
-  if(!im.area)r.push('Área não informada');
-  if(!im.quartos)r.push('Quartos não informados');
+  if(!im.area)r.push('Área não informada no edital');
+  if(!im.quartos)r.push('Quartos não informados no edital');
   if(!r.length)r.push('Sem alerta relevante nos dados coletados');
   return r;
 }
-function scoreResumo(im){return scoreRazoes(im).slice(0,3).join(' · ');}
 function si(sc){
-  if(sc>=70)return{lb:'🟢 Bom',cl:'sv',sc:'sbv',tx:'verde'};
-  if(sc>=45)return{lb:'🟡 Médio',cl:'sa',sc:'sba',tx:'amarelo'};
-  return{lb:'🔴 Risco',cl:'sr',sc:'sbr',tx:'vermelho'};
+  if(sc>=70)return{lb:'Bom',cls:'good'};
+  if(sc>=45)return{lb:'Médio',cls:'med'};
+  return{lb:'Risco',cls:'bad'};
 }
 
+/* ── CARREGAR ── */
 async function carregarDados(){
   try{
     var r=await fetch('dados.json?t='+Date.now());
@@ -530,23 +705,30 @@ async function carregarDados(){
     var j=await r.json();
     TODOS=(j.imoveis||[]).map(im=>({...im,_sc:score(im)}));
     LINKS=j.links_consulta||[];
-    document.getElementById('hatual').textContent='📅 '+(j.atualizado||'—');
+    document.getElementById('t-updated').textContent='📅 '+(j.atualizado||'—');
+    document.getElementById('t-badge').textContent='● Ao vivo';
+    document.getElementById('t-badge').className='pill pill-live';
     document.getElementById('ist').textContent='✅ Dados carregados — '+TODOS.length+' imóveis confirmados, '+LINKS.length+' links de conferência';
   }catch(_){
     TODOS=demo().map(im=>({...im,_sc:score(im)}));
     LINKS=[];
-    var hb=document.getElementById('hbadge');
-    hb.textContent='⚠ Demo';hb.className='pill';hb.style.background='rgba(255,181,71,.12)';hb.style.color='var(--amber)';hb.style.border='1px solid rgba(255,181,71,.25)';
-    document.getElementById('hatual').textContent='📋 Exemplo';
+    var tb=document.getElementById('t-badge');
+    tb.textContent='⚠ Demo';tb.className='pill pill-demo';
+    document.getElementById('t-updated').textContent='📋 Exemplo';
     document.getElementById('ist').textContent='⚠️ dados.json não encontrado — exibindo dados de demonstração. Rode o script Python para dados reais.';
   }
   loadFavs();aplicarFiltros();
   var agora=new Date(),prox=new Date();prox.setHours(8,0,0,0);
   if(agora.getHours()>=8)prox.setDate(prox.getDate()+1);
-  document.getElementById('iprx').textContent='⏰ Próxima atualização em '+Math.round((prox-agora)/3600000)+'h';
+  document.getElementById('iprx').textContent='⏰ Próxima atualização em ~'+Math.round((prox-agora)/3600000)+'h';
 }
 
-function setFonte(f,el){FONTE=f;document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');aplicarFiltros();}
+function setFonte(f,el){
+  FONTE=f;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  aplicarFiltros();
+}
 
 function aplicarFiltros(){
   var c=document.getElementById('fc').value;
@@ -562,7 +744,7 @@ function aplicarFiltros(){
     if(im.lance<mn||im.lance>mx)return false;
     if(q==='1'&&im.quartos!==1)return false;
     if(q==='2'&&im.quartos!==2)return false;
-    if(q==='3'&&im.quartos<3)return false;
+    if(q==='3'&&(im.quartos||0)<3)return false;
     if(oc==='livre'&&im.ocupado!==false)return false;
     if(oc==='ocp'&&im.ocupado!==true)return false;
     return true;
@@ -576,16 +758,15 @@ function aplicarFiltros(){
 
 function stats(){
   var l=FILT.length?FILT:TODOS.filter(i=>i.lance>0);
+  var nb=document.getElementById('nb-busca');
+  var hc=document.getElementById('h-count');
   if(!l.length){
-    document.getElementById('st1').textContent='0';
-    document.getElementById('st2').textContent='—';
-    document.getElementById('st3').textContent='—';
-    document.getElementById('st4').textContent='0';
-    document.getElementById('st5').textContent='0';
-    var tb0=document.getElementById('tbusca');tb0.textContent='0';tb0.className='tbadge';
+    ['st1','st2','st3','st4','st5'].forEach(id=>document.getElementById(id).textContent='—');
+    nb.textContent='0';nb.className='nbadge';
+    hc.textContent='0 imóveis';
     return;
   }
-  var lances=l.map(i=>i.lance),desagios=l.map(i=>i.desagio);
+  var lances=l.map(i=>i.lance),desagios=l.map(i=>i.desagio||0);
   var deb=l.filter(i=>(i.debito_iptu||0)>0||(i.debito_cond||0)>0).length;
   var novos=l.filter(i=>i.novo).length;
   document.getElementById('st1').textContent=l.length;
@@ -593,61 +774,77 @@ function stats(){
   document.getElementById('st3').textContent=Math.max(...desagios)+'%';
   document.getElementById('st4').textContent=novos;
   document.getElementById('st5').textContent=deb;
-  var tb=document.getElementById('tbusca');tb.textContent=l.length;tb.className='tbadge on';
+  nb.textContent=l.length;nb.className='nbadge on';
+  hc.textContent=l.length+' imóvel(is)';
 }
 
+/* ── CARDS ── */
 function renderCards(){
   var lista=FILT;
-  document.getElementById('rcnt').textContent=lista.length+' apartamento(s)'+(FONTE?' — '+FONTE:'');
+  document.getElementById('rcnt').textContent=lista.length+' apartamento(s)'+(FONTE?' · fonte: '+FONTE:'');
   if(!lista.length){
-    document.getElementById('resultado').innerHTML='<div class="empty"><p style="font-size:48px">🏢</p><p style="margin-top:1rem">Nenhum imóvel com preço confirmado nesses filtros.</p>'+renderLinksConsulta()+'</div>';
+    var linksHtml='';
+    if(LINKS.length){
+      var grp={};
+      LINKS.forEach(l=>{var k=l.fonte+'|'+l.cidade;if(!grp[k]){grp[k]=l;}});
+      var items=Object.values(grp).slice(0,8).map(l=>
+        `<a class="link-item" href="${l.url}" target="_blank" rel="noopener">
+          <span><span class="li-src">${l.fonte}</span><br>${l.cidade}</span>
+          <span class="link-arrow">↗</span>
+        </a>`).join('');
+      linksHtml=`<div style="margin-top:1.5rem"><p style="font-size:13px;color:var(--text2);margin-bottom:.75rem;font-weight:600">Confira estes links enquanto não há preço confirmado:</p><div class="links-grid-small">${items}</div></div>`;
+    }
+    document.getElementById('resultado').innerHTML=`<div class="empty"><div class="empty-icon">🏢</div><div class="empty-title">Nenhum imóvel com preço confirmado nesses filtros</div><p style="font-size:13px;color:var(--text3)">Tente ampliar os critérios ou confira os links de busca manual</p>${linksHtml}</div>`;
     return;
   }
   var html='<div class="grid">';
   lista.forEach((im,idx)=>{
     var sc=im._sc,s=si(sc);
     var isD=(im.debito_iptu||0)>0||(im.debito_cond||0)>0;
-    var isFav=!!FAVS['_'+idx];
-    var dh=isD
-      ?`<div class="dp dpbad">⚠️ IPTU R$${f(im.debito_iptu)} + Cond. R$${f(im.debito_cond)}</div>`
-      :`<div class="dp dpok">✅ Sem débitos registrados</div>`;
-    var sr=scoreResumo(im);
+    var isFav=!!FAVS[im.id||('_'+idx)];
     var ot=im.ocupado===true?'Ocupado':im.ocupado===false?'Desocupado':'Verificar';
-    var oc=im.ocupado===true?'ccd':im.ocupado===false?'cco':'ccp';
+    var otc=im.ocupado===true?'tag-occ':im.ocupado===false?'tag-free':'tag-unk';
     html+=`<div class="card" style="animation-delay:${idx*.04}s">
-      <div class="cstripe ${s.cl}"></div>
-      <div class="chead">
-        <div class="ctitle">${im.titulo||(im.quartos+'q · '+im.area+'m²')}</div>
-        <div class="cloc">📍 ${im.bairro?im.bairro+' — ':''}${im.cidade}</div>
-        <div class="cchips">
-          ${im.novo?'<span class="cc cco">Novo</span>':'<span class="cc ccp">Recorrente</span>'}
-          <span class="cc ccf">${im.fonte}</span>
-          <span class="cc ccp">${im.praca}ª Praça</span>
-          <span class="cc ${oc}">${ot}</span>
-          <span class="cc ${oc} cc-score">Score ${sc}</span>
-          <span class="cc cco">ROI ${im.roi_potencial||0}%</span>
+      <div class="card-top">
+        <div class="card-header">
+          <div class="card-title">${im.titulo||(im.quartos+'q · '+im.area+'m²')}</div>
+          <span class="card-source">${im.fonte}</span>
         </div>
+        <div class="card-location">📍 ${im.bairro?im.bairro+' · ':''}${im.cidade}</div>
+        <div class="card-score">
+          <div class="score-bar-wrap"><div class="score-bar ${s.cls}" style="width:${sc}%"></div></div>
+          <span class="score-label ${s.cls}">Score ${sc}</span>
+        </div>
+        <div class="card-tags">
+          ${im.novo?'<span class="tag tag-new">✦ Novo</span>':'<span class="tag tag-rec">Recorrente</span>'}
+          <span class="tag tag-praca">${im.praca||'?'}ª Praça</span>
+          <span class="tag ${otc}">${ot}</span>
+          ${im.roi_potencial?`<span class="tag tag-rec">ROI ${im.roi_potencial}%</span>`:''}
+        </div>
+        ${isD
+          ?`<div class="debt-alert">⚠ IPTU R$ ${f(im.debito_iptu)} + Cond. R$ ${f(im.debito_cond)}</div>`
+          :`<div class="no-debt">✅ Sem débitos registrados no edital</div>`
+        }
+        <div class="price-block">
+          <div class="price-row"><span class="price-key">Avaliado</span><span class="price-old">R$ ${f(im.avaliado)}</span></div>
+          <div class="price-row">
+            <span class="price-key">Lance mínimo</span>
+            <span class="price-main">R$ ${f(im.lance)}</span>
+          </div>
+          <div class="price-row"><span class="price-key">Deságio</span><span class="price-discount">-${im.desagio}%</span></div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-item"><span class="meta-key">Área</span><span class="meta-val">${im.area?im.area+'m²':'—'}</span></div>
+          <div class="meta-item"><span class="meta-key">Data Leilão</span><span class="meta-val" style="font-size:11px">${im.data_leilao||'—'}</span></div>
+          <div class="meta-item"><span class="meta-key">Quartos</span><span class="meta-val">${im.quartos||'—'}</span></div>
+          <div class="meta-item"><span class="meta-key">Matrícula</span><span class="meta-val" style="font-size:11px">${im.matricula||'—'}</span></div>
+        </div>
+        ${im.mudanca?`<div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--r2);padding:.5rem .75rem;font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace">↕ ${im.mudanca}</div>`:''}
       </div>
-      <div class="cbody">
-        ${dh}
-        <div class="pbox">
-          <div class="pr"><span class="prl">Avaliado</span><span class="prav">R$ ${f(im.avaliado)}</span></div>
-          <div class="pr"><span class="prl">Lance mínimo</span><span class="prv">R$ ${f(im.lance)}</span></div>
-          <div class="pr"><span class="prl">Deságio</span><span class="prd">-${im.desagio}%</span></div>
-        </div>
-        <div class="mgrid">
-          <div class="mi"><span class="mil">Área</span><span class="miv">${im.area?im.area+'m²':'—'}</span></div>
-          <div class="mi"><span class="mil">Leilão</span><span class="miv">${im.data_leilao||'—'}</span></div>
-          <div class="mi"><span class="mil">Quartos</span><span class="miv">${im.quartos||'—'}</span></div>
-          <div class="mi"><span class="mil">Matrícula</span><span class="miv">${im.matricula||'—'}</span></div>
-        </div>
-        ${im.mudanca?`<div class="score-note">${im.mudanca}</div>`:''}
-        <div class="score-note">Score: ${sr}</div>
-      </div>
-      <div class="cfoot">
-        <button class="bfav ${isFav?'favd':''}" onclick="toggleFav(${idx},this)" title="Favoritar">⭐</button>
-        <a href="${im.url}" target="_blank" rel="noopener" class="bedital" onclick="event.stopPropagation()">Ver Edital ↗</a>
-        <button class="banal" onclick="abrirModal(${idx})">Análise</button>
+      <div class="card-actions">
+        <button class="btn-fav ${isFav?'active':''}" onclick="toggleFav('${im.id||('_'+idx)}',${idx},this)" title="Favoritar">⭐</button>
+        <a href="${im.url}" target="_blank" rel="noopener" class="btn-edital" onclick="event.stopPropagation()">Ver Edital ↗</a>
+        <button class="btn-detail" onclick="abrirModal(${idx})">Analisar →</button>
       </div>
     </div>`;
   });
@@ -655,21 +852,20 @@ function renderCards(){
   document.getElementById('resultado').innerHTML=html;
 }
 
-function renderLinksConsulta(){
-  if(!LINKS.length)return '<p style="margin-top:.75rem;font-size:13px">Use a aba Sites Reais para conferir os portais manualmente.</p>';
-  var itens=LINKS.slice(0,12).map(l=>`<a href="${l.url}" target="_blank" rel="noopener" class="lbtn" style="margin:6px auto;max-width:360px">${l.fonte} — ${l.cidade} ↗</a>`).join('');
-  return '<div style="margin-top:1.25rem"><p style="font-size:13px;margin-bottom:.75rem">Confira estes links filtrados enquanto não há preço confirmado na coleta automática:</p>'+itens+'</div>';
-}
-
+/* ── INTELIGÊNCIA ── */
 function renderInteligencia(){
   var lista=TODOS.filter(i=>i.lance>0).sort((a,b)=>(b.roi_potencial||0)-(a.roi_potencial||0)||b._sc-a._sc);
   var el=document.getElementById('intel-lista');
-  document.getElementById('ir1').textContent=lista.length+' confirmado(s)';
-  document.getElementById('ir4').textContent=lista.filter(i=>i.novo).length+' novo(s)';
+  document.getElementById('ir1').textContent=lista.length;
+  document.getElementById('ir4').textContent=lista.filter(i=>i.novo).length;
   if(!lista.length){
-    document.getElementById('ir2').textContent='—';
-    document.getElementById('ir3').textContent='—';
-    el.innerHTML='<div class="empty"><p style="font-size:48px">📊</p><p style="margin-top:1rem">Sem imóveis confirmados para análise financeira. Use os links de conferência para alimentar a próxima coleta.</p>'+renderLinksConsulta()+'</div>';
+    document.getElementById('ir2').textContent='—';document.getElementById('ir3').textContent='—';
+    var linksH='';
+    if(LINKS.length){
+      var grp2={};LINKS.forEach(l=>{var k=l.fonte+'|'+l.cidade;if(!grp2[k]){grp2[k]=l;}});
+      linksH=`<div class="links-grid-small" style="margin-top:1rem">${Object.values(grp2).slice(0,8).map(l=>`<a class="link-item" href="${l.url}" target="_blank" rel="noopener"><span><span class="li-src">${l.fonte}</span><br>${l.cidade}</span><span class="link-arrow">↗</span></a>`).join('')}</div>`;
+    }
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📊</div><div class="empty-title">Sem imóveis confirmados</div><p style="font-size:13px;color:var(--text3)">Use os links de conferência manual para alimentar a próxima coleta.</p>${linksH}</div>`;
     return;
   }
   var roiMed=Math.round(lista.reduce((s,i)=>s+(i.roi_potencial||0),0)/lista.length);
@@ -679,128 +875,132 @@ function renderInteligencia(){
   lista.forEach(im=>{
     var cls=(im.roi_potencial||0)>=15?'good':(im.roi_potencial||0)>=5?'warn':'risk';
     html+=`<div class="mode-card ${cls}">
-      <div class="mode-name">${im.novo?'Novo · ':''}${im.titulo}</div>
+      <div class="mode-name">${im.novo?'✦ Novo · ':''}${im.titulo}</div>
       <div class="mode-desc">${im.cidade} · ${im.fonte}<br>Estratégia: ${im.estrategia_sugerida||'Analisar edital e mercado'}</div>
-      <div class="pbox">
-        <div class="pr"><span class="prl">Investimento total</span><span class="prv">R$ ${f(im.custo_total)}</span></div>
-        <div class="pr"><span class="prl">Valor mercado estimado</span><span class="prv">R$ ${f(im.valor_mercado_estimado||im.avaliado)}</span></div>
-        <div class="pr"><span class="prl">Lucro potencial</span><span class="${(im.lucro_potencial||0)>=0?'prv':'mrr'}">R$ ${f(im.lucro_potencial)}</span></div>
-        <div class="pr"><span class="prl">ROI potencial</span><span class="${(im.roi_potencial||0)>=0?'prv':'mrr'}">${im.roi_potencial||0}%</span></div>
+      <div class="price-block" style="margin-bottom:0">
+        <div class="price-row"><span class="price-key">Investimento total</span><span style="font-size:13px;font-weight:700;color:var(--primary)">R$ ${f(im.custo_total)}</span></div>
+        <div class="price-row"><span class="price-key">Valor mercado est.</span><span style="font-size:13px;font-weight:600">R$ ${f(im.valor_mercado_estimado||im.avaliado)}</span></div>
+        <div class="price-row"><span class="price-key">ROI potencial</span><span style="font-size:13px;font-weight:700;color:${(im.roi_potencial||0)>=0?'var(--green)':'var(--red)'}">${im.roi_potencial||0}%</span></div>
       </div>
-      <div class="mode-tags">
+      <div class="mode-tags" style="margin-top:.75rem">
         <span class="mode-tag">Score ${im._sc}</span>
-        <span class="mode-tag">Localização ${im.qualidade_localizacao||'—'}/100</span>
-        <span class="mode-tag">${im.ocupado===true?'Ocupado':im.ocupado===false?'Desocupado':'Ocupação a confirmar'}</span>
+        <span class="mode-tag">Localiz. ${im.qualidade_localizacao||'—'}/100</span>
+        <span class="mode-tag">${im.ocupado===true?'Ocupado':im.ocupado===false?'Desocupado':'Ocp. a confirmar'}</span>
       </div>
     </div>`;
   });
-  html+='</div>';
-  el.innerHTML=html;
+  html+='</div>';el.innerHTML=html;
 }
 
+/* ── MODAL ── */
 function abrirModal(idx){
   var im=FILT[idx];if(!im)return;
   var sc=im._sc,s=si(sc);
-  var razoes=scoreRazoes(im).map(x=>`<li>${x}</li>`).join('');
+  var razoes=scoreRazoes(im).map(x=>`<li style="margin-bottom:.25rem">${x}</li>`).join('');
   var com=Math.round(im.lance*.05),itbi=Math.round(im.lance*.03),cart=3500;
   var ref=im.area?Math.round(im.area*400):15000;
   var deb=(im.debito_iptu||0)+(im.debito_cond||0);
   var total=im.lance+com+itbi+cart+ref+deb;
   document.getElementById('mtit').textContent=im.titulo||(im.quartos+'q · '+im.area+'m² — '+im.cidade);
-  document.getElementById('msub').textContent='📍 '+(im.bairro?im.bairro+' — ':'')+im.cidade+'  |  🎯 '+im.fonte+(im.data_leilao?'  |  📅 '+im.data_leilao:'');
-  var ao=im.ocupado===true?`<div class="dp dpbad" style="margin-top:1rem"><strong>🚨 OCUPADO:</strong> Exige ação judicial de imissão na posse. Custo extra: R$4-8k + 6-12 meses.</div>`:im.ocupado===false?`<div class="dp dpok" style="margin-top:1rem"><strong>✅ Desocupado:</strong> Situação favorável.</div>`:'';
+  document.getElementById('msub').textContent='📍 '+(im.bairro?im.bairro+' — ':'')+im.cidade+'  |  '+im.fonte+(im.data_leilao?'  |  📅 '+im.data_leilao:'');
+  var favId=im.id||('_'+idx);
   document.getElementById('mbody').innerHTML=`
-    <div class="ms"><div class="mst">📊 Dados do Imóvel</div>
-      ${im.quartos?`<div class="mr"><span class="mrl">Quartos</span><span class="mrv">${im.quartos}</span></div>`:''}
-      ${im.area?`<div class="mr"><span class="mrl">Área</span><span class="mrv">${im.area} m²</span></div>`:''}
-      <div class="mr"><span class="mrl">Cidade</span><span class="mrv">${im.cidade}${im.bairro?' — '+im.bairro:''}</span></div>
-      ${im.matricula?`<div class="mr"><span class="mrl">Matrícula</span><span class="mrv">${im.matricula}</span></div>`:''}
-      <div class="mr"><span class="mrl">Praça</span><span class="mrv">${im.praca}ª Praça</span></div>
-      <div class="mr"><span class="mrl">Fonte</span><span class="mrv">${im.fonte}</span></div>
-      <div class="mr"><span class="mrl">Histórico</span><span class="mrv ${im.novo?'mrg':''}">${im.novo?'Novo desde a última coleta':'Já visto antes'}</span></div>
-      ${im.mudanca?`<div class="mr"><span class="mrl">Mudança</span><span class="mrv mrg">${im.mudanca}</span></div>`:''}
-      <div class="mr"><span class="mrl">Score de Risco</span><span class="mrv"><span class="sbdg ${s.sc}">${s.lb} (${sc}/100)</span></span></div>
-      <div class="mr"><span class="mrl">Estratégia sugerida</span><span class="mrv">${im.estrategia_sugerida||'Analisar edital e mercado'}</span></div>
-      <div class="mr"><span class="mrl">Qualidade localização</span><span class="mrv">${im.qualidade_localizacao||'—'}/100</span></div>
+    <div class="modal-section">
+      <div class="modal-section-title">📊 Dados do Imóvel</div>
+      ${im.quartos?`<div class="modal-row"><span class="modal-row-key">Quartos</span><span class="modal-row-val">${im.quartos}</span></div>`:''}
+      ${im.area?`<div class="modal-row"><span class="modal-row-key">Área</span><span class="modal-row-val">${im.area} m²</span></div>`:''}
+      <div class="modal-row"><span class="modal-row-key">Cidade</span><span class="modal-row-val">${im.cidade}${im.bairro?' — '+im.bairro:''}</span></div>
+      ${im.matricula?`<div class="modal-row"><span class="modal-row-key">Matrícula</span><span class="modal-row-val">${im.matricula}</span></div>`:''}
+      <div class="modal-row"><span class="modal-row-key">Praça</span><span class="modal-row-val">${im.praca}ª Praça</span></div>
+      <div class="modal-row"><span class="modal-row-key">Histórico</span><span class="modal-row-val ${im.novo?'green':''}">${im.novo?'✦ Novo desde a última coleta':'Já visto antes'}</span></div>
+      <div class="modal-row"><span class="modal-row-key">Score</span><span class="modal-row-val"><span class="score-label ${s.cls}">${s.lb} (${sc}/100)</span></span></div>
+      <div class="modal-row"><span class="modal-row-key">Estratégia sugerida</span><span class="modal-row-val">${im.estrategia_sugerida||'Analisar edital'}</span></div>
     </div>
-    <div class="ms"><div class="mst">💰 Valores</div>
-      <div class="mr"><span class="mrl">Valor avaliado</span><span class="mrv">R$ ${f(im.avaliado)}</span></div>
-      <div class="mr"><span class="mrl">Lance mínimo</span><span class="mrv mrg">R$ ${f(im.lance)}</span></div>
-      <div class="mr"><span class="mrl">Deságio</span><span class="mrv mrg">-${im.desagio}%</span></div>
-      <div class="mr"><span class="mrl">Economia vs avaliado</span><span class="mrv mrg">R$ ${f(im.avaliado-im.lance)}</span></div>
-      <div class="mr"><span class="mrl">Lucro potencial líquido</span><span class="mrv ${(im.lucro_potencial||0)>=0?'mrg':'mrr'}">R$ ${f(im.lucro_potencial)}</span></div>
-      <div class="mr"><span class="mrl">ROI potencial</span><span class="mrv ${(im.roi_potencial||0)>=0?'mrg':'mrr'}">${im.roi_potencial||0}%</span></div>
+    <div class="modal-section">
+      <div class="modal-section-title">💰 Valores</div>
+      <div class="modal-row"><span class="modal-row-key">Avaliado</span><span class="modal-row-val">R$ ${f(im.avaliado)}</span></div>
+      <div class="modal-row"><span class="modal-row-key">Lance mínimo</span><span class="modal-row-val green">R$ ${f(im.lance)}</span></div>
+      <div class="modal-row"><span class="modal-row-key">Deságio</span><span class="modal-row-val green">-${im.desagio}%</span></div>
+      <div class="modal-row"><span class="modal-row-key">ROI potencial</span><span class="modal-row-val ${(im.roi_potencial||0)>=0?'green':'red'}">${im.roi_potencial||0}%</span></div>
     </div>
-    <div class="ms"><div class="mst">⚠️ Situação e Débitos</div>
-      <div class="mr"><span class="mrl">Ocupação</span><span class="mrv ${im.ocupado?'mrr':'mrg'}">${im.ocupado===true?'🚨 Ocupado':im.ocupado===false?'✅ Desocupado':'❓ Verificar'}</span></div>
-      <div class="mr"><span class="mrl">Débito IPTU</span><span class="mrv ${(im.debito_iptu||0)>0?'mrr':'mrg'}">R$ ${f(im.debito_iptu||0)}</span></div>
-      <div class="mr"><span class="mrl">Débito Condomínio</span><span class="mrv ${(im.debito_cond||0)>0?'mrr':'mrg'}">R$ ${f(im.debito_cond||0)}</span></div>
-      <div class="mr"><span class="mrl">Total débitos</span><span class="mrv ${deb>0?'mrr':'mrg'}">R$ ${f(deb)}</span></div>
-      ${ao}
+    <div class="modal-section">
+      <div class="modal-section-title">⚠️ Situação e Débitos</div>
+      <div class="modal-row"><span class="modal-row-key">Ocupação</span><span class="modal-row-val ${im.ocupado?'red':'green'}">${im.ocupado===true?'🚨 Ocupado':im.ocupado===false?'✅ Desocupado':'❓ Verificar'}</span></div>
+      <div class="modal-row"><span class="modal-row-key">Débito IPTU</span><span class="modal-row-val ${(im.debito_iptu||0)>0?'red':'green'}">R$ ${f(im.debito_iptu||0)}</span></div>
+      <div class="modal-row"><span class="modal-row-key">Débito Condomínio</span><span class="modal-row-val ${(im.debito_cond||0)>0?'red':'green'}">R$ ${f(im.debito_cond||0)}</span></div>
     </div>
-    <div class="ms"><div class="mst">🧭 Leitura do Score</div>
-      <div class="cbox">
-        <div class="cr2"><span>Classificação</span><span>${s.lb} (${sc}/100)</span></div>
-        <ul style="margin:10px 0 0 18px;color:var(--dim);font-family:var(--fm);font-size:12px;line-height:1.8">${razoes}</ul>
+    <div class="modal-section">
+      <div class="modal-section-title">🧭 Leitura do Score</div>
+      <ul style="margin:0 0 0 18px;color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.9">${razoes}</ul>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">🧮 Custo Real Total</div>
+      <div class="cost-table">
+        <div class="cost-row"><span class="ck">Lance mínimo</span><span class="cv">R$ ${f(im.lance)}</span></div>
+        <div class="cost-row"><span class="ck">Comissão leiloeiro (5%)</span><span class="cv">R$ ${f(com)}</span></div>
+        <div class="cost-row"><span class="ck">ITBI — Imp. transferência (3%)</span><span class="cv">R$ ${f(itbi)}</span></div>
+        <div class="cost-row"><span class="ck">Escritura / Cartório</span><span class="cv">R$ ${f(cart)}</span></div>
+        <div class="cost-row"><span class="ck">Reforma estimada (R$400/m²)</span><span class="cv">R$ ${f(ref)}</span></div>
+        ${deb>0?`<div class="cost-row"><span class="ck">Débitos assumidos</span><span class="cv" style="color:#dc2626">R$ ${f(deb)}</span></div>`:''}
+        <div class="cost-row"><span class="ck">💰 TOTAL QUE VOCÊ VAI PAGAR</span><span class="cv">R$ ${f(total)}</span></div>
       </div>
     </div>
-    <div class="ms"><div class="mst">🧮 Custo Real Total</div>
-      <div class="cbox">
-        <div class="cr2"><span>Lance mínimo</span><span>R$ ${f(im.lance)}</span></div>
-        <div class="cr2"><span>Comissão leiloeiro (5%)</span><span>R$ ${f(com)}</span></div>
-        <div class="cr2"><span>ITBI — Imp. transferência (3%)</span><span>R$ ${f(itbi)}</span></div>
-        <div class="cr2"><span>Escritura / Cartório</span><span>R$ ${f(cart)}</span></div>
-        <div class="cr2"><span>Reforma estimada (R$400/m²)</span><span>R$ ${f(ref)}</span></div>
-        ${deb>0?`<div class="cr2"><span>Débitos assumidos</span><span style="color:var(--red)">R$ ${f(deb)}</span></div>`:''}
-        <div class="cr2 crt"><span>💰 TOTAL QUE VOCÊ VAI PAGAR</span><span>R$ ${f(total)}</span></div>
-      </div>
+    <div class="checklist-box">
+      <strong>📋 Antes do lance — verifique:</strong><br>
+      ① Leia o edital completo no site do leiloeiro<br>
+      ② Consulte IPTU na Prefeitura de ${im.cidade}<br>
+      ③ Ligue para síndico — débito de condomínio<br>
+      ④ Verifique matrícula no Cartório de Registro<br>
+      ⑤ Confirme situação de ocupação e prazo<br>
+      ⑥ Defina seu lance máximo e não passe
     </div>
-    <div class="wbox"><strong>📋 Antes do lance — verifique:</strong><br>① Leia o edital completo no site do leiloeiro<br>② Consulte IPTU na Prefeitura de ${im.cidade}<br>③ Ligue para síndico — débito de condomínio<br>④ Verifique matrícula no Cartório de Registro<br>⑤ Confirme situação de ocupação e prazo<br>⑥ Defina seu lance máximo e não passe</div>
-    <div class="macts">
-      <a href="${im.url}" target="_blank" rel="noopener" class="mab map">Ver Edital Oficial ↗</a>
-      <button class="mab mas" onclick="favModal(${idx})">⭐ Salvar no Caderno</button>
+    <div class="modal-actions">
+      <a href="${im.url}" target="_blank" rel="noopener" class="modal-btn modal-btn-primary">Ver Edital Oficial ↗</a>
+      <button class="modal-btn modal-btn-secondary" onclick="favModal('${favId}',${idx})">⭐ Salvar no Caderno</button>
     </div>`;
   document.getElementById('modal').classList.add('open');
 }
 function fecharModal(){document.getElementById('modal').classList.remove('open');}
-function favModal(idx){toggleFavById(idx);fecharModal();alert('✅ Salvo no caderno! Acesse a aba ⭐ Caderno.');}
+function favModal(fid,idx){toggleFav(fid,idx,null);fecharModal();alert('✅ Salvo no caderno! Acesse a aba ⭐ Caderno.');}
 
-/* FAVS */
-function loadFavs(){try{FAVS=JSON.parse(localStorage.getItem('leilao_favs')||'{}')}catch(_){FAVS={}}updFavBadge();}
-function saveFavs(){localStorage.setItem('leilao_favs',JSON.stringify(FAVS));updFavBadge();}
-function updFavBadge(){var n=Object.keys(FAVS).length,el=document.getElementById('tfav');el.textContent=n;el.className='tbadge'+(n>0?' on':'');}
-function toggleFav(idx,btn){toggleFavById(idx);btn.classList.toggle('favd',!!FAVS['_'+idx]);}
-function toggleFavById(idx){
+/* ── FAVS ── */
+function loadFavs(){try{FAVS=JSON.parse(localStorage.getItem('leilao_favs_v2')||'{}')}catch(_){FAVS={}}updFavBadge();}
+function saveFavs(){localStorage.setItem('leilao_favs_v2',JSON.stringify(FAVS));updFavBadge();}
+function updFavBadge(){var n=Object.keys(FAVS).length,el=document.getElementById('nb-fav');el.textContent=n;el.className='nbadge'+(n>0?' on':'');}
+function toggleFav(fid,idx,btn){
   var im=FILT[idx];if(!im)return;
-  var k='_'+idx;
-  if(FAVS[k]){delete FAVS[k];}
-  else{FAVS[k]={titulo:im.titulo||(im.quartos+'q · '+im.area+'m²'),cidade:im.cidade,bairro:im.bairro,lance:im.lance,desagio:im.desagio,fonte:im.fonte,url:im.url,sc:im._sc,saved:new Date().toLocaleDateString('pt-BR'),nota:'',checks:{iptu:false,cond:false,mat:false,ocup:false,edital:false,lmax:false}};}
+  var k=fid||im.id||('_'+idx);
+  if(FAVS[k]){delete FAVS[k];if(btn)btn.classList.remove('active');}
+  else{
+    FAVS[k]={id:k,titulo:im.titulo||(im.quartos+'q · '+im.area+'m²'),cidade:im.cidade,bairro:im.bairro||'',lance:im.lance,desagio:im.desagio,fonte:im.fonte,url:im.url,sc:im._sc,saved:new Date().toLocaleDateString('pt-BR'),nota:'',checks:{iptu:false,cond:false,mat:false,ocup:false,edital:false,lmax:false}};
+    if(btn)btn.classList.add('active');
+  }
   saveFavs();
 }
 function renderCaderno(){
   var ks=Object.keys(FAVS),el=document.getElementById('caderno');
-  if(!ks.length){el.innerHTML='<div class="cemp"><div style="font-size:48px;margin-bottom:1rem">📒</div><p style="font-family:var(--fh);font-size:18px;margin-bottom:8px">Caderno vazio</p><p style="font-size:13px;color:var(--dim);font-family:var(--fm)">Clique em ⭐ em qualquer imóvel para salvar aqui</p></div>';return;}
+  if(!ks.length){el.innerHTML='<div class="caderno-empty"><div class="ei">📒</div><p>Caderno vazio</p><small>Clique em ⭐ em qualquer imóvel para salvar aqui</small></div>';return;}
   var cls={iptu:'① Consultei IPTU na Prefeitura',cond:'② Liguei para síndico (condomínio)',mat:'③ Verifiquei matrícula no Cartório',ocup:'④ Confirmei situação de ocupação',edital:'⑤ Li o edital completo',lmax:'⑥ Defini meu lance máximo'};
-  var html='<div class="fgrid">';
+  var html='<div class="fav-grid">';
   ks.forEach(k=>{
-    var fv=FAVS[k],inf=si(fv.sc);
-    var ch=Object.keys(fv.checks).map(c=>`<div class="fci ${fv.checks[c]?'done':''}" onclick="togCheck('${k}','${c}',this)"><input type="checkbox" ${fv.checks[c]?'checked':''} onclick="event.stopPropagation()"> ${cls[c]}</div>`).join('');
-    html+=`<div class="fcard">
-      <div class="fhead"><div><div class="ftit">${fv.titulo}</div><div style="margin-top:5px"><span class="sbdg ${inf.sc}">${inf.lb}</span></div></div><button class="bdel" onclick="remFav('${k}')">✕</button></div>
-      <div class="fmeta">📍 ${fv.bairro?fv.bairro+' — ':''}${fv.cidade} · ${fv.fonte} · Salvo ${fv.saved}<br>💰 R$ ${f(fv.lance)} · -${fv.desagio}%</div>
-      <div class="fnota"><textarea placeholder="Suas anotações..." onchange="savNota('${k}',this.value)">${fv.nota||''}</textarea></div>
-      <div>${ch}</div>
-      <a href="${fv.url}" target="_blank" rel="noopener" style="display:block;margin-top:.9rem;text-align:center;background:rgba(184,245,100,.1);border:1px solid rgba(184,245,100,.25);border-radius:7px;padding:8px;font-size:11px;font-family:var(--fm);color:var(--lime);text-decoration:none">Ver Edital ↗</a>
+    var fv=FAVS[k],s=si(fv.sc);
+    var ch=Object.keys(fv.checks||{}).map(c=>`<div class="fav-ci ${fv.checks[c]?'done':''}" onclick="togCheck('${k}','${c}',this)"><input type="checkbox" ${fv.checks[c]?'checked':''} onclick="event.stopPropagation()"> ${cls[c]}</div>`).join('');
+    html+=`<div class="fav-card">
+      <div class="fav-head"><div><div class="fav-title">${fv.titulo}</div><span class="score-label ${s.cls}" style="margin-top:5px;display:inline-block">${s.lb}</span></div><button class="fav-del" onclick="remFav('${k}')">✕</button></div>
+      <div class="fav-meta">📍 ${fv.bairro?fv.bairro+' · ':''}${fv.cidade} · ${fv.fonte}<br>💰 R$ ${f(fv.lance)} · -${fv.desagio}% · Salvo ${fv.saved}</div>
+      <div class="fav-nota"><textarea placeholder="Suas anotações sobre este imóvel..." onchange="savNota('${k}',this.value)">${fv.nota||''}</textarea></div>
+      <div class="fav-check">${ch}</div>
+      <a href="${fv.url}" target="_blank" rel="noopener" class="fav-link">Ver Edital Oficial ↗</a>
     </div>`;
   });
   html+='</div>';el.innerHTML=html;
 }
-function togCheck(k,c,el){if(!FAVS[k])return;FAVS[k].checks[c]=!FAVS[k].checks[c];saveFavs();var r=el.closest?el.closest('.fci'):el;r.classList.toggle('done',FAVS[k].checks[c]);r.querySelector('input').checked=FAVS[k].checks[c];}
+function togCheck(k,c,el){if(!FAVS[k])return;FAVS[k].checks[c]=!FAVS[k].checks[c];saveFavs();var r=el.closest?el.closest('.fav-ci'):el;r.classList.toggle('done',FAVS[k].checks[c]);r.querySelector('input').checked=FAVS[k].checks[c];}
 function savNota(k,v){if(FAVS[k]){FAVS[k].nota=v;saveFavs();}}
 function remFav(k){delete FAVS[k];saveFavs();renderCaderno();}
 function limparFavs(){if(confirm('Apagar todos os favoritos?')){FAVS={};saveFavs();renderCaderno();}}
 
-/* CALCULADORAS */
+/* ── CALCULADORAS ── */
 function calcC(){
   var l=parseFloat(document.getElementById('cl').value)||0;
   var a=parseFloat(document.getElementById('ca').value)||0;
@@ -815,7 +1015,7 @@ function calcC(){
   document.getElementById('r5').textContent='R$ '+f(ref);
   document.getElementById('r6').textContent='R$ '+f(d);
   document.getElementById('ctv').textContent='R$ '+f(tot);
-  document.getElementById('cts').textContent=a?'Por m²: R$ '+f(tot/a)+'/m²':'';
+  document.getElementById('cts').textContent=a?'Custo por m²: R$ '+f(tot/a)+'/m²':'';
   document.getElementById('ctb').style.display='block';
 }
 function calcR(){
@@ -836,17 +1036,18 @@ function calcR(){
   document.getElementById('rb').style.display='block';
 }
 
-/* DEMO */
+/* ── DEMO ── */
 function demo(){
   var cs=['Santo André','São Bernardo do Campo','Mauá','São Caetano do Sul'];
   var bs={'Santo André':['Paraíso','Vila Bastos','Cidade São Jorge'],'São Bernardo do Campo':['Baeta Neves','Paulista','Ferrazópolis'],'Mauá':['Centro','Vila Bocaina','Apura'],'São Caetano do Sul':['Boa Vista','Santo Antônio','Cerâmica']};
   var fs=['Caixa','Sold','Zuk','Superbid','Banco do Brasil'];
-  var us={'Caixa':'https://venda.caixa.gov.br/imoveis?estado=SP','Sold':'https://www.sold.com.br','Zuk':'https://www.zuk.com.br','Superbid':'https://www.superbid.net','Banco do Brasil':'https://leiloes.bb.com.br'};
+  var us={'Caixa':'https://venda.caixa.gov.br/imoveis?estado=SP','Sold':'https://www.sold.com.br','Zuk':'https://www.portalzuk.com.br','Superbid':'https://www.superbid.net','Banco do Brasil':'https://leiloes.bb.com.br'};
   return Array.from({length:16},(_,i)=>{
     var c=cs[i%cs.length],l=72000+Math.floor(Math.random()*88000),av=l+Math.floor(Math.random()*60000);
     var fn=fs[i%fs.length],q=1+Math.floor(Math.random()*3),a=48+Math.floor(Math.random()*72);
     var td=Math.random()>.55,dt=new Date();dt.setDate(dt.getDate()+5+Math.floor(Math.random()*40));
-    return{titulo:q+'q · '+a+'m²',cidade:c,bairro:bs[c][Math.floor(Math.random()*bs[c].length)],lance:l,avaliado:av,desagio:Math.round(((av-l)/av)*100),fonte:fn,url:us[fn],praca:Math.random()>.35?'1':'2',ocupado:Math.random()>.5,debito_iptu:td?Math.round(Math.random()*12000):0,debito_cond:td?Math.round(Math.random()*7000):0,area:a,quartos:q,matricula:'R.'+(10000+Math.floor(Math.random()*90000)),data_leilao:dt.toLocaleDateString('pt-BR')};
+    var id='demo_'+i+'_'+l;
+    return{id,titulo:q+'q · '+a+'m²',cidade:c,bairro:bs[c][Math.floor(Math.random()*bs[c].length)],lance:l,avaliado:av,desagio:Math.round(((av-l)/av)*100),fonte:fn,url:us[fn],praca:Math.random()>.35?'1':'2',ocupado:Math.random()>.5,debito_iptu:td?Math.round(Math.random()*12000):0,debito_cond:td?Math.round(Math.random()*7000):0,area:a,quartos:q,matricula:'R.'+(10000+Math.floor(Math.random()*90000)),data_leilao:dt.toLocaleDateString('pt-BR'),roi_potencial:Math.round(Math.random()*25-5),estrategia_sugerida:'Analisar edital e mercado',qualidade_localizacao:65+Math.floor(Math.random()*25)};
   });
 }
 
