@@ -7,6 +7,15 @@
 <meta name="description" content="Monitor pessoal de apartamentos em leilão no ABC Paulista">
 <link rel="manifest" href="manifest.json">
 <title>ABC Leilões — Monitor Pessoal</title>
+<script>
+// ── GUARD DE SESSÃO ── Executa antes de renderizar qualquer coisa
+(function(){
+  var KEY='abc_leilao_auth';
+  if(sessionStorage.getItem(KEY)==='ok')return;
+  try{var o=JSON.parse(localStorage.getItem(KEY)||'{}');if(o.exp>Date.now()){sessionStorage.setItem(KEY,'ok');return;}}catch(_){}
+  window.location.replace('login.html');
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -334,6 +343,7 @@ footer a{color:var(--primary);text-decoration:none}
     <div class="topbar-right">
       <span class="pill pill-info" id="t-badge">● Ao vivo</span>
       <button class="tbtn" onclick="carregarDados()">↻ Atualizar</button>
+      <button class="tbtn" onclick="fazerLogout()" style="border-color:rgba(249,115,22,.4);color:rgba(249,115,22,.85)" title="Sair">⏻ Sair</button>
     </div>
   </div>
 </div>
@@ -1052,6 +1062,15 @@ function demo(){
 }
 
 function f(n){return Math.round(n||0).toLocaleString('pt-BR');}
+
+// ── LOGOUT ────────────────────────────────────────────────────────────────
+function fazerLogout(){
+  if(!confirm('Deseja sair do monitor?'))return;
+  sessionStorage.removeItem('abc_leilao_auth');
+  localStorage.removeItem('abc_leilao_auth');
+  window.location.replace('login.html');
+}
+
 document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharModal();});
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 carregarDados();

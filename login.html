@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d1726">
+<title>ABC Leilões — Acesso</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#060e1c;
+  --card:#0d1726;
+  --border:#1e3050;
+  --border2:#2a4070;
+  --text:#e8edf5;
+  --text2:#7a92b4;
+  --text3:#445c7a;
+  --primary:#1a3a6e;
+  --accent:#f97316;
+  --accent2:#fb923c;
+  --green:#22c55e;
+  --red:#ef4444;
+  --r:16px;
+  --r2:10px;
+}
+
+html,body{height:100%;-webkit-font-smoothing:antialiased}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:1rem;
+  position:relative;
+  overflow:hidden;
+}
+
+/* ── BACKGROUND GRID ── */
+.bg-grid{
+  position:fixed;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(26,58,110,.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26,58,110,.15) 1px, transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+}
+
+/* ── GLOW ORBS ── */
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;animation:drift 12s ease-in-out infinite}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,rgba(249,115,22,.12),transparent 70%);top:-150px;right:-100px;animation-delay:0s}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(26,58,110,.25),transparent 70%);bottom:-100px;left:-80px;animation-delay:-6s}
+@keyframes drift{
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(20px,-15px) scale(1.05)}
+  66%{transform:translate(-15px,20px) scale(.95)}
+}
+
+/* ── CARD ── */
+.card{
+  position:relative;
+  width:100%;max-width:420px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:2.5rem 2.25rem 2rem;
+  box-shadow:0 0 0 1px rgba(255,255,255,.03),0 32px 64px rgba(0,0,0,.5),0 0 80px rgba(249,115,22,.05);
+  animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes slideUp{
+  from{opacity:0;transform:translateY(24px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* borda accent topo */
+.card::before{
+  content:'';position:absolute;top:0;left:24px;right:24px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  border-radius:1px;
+}
+
+/* ── LOGO ── */
+.logo{display:flex;align-items:center;gap:12px;margin-bottom:2rem}
+.logo-icon{
+  width:44px;height:44px;
+  background:linear-gradient(135deg,var(--primary),#2a5ab0);
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  box-shadow:0 4px 16px rgba(26,58,110,.4);
+  flex-shrink:0;
+}
+.logo-text{
+  font-family:'Syne',sans-serif;
+  font-size:20px;font-weight:800;
+  color:var(--text);line-height:1.1;
+}
+.logo-sub{
+  font-size:11px;font-weight:500;
+  color:var(--text3);
+  font-family:'JetBrains Mono',monospace;
+  display:block;margin-top:2px;
+}
+
+/* ── HEADER TEXT ── */
+.heading{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px}
+.subheading{font-size:13px;color:var(--text2);margin-bottom:2rem;line-height:1.5}
+
+/* ── FORM ── */
+.field{margin-bottom:1.125rem}
+.field label{
+  display:block;
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text3);
+  font-family:'JetBrains Mono',monospace;
+  margin-bottom:7px;
+}
+.input-wrap{position:relative}
+.input-wrap input{
+  width:100%;
+  background:rgba(255,255,255,.04);
+  border:1.5px solid var(--border);
+  border-radius:var(--r2);
+  color:var(--text);
+  padding:11px 44px 11px 14px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:500;
+  outline:none;
+  transition:border-color .18s, box-shadow .18s, background .18s;
+}
+.input-wrap input::placeholder{color:var(--text3)}
+.input-wrap input:focus{
+  border-color:var(--accent);
+  background:rgba(249,115,22,.05);
+  box-shadow:0 0 0 3px rgba(249,115,22,.1);
+}
+.input-wrap input.err{
+  border-color:var(--red);
+  box-shadow:0 0 0 3px rgba(239,68,68,.12);
+}
+.input-icon{
+  position:absolute;right:13px;top:50%;transform:translateY(-50%);
+  color:var(--text3);font-size:16px;pointer-events:none;transition:color .18s;
+}
+.input-wrap:focus-within .input-icon{color:var(--accent)}
+.toggle-pass{pointer-events:all;cursor:pointer;}
+
+/* ── REMEMBER ── */
+.remember{
+  display:flex;align-items:center;gap:9px;
+  margin-bottom:1.5rem;cursor:pointer;
+  font-size:13px;color:var(--text2);
+}
+.remember input[type=checkbox]{
+  width:16px;height:16px;
+  accent-color:var(--accent);cursor:pointer;flex-shrink:0;
+}
+
+/* ── BUTTON ── */
+.btn-login{
+  width:100%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;border:none;border-radius:var(--r2);
+  padding:13px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:700;
+  cursor:pointer;
+  transition:all .18s;
+  position:relative;overflow:hidden;
+  letter-spacing:.01em;
+}
+.btn-login::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);
+  opacity:0;transition:opacity .18s;
+}
+.btn-login:hover::before{opacity:1}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(249,115,22,.35)}
+.btn-login:active{transform:translateY(0)}
+.btn-login:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ── SPINNER inside button ── */
+.btn-login .spin{
+  display:inline-block;width:16px;height:16px;
+  border:2.5px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin .6s linear infinite;vertical-align:middle;margin-right:8px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── ERROR MSG ── */
+.error-msg{
+  display:none;
+  background:rgba(239,68,68,.1);
+  border:1px solid rgba(239,68,68,.25);
+  border-radius:var(--r2);
+  padding:10px 14px;
+  font-size:12px;
+  color:#fca5a5;
+  font-family:'JetBrains Mono',monospace;
+  margin-bottom:1.125rem;
+  animation:shake .35s cubic-bezier(.36,.07,.19,.97);
+}
+@keyframes shake{
+  10%,90%{transform:translateX(-2px)}
+  20%,80%{transform:translateX(3px)}
+  30%,50%,70%{transform:translateX(-4px)}
+  40%,60%{transform:translateX(4px)}
+}
+
+/* ── SUCCESS ── */
+.success-msg{
+  display:none;
+  background:rgba(34,197,94,.1);
+  border:1px solid rgba(34,197,94,.25);
+  border-radius:var(--r2);
+  padding:10px 14px;
+  font-size:12px;color:#86efac;
+  font-family:'JetBrains Mono',monospace;
+  margin-bottom:1.125rem;
+}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:1.5rem 0}
+
+/* ── FOOTER ── */
+.card-footer{text-align:center;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.card-footer strong{color:var(--text2)}
+
+/* ── ATTEMPTS ── */
+.attempts-badge{
+  display:none;
+  text-align:right;
+  font-size:10px;color:var(--red);
+  font-family:'JetBrains Mono',monospace;
+  margin-top:4px;
+}
+
+/* ── LOCKOUT OVERLAY ── */
+.lockout{
+  display:none;position:fixed;inset:0;
+  background:rgba(6,14,28,.95);
+  backdrop-filter:blur(8px);
+  z-index:999;
+  align-items:center;justify-content:center;
+  flex-direction:column;
+  gap:1rem;
+  text-align:center;padding:2rem;
+}
+.lockout.show{display:flex}
+.lockout-icon{font-size:52px;margin-bottom:.5rem}
+.lockout-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--text)}
+.lockout-sub{font-size:13px;color:var(--text2);font-family:'JetBrains Mono',monospace}
+.lockout-timer{font-size:32px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--accent);margin-top:.5rem}
+
+@media(max-width:480px){
+  .card{padding:2rem 1.5rem 1.75rem;border-radius:20px}
+  .heading{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- LOCKOUT OVERLAY -->
+<div class="lockout" id="lockout">
+  <div class="lockout-icon">🔒</div>
+  <div class="lockout-title">Acesso bloqueado</div>
+  <div class="lockout-sub">Muitas tentativas incorretas.<br>Aguarde para tentar novamente.</div>
+  <div class="lockout-timer" id="ltimer">—</div>
+</div>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">🏠</div>
+    <div>
+      <div class="logo-text">ABC Leilões</div>
+      <span class="logo-sub">Monitor Pessoal · ABC Paulista</span>
+    </div>
+  </div>
+
+  <h1 class="heading">Bem-vindo de volta</h1>
+  <p class="subheading">Entre com suas credenciais para acessar o monitor.</p>
+
+  <div class="error-msg" id="errmsg">⚠ Usuário ou senha incorretos.</div>
+  <div class="success-msg" id="succmsg">✓ Autenticado! Redirecionando...</div>
+
+  <div class="field">
+    <label for="usuario">Usuário</label>
+    <div class="input-wrap">
+      <input type="text" id="usuario" placeholder="seu usuário" autocomplete="username" spellcheck="false">
+      <span class="input-icon">👤</span>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="senha">Senha</label>
+    <div class="input-wrap">
+      <input type="password" id="senha" placeholder="••••••••" autocomplete="current-password">
+      <span class="input-icon toggle-pass" id="togglepass" title="Mostrar/ocultar senha">👁</span>
+    </div>
+    <div class="attempts-badge" id="attempts"></div>
+  </div>
+
+  <label class="remember">
+    <input type="checkbox" id="lembrar">
+    Lembrar-me neste dispositivo (7 dias)
+  </label>
+
+  <button class="btn-login" id="btnlogin" onclick="fazerLogin()">
+    Entrar no Monitor
+  </button>
+
+  <div class="divider"></div>
+  <div class="card-footer">
+    <strong>ABC Leilões</strong> · Monitor Pessoal<br>
+    rogerarenas.github.io/leilao-abc-monitor
+  </div>
+</div>
+
+<script>
+// ── CREDENCIAIS ── (SHA-256 dos valores reais)
+// Para alterar: gere os hashes em https://emn178.github.io/online-tools/sha256.html
+// e substitua abaixo. Nunca coloque a senha em texto puro.
+var CREDS = [
+  {
+    user: '4387134784cf3aa4245b7fcf4ac045d0a449524e98ba5dab4955ff4631e89df9', // roger
+    pass: '63102d0c223d6244f44ee68fa7928a66ffce8fa453415abe26f6d3b10e2e5fd1', // abc2024
+  }
+];
+
+var SESSION_KEY = 'abc_leilao_auth';
+var ATTEMPTS_KEY = 'abc_leilao_attempts';
+var LOCKOUT_KEY  = 'abc_leilao_lockout';
+var MAX_ATTEMPTS = 5;
+var LOCKOUT_MS   = 5 * 60 * 1000; // 5 minutos
+
+// ── SHA-256 (nativo, sem libs) ─────────────────────────────────────────────
+async function sha256(msg) {
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ── LOCKOUT ────────────────────────────────────────────────────────────────
+function getAttempts() {
+  try { return JSON.parse(localStorage.getItem(ATTEMPTS_KEY) || '{"count":0}'); } catch { return {count:0}; }
+}
+function saveAttempts(a) { localStorage.setItem(ATTEMPTS_KEY, JSON.stringify(a)); }
+function isLockedOut() {
+  var ts = localStorage.getItem(LOCKOUT_KEY);
+  if (!ts) return false;
+  if (Date.now() - parseInt(ts) < LOCKOUT_MS) return true;
+  localStorage.removeItem(LOCKOUT_KEY);
+  saveAttempts({count:0});
+  return false;
+}
+function lockOut() {
+  localStorage.setItem(LOCKOUT_KEY, Date.now().toString());
+  mostrarLockout();
+}
+function mostrarLockout() {
+  document.getElementById('lockout').classList.add('show');
+  atualizarTimer();
+}
+function atualizarTimer() {
+  var ts = parseInt(localStorage.getItem(LOCKOUT_KEY) || '0');
+  var restante = Math.ceil((ts + LOCKOUT_MS - Date.now()) / 1000);
+  if (restante <= 0) {
+    localStorage.removeItem(LOCKOUT_KEY);
+    saveAttempts({count:0});
+    document.getElementById('lockout').classList.remove('show');
+    return;
+  }
+  var m = Math.floor(restante / 60), s = restante % 60;
+  document.getElementById('ltimer').textContent = m + ':' + String(s).padStart(2,'0');
+  setTimeout(atualizarTimer, 1000);
+}
+
+// ── SESSÃO ─────────────────────────────────────────────────────────────────
+function verificarSessao() {
+  // sessionStorage = sessão (fecha o tab → sai)
+  if (sessionStorage.getItem(SESSION_KEY) === 'ok') {
+    window.location.replace('index.html');
+    return;
+  }
+  // localStorage com lembrar-me
+  var lm = localStorage.getItem(SESSION_KEY);
+  if (lm) {
+    try {
+      var obj = JSON.parse(lm);
+      if (obj.exp > Date.now()) {
+        sessionStorage.setItem(SESSION_KEY, 'ok');
+        window.location.replace('index.html');
+        return;
+      }
+    } catch {}
+    localStorage.removeItem(SESSION_KEY);
+  }
+}
+
+function salvarSessao(lembrar) {
+  sessionStorage.setItem(SESSION_KEY, 'ok');
+  if (lembrar) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+      exp: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 dias
+    }));
+  }
+}
+
+// ── LOGIN ──────────────────────────────────────────────────────────────────
+async function fazerLogin() {
+  if (isLockedOut()) { mostrarLockout(); return; }
+
+  var btn = document.getElementById('btnlogin');
+  var usuarioEl = document.getElementById('usuario');
+  var senhaEl   = document.getElementById('senha');
+  var errmsg    = document.getElementById('errmsg');
+  var succmsg   = document.getElementById('succmsg');
+
+  var usuario = usuarioEl.value.trim().toLowerCase();
+  var senha   = senhaEl.value;
+
+  if (!usuario || !senha) {
+    sacudir(usuarioEl, senhaEl);
+    mostrarErro('Preencha usuário e senha.');
+    return;
+  }
+
+  // Loading
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Verificando...';
+  errmsg.style.display = 'none';
+  succmsg.style.display = 'none';
+
+  await new Promise(r => setTimeout(r, 600)); // delay intencional anti-brute
+
+  var hUser = await sha256(usuario);
+  var hPass = await sha256(senha);
+
+  var ok = CREDS.some(c => c.user === hUser && c.pass === hPass);
+
+  if (ok) {
+    saveAttempts({count:0});
+    salvarSessao(document.getElementById('lembrar').checked);
+    succmsg.style.display = 'block';
+    btn.innerHTML = '✓ Autenticado!';
+    btn.style.background = 'linear-gradient(135deg,#16a34a,#22c55e)';
+    setTimeout(() => window.location.replace('index.html'), 900);
+  } else {
+    var a = getAttempts();
+    a.count++;
+    saveAttempts(a);
+
+    usuarioEl.classList.add('err');
+    senhaEl.classList.add('err');
+    setTimeout(() => { usuarioEl.classList.remove('err'); senhaEl.classList.remove('err'); }, 1500);
+
+    var restam = MAX_ATTEMPTS - a.count;
+    if (restam <= 0) {
+      lockOut();
+    } else {
+      var el = document.getElementById('attempts');
+      el.style.display = 'block';
+      el.textContent = restam === 1 ? '⚠ Última tentativa antes do bloqueio' : `${restam} tentativas restantes`;
+      mostrarErro('Usuário ou senha incorretos.');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = 'Entrar no Monitor';
+    senhaEl.value = '';
+    senhaEl.focus();
+  }
+}
+
+function mostrarErro(msg) {
+  var el = document.getElementById('errmsg');
+  el.textContent = '⚠ ' + msg;
+  el.style.display = 'block';
+  // restart animation
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = '';
+}
+
+function sacudir(...els) {
+  els.forEach(el => {
+    if (!el.value) { el.classList.add('err'); setTimeout(() => el.classList.remove('err'), 1500); }
+  });
+}
+
+// ── TOGGLE SENHA ──────────────────────────────────────────────────────────
+document.getElementById('togglepass').addEventListener('click', function() {
+  var inp = document.getElementById('senha');
+  var show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  this.textContent = show ? '🙈' : '👁';
+});
+
+// ── ENTER ─────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !document.getElementById('btnlogin').disabled) fazerLogin();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+verificarSessao();
+if (isLockedOut()) mostrarLockout();
+document.getElementById('usuario').focus();
+</script>
+</body>
+</html>
