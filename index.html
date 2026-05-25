@@ -709,23 +709,44 @@ function si(sc){
 
 /* ── CARREGAR ── */
 async function carregarDados(){
+  var modoDemo=false;
   try{
     var r=await fetch('dados.json?t='+Date.now());
-    if(!r.ok)throw 0;
+    if(!r.ok)throw new Error('HTTP '+r.status);
     var j=await r.json();
-    TODOS=(j.imoveis||[]).map(im=>({...im,_sc:score(im)}));
+    var imoveis=(j.imoveis||[]).filter(i=>i.lance>0);
     LINKS=j.links_consulta||[];
-    document.getElementById('t-updated').textContent='📅 '+(j.atualizado||'—');
-    document.getElementById('t-badge').textContent='● Ao vivo';
-    document.getElementById('t-badge').className='pill pill-live';
-    document.getElementById('ist').textContent='✅ Dados carregados — '+TODOS.length+' imóveis confirmados, '+LINKS.length+' links de conferência';
+
+    if(imoveis.length===0){
+      // JSON existe mas sem imóveis reais → modo demo com aviso
+      modoDemo=true;
+      TODOS=demo().map(im=>({...im,_sc:score(im)}));
+      document.getElementById('t-updated').textContent='📅 '+(j.atualizado||'—')+' (sem dados reais)';
+      document.getElementById('t-badge').textContent='⚠ Demo';
+      document.getElementById('t-badge').className='pill pill-demo';
+      document.getElementById('ist').textContent=
+        '⚠️ Coleta do dia sem resultados — exibindo demonstração. '
+        +'Verifique se o script Python rodou corretamente (GitHub Actions).';
+    } else {
+      TODOS=imoveis.map(im=>({...im,_sc:score(im)}));
+      document.getElementById('t-updated').textContent='📅 '+(j.atualizado||'—');
+      document.getElementById('t-badge').textContent='● Ao vivo';
+      document.getElementById('t-badge').className='pill pill-live';
+      document.getElementById('ist').textContent=
+        '✅ Dados reais carregados — '+TODOS.length+' imóvel(is) confirmado(s), '
+        +LINKS.length+' links de conferência';
+    }
   }catch(_){
+    // Arquivo não encontrado ou erro de rede → demo puro
+    modoDemo=true;
     TODOS=demo().map(im=>({...im,_sc:score(im)}));
     LINKS=[];
-    var tb=document.getElementById('t-badge');
-    tb.textContent='⚠ Demo';tb.className='pill pill-demo';
-    document.getElementById('t-updated').textContent='📋 Exemplo';
-    document.getElementById('ist').textContent='⚠️ dados.json não encontrado — exibindo dados de demonstração. Rode o script Python para dados reais.';
+    document.getElementById('t-badge').textContent='⚠ Demo';
+    document.getElementById('t-badge').className='pill pill-demo';
+    document.getElementById('t-updated').textContent='📋 Demonstração';
+    document.getElementById('ist').textContent=
+      '⚠️ dados.json não encontrado — exibindo demonstração. '
+      +'Rode o script Python localmente ou aguarde o GitHub Actions rodar.';
   }
   loadFavs();aplicarFiltros();
   var agora=new Date(),prox=new Date();prox.setHours(8,0,0,0);

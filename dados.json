@@ -8,10 +8,10 @@
     "lance_max": 160000,
     "tipo": "apartamento",
     "cidades": [
-      "Santo Andre",
-      "Sao Bernardo do Campo",
-      "Maua",
-      "Sao Caetano do Sul"
+      "Santo André",
+      "São Bernardo do Campo",
+      "Mauá",
+      "São Caetano do Sul"
     ],
     "quartos_min": 2
   },
