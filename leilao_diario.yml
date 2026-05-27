@@ -1,0 +1,65 @@
+# ============================================================
+#  GitHub Actions — Executa o monitor todo dia às 8h (Brasília)
+# ============================================================
+
+name: ABC Leilão Monitor — Diário
+
+on:
+  schedule:
+    # 11:00 UTC = 08:00 horário de Brasília
+    - cron: '0 11 * * *'
+    - cron: '0 21 * * *'  # 18h horário de Brasília
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  monitorar-e-publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependências
+        run: pip install requests
+
+      - name: Rodar o monitor
+        env:
+          # --- Busca via Claude (OBRIGATÓRIO) ---
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SERPER_API_KEY:    ${{ secrets.SERPER_API_KEY }}
+          # --- Alertas (opcionais) ---
+          WA_NUMERO:         ${{ secrets.WA_NUMERO }}
+          WA_APIKEY:         ${{ secrets.WA_APIKEY }}
+          EMAIL_REMETENTE:   ${{ secrets.EMAIL_REMETENTE }}
+          EMAIL_SENHA:       ${{ secrets.EMAIL_SENHA }}
+          EMAIL_DEST:        ${{ secrets.EMAIL_DEST }}
+          # --- Filtros (opcionais, defaults: 70k-160k, 2+ quartos) ---
+          LANCE_MIN:         ${{ vars.LANCE_MIN }}
+          LANCE_MAX:         ${{ vars.LANCE_MAX }}
+          QUARTOS_MIN:       ${{ vars.QUARTOS_MIN }}
+        run: python leilao_monitor.py
+
+      - name: Publicar dados.json no GitHub Pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dados.json
+          git diff --staged --quiet || git commit -m "🏠 Atualização — $(date '+%d/%m/%Y %H:%M')"
+          git push
+
+      - name: Salvar histórico como artefato
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: historico-${{ github.run_id }}
+          path: historico_*.json
+          retention-days: 30
