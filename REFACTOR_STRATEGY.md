@@ -13,8 +13,8 @@ Evoluir o projeto sem quebrar o monitor diario, mantendo uma fonte de verdade cl
 ## Prioridade 2: fonte de verdade
 
 - Usar a raiz do repositorio como aplicacao principal.
-- Tratar `leilao-abc/` como copia historica ate comparar todos os arquivos divergentes.
-- Depois da comparacao, remover a copia duplicada ou transforma-la em artefato/documentacao, nunca manter duas versoes ativas.
+- Manter uma unica versao ativa do codigo para evitar divergencia entre coleta, painel e testes.
+- Tratar historico e artefatos gerados como saida do processo, nao como uma segunda copia da aplicacao.
 
 ## Prioridade 3: modularizacao do backend
 

@@ -1,0 +1,1 @@
+"""ABC Leilao Monitor package."""
