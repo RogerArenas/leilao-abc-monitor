@@ -1410,7 +1410,11 @@ function renderCaderno(){
   var html='<div class="fav-grid">';
   ks.forEach(k=>{
     var fv=FAVS[k],s=si(fv.sc);
-    var ch=Object.keys(fv.checks||{}).map(c=>`<div class="fav-ci ${fv.checks[c]?'done':''}" onclick="togCheck('${k}','${c}',this)"><input type="checkbox" ${fv.checks[c]?'checked':''} onclick="event.stopPropagation()"> ${cls[c]}</div>`).join('');
+    var checks=fv.checks||{};
+    var totalChk=Object.keys(cls).length;
+    var doneChk=Object.values(checks).filter(Boolean).length;
+    var pctChk=Math.round((doneChk/totalChk)*100);
+    var ch=Object.keys(cls).map(c=>`<div class="fav-ci ${checks[c]?'done':''}" onclick="togCheck('${k}','${c}',this)"><input type="checkbox" ${checks[c]?'checked':''} onclick="event.stopPropagation()"> ${cls[c]}</div>`).join('');
     html+=`<div class="fav-card">
       <div class="fav-head"><div><div class="fav-title">${fv.titulo}</div><span class="score-label ${s.cls}" style="margin-top:5px;display:inline-block">${s.lb}</span></div><button class="fav-del" onclick="remFav('${k}')">✕</button></div>
       <div class="fav-meta">📍 ${fv.bairro?fv.bairro+' · ':''}${fv.cidade} · ${fv.fonte}<br>💰 R$ ${f(fv.lance)} · -${fv.desagio}% · Salvo ${fv.saved}</div>
