@@ -168,10 +168,12 @@ def buscar_caixa_csv(filtros: dict[str, Any]) -> list[dict[str, Any]]:
                 continue
 
             # Lance / valor
+            # LANCE: prioridade correta — campo de entrada, nunca valor_avaliacao
             lance_txt = (
-                row.get("valor_avaliacao", "")
-                or row.get("preco_avaliacao", "")
+                row.get("preco", "")
                 or row.get("valor_minimo", "")
+                or row.get("lance_minimo", "")
+                or row.get("preco_minimo", "")
                 or row.get("lance_minimo", "")
                 or ""
             )
@@ -179,7 +181,12 @@ def buscar_caixa_csv(filtros: dict[str, Any]) -> list[dict[str, Any]]:
             if not esta_na_faixa(lance, filtros):
                 continue
 
-            avaliado_txt = row.get("valor_avaliacao", row.get("avaliacao", ""))
+            # AVALIADO: agora sim, campo de valor de mercado
+            avaliado_txt = (
+                row.get("valor_avaliacao", "")
+                or row.get("preco_avaliacao", "")
+                or row.get("avaliacao", "")
+            )
             avaliado = extrair_numero(avaliado_txt) or (lance * 1.3 if lance else 0)
 
             # Endereço

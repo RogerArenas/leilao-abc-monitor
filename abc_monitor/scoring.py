@@ -7,10 +7,10 @@ from .geo import normalizar_cidade
 def estimar_qualidade_localizacao(cidade: str, bairro: str = "") -> int:
     cidade_norm = normalizar_cidade(cidade)
     base = {
-        "Santo Andre": 78,
-        "Sao Bernardo do Campo": 76,
-        "Sao Caetano do Sul": 86,
-        "Maua": 66,
+        "Santo André": 78,
+        "São Bernardo do Campo": 76,
+        "São Caetano do Sul": 86,
+        "Mauá": 66,
     }.get(cidade_norm, 65)
     bairros_fortes = ("centro", "paraiso", "vila bastos", "boa vista", "santo antonio", "baeta")
     if bairro and any(b in bairro.lower() for b in bairros_fortes):

@@ -8,7 +8,8 @@ name: ABC Leilão Monitor — Diário
 on:
   schedule:
     # Todo dia às 11:00 UTC = 08:00 horário de Brasília
-    - cron: '0 11 * * *'
+    - cron: '0 11 * * *'   # 08h Brasília
+    - cron: '0 21 * * *'   # 18h Brasília
 
   # Permite rodar manualmente pelo painel do GitHub
   workflow_dispatch:
@@ -35,6 +36,7 @@ jobs:
 
       - name: Rodar o monitor (coleta + gera dados.json + envia alertas)
         env:
+          SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
           WA_NUMERO: ${{ secrets.WA_NUMERO }}
           WA_APIKEY: ${{ secrets.WA_APIKEY }}
           EMAIL_REMETENTE: ${{ secrets.EMAIL_REMETENTE }}
