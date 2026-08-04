@@ -1,5 +1,5 @@
 {
-  "atualizado": "04/08/2026 12:53",
+  "atualizado": "04/08/2026 22:11",
   "total": 0,
   "total_novos": 0,
   "total_links_consulta": 24,
@@ -8,10 +8,10 @@
     "lance_max": 160000,
     "tipo": "apartamento",
     "cidades": [
-      "Santo Andre",
-      "Sao Bernardo do Campo",
-      "Maua",
-      "Sao Caetano do Sul"
+      "Santo André",
+      "São Bernardo do Campo",
+      "Mauá",
+      "São Caetano do Sul"
     ],
     "quartos_min": 2
   },
