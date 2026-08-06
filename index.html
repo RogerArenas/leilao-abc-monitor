@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#1a2744">
-<meta name="description" content="Monitor pessoal de apartamentos em leilão no ABC Paulista">
+<meta name="description" content="Monitor pessoal de apartamentos em leilão em todo o estado de São Paulo">
 <link rel="manifest" href="manifest.json">
-<title>ABC Leilões — Monitor Pessoal</title>
+<title>SP Leilões — Monitor de Apartamentos</title>
 <script>
 // ── GUARD DE SESSÃO ── Executa antes de renderizar qualquer coisa
 (function(){
@@ -25,7 +25,7 @@
 <div class="topbar">
   <div class="topbar-inner">
     <div class="topbar-left">
-      <span><span class="live-dot"></span>ABC Leilões Monitor</span>
+      <span><span class="live-dot"></span>SP Leilões Monitor</span>
       <span id="t-updated">Carregando...</span>
     </div>
     <div class="topbar-right">
@@ -42,8 +42,8 @@
     <div class="logo">
       <div class="logo-icon">🏠</div>
       <div>
-        <div class="logo-text">ABC Leilões</div>
-        <span class="logo-sub">Monitor Pessoal · ABC Paulista</span>
+        <div class="logo-text">SP Leilões</div>
+        <span class="logo-sub">Monitor Pessoal · São Paulo</span>
       </div>
     </div>
     <div class="header-pills">
@@ -69,17 +69,61 @@
 <div id="tab-busca" class="sec active">
   <div class="hero">
     <div class="hero-inner">
-      <h1 class="hero-title">Encontre seu apartamento no ABC</h1>
-      <p class="hero-sub">Santo André · São Bernardo · Mauá · São Caetano do Sul — R$ 70k–160k</p>
+      <h1 class="hero-title">Encontre seu apartamento em São Paulo</h1>
+      <p class="hero-sub">Capital · ABC · Grande SP · Interior · Litoral · Vale do Paraíba — R$ 70k–500k</p>
       <div class="search-box">
         <div class="sf">
           <label>Cidade</label>
           <select id="fc" onchange="aplicarFiltros()">
             <option value="">Todas as cidades</option>
-            <option>Santo André</option>
-            <option>São Bernardo do Campo</option>
-            <option>Mauá</option>
-            <option>São Caetano do Sul</option>
+            <optgroup label="─── Capital">
+              <option>São Paulo</option>
+            </optgroup>
+            <optgroup label="─── ABC Paulista">
+              <option>Santo André</option>
+              <option>São Bernardo do Campo</option>
+              <option>São Caetano do Sul</option>
+              <option>Mauá</option>
+              <option>Diadema</option>
+              <option>Ribeirão Pires</option>
+            </optgroup>
+            <optgroup label="─── Grande SP">
+              <option>Guarulhos</option>
+              <option>Osasco</option>
+              <option>Barueri</option>
+              <option>Carapicuíba</option>
+              <option>Mogi das Cruzes</option>
+              <option>Suzano</option>
+              <option>Taboão da Serra</option>
+              <option>Cotia</option>
+            </optgroup>
+            <optgroup label="─── Baixada Santista">
+              <option>Santos</option>
+              <option>São Vicente</option>
+              <option>Guarujá</option>
+              <option>Praia Grande</option>
+            </optgroup>
+            <optgroup label="─── Vale do Paraíba">
+              <option>São José dos Campos</option>
+              <option>Taubaté</option>
+              <option>Jacareí</option>
+            </optgroup>
+            <optgroup label="─── Interior SP">
+              <option>Campinas</option>
+              <option>Sorocaba</option>
+              <option>Jundiaí</option>
+              <option>Ribeirão Preto</option>
+              <option>São José do Rio Preto</option>
+              <option>Bauru</option>
+              <option>Piracicaba</option>
+              <option>Americana</option>
+              <option>Araçatuba</option>
+              <option>Marília</option>
+              <option>São Carlos</option>
+              <option>Araraquara</option>
+              <option>Franca</option>
+              <option>Presidente Prudente</option>
+            </optgroup>
           </select>
         </div>
         <div class="sf">
@@ -88,7 +132,7 @@
         </div>
         <div class="sf">
           <label>Lance Máximo (R$)</label>
-          <input type="number" id="fma" value="160000" placeholder="160000">
+          <input type="number" id="fma" value="500000" placeholder="500000">
         </div>
         <div class="sf">
           <label>Quartos</label>
@@ -149,6 +193,19 @@
   </div>
 
   <!-- CHIPS -->
+  <!-- Chips de região -->
+  <div class="chips-bar" style="border-bottom:none;padding-bottom:.25rem">
+    <div class="chips-inner">
+      <span class="chip-label">Região:</span>
+      <div class="chip active" onclick="setRegiao('',this)">Toda SP</div>
+      <div class="chip" onclick="setRegiao('Capital',this)">Capital</div>
+      <div class="chip" onclick="setRegiao('ABC',this)">ABC</div>
+      <div class="chip" onclick="setRegiao('GrandeSP',this)">Grande SP</div>
+      <div class="chip" onclick="setRegiao('Litoral',this)">Litoral</div>
+      <div class="chip" onclick="setRegiao('Vale',this)">Vale do Paraíba</div>
+      <div class="chip" onclick="setRegiao('Interior',this)">Interior</div>
+    </div>
+  </div>
   <div class="chips-bar">
     <div class="chips-inner">
       <span class="chip-label">Fonte:</span>
@@ -277,15 +334,24 @@
       <div class="calc-grid">
         <div class="calc-panel">
           <div class="calc-title">📐 Valor por m² vs Mercado</div>
-          <div class="calc-desc">Compare o custo do leilão com o mercado local. Referência: R$ 2.900–5.000/m² no ABC.</div>
+          <div class="calc-desc">Compare o custo do leilão com o mercado local. Referência: R$ 2.800–7.500/m² conforme a cidade em SP.</div>
           <div class="calc-field"><label>Lance ou custo total (R$)</label><input type="number" id="mv" placeholder="120000" oninput="calcM()"></div>
           <div class="calc-field"><label>Área (m²)</label><input type="number" id="ma" placeholder="65" oninput="calcM()"></div>
           <div class="calc-field"><label>Cidade</label>
             <select id="mc" onchange="calcM()">
+              <option value="7500">São Paulo Capital (~R$ 7.500/m²)</option>
+              <option value="5000">São Caetano do Sul (~R$ 5.000/m²)</option>
+              <option value="4500">Santos (~R$ 4.500/m²)</option>
+              <option value="4200">São José dos Campos (~R$ 4.200/m²)</option>
+              <option value="4000">Campinas (~R$ 4.000/m²)</option>
+              <option value="3900">Jundiaí (~R$ 3.900/m²)</option>
               <option value="3800">Santo André (~R$ 3.800/m²)</option>
               <option value="3600">São Bernardo do Campo (~R$ 3.600/m²)</option>
-              <option value="5000">São Caetano do Sul (~R$ 5.000/m²)</option>
+              <option value="3500">Guarulhos (~R$ 3.500/m²)</option>
+              <option value="3400">Ribeirão Preto (~R$ 3.400/m²)</option>
+              <option value="3200">Sorocaba (~R$ 3.200/m²)</option>
               <option value="2900">Mauá (~R$ 2.900/m²)</option>
+              <option value="2800">Bauru (~R$ 2.800/m²)</option>
             </select>
           </div>
           <div class="calc-rows">
@@ -399,7 +465,7 @@
       </div>
     </div>
     <div class="section-title">Modalidades mais comuns</div>
-    <div class="section-sub">O nome pode variar por portal, mas estes modelos cobrem a maioria dos casos no ABC.</div>
+    <div class="section-sub">O nome pode variar por portal, mas estes modelos cobrem a maioria dos casos no estado de São Paulo.</div>
     <div class="mode-grid">
       <div class="mode-card good"><div class="mode-name">Venda Direta</div><div class="mode-desc">Compra por preço fixo, sem disputa. Mais previsível para iniciantes, ainda exige edital e débitos.</div><div class="mode-tags"><span class="mode-tag">mais previsível</span><span class="mode-tag">atenção a débitos</span></div></div>
       <div class="mode-card"><div class="mode-name">Venda Online</div><div class="mode-desc">Disputa pela internet, com início e encerramento definidos. Exige cadastro e atenção ao relógio.</div><div class="mode-tags"><span class="mode-tag">disputa digital</span><span class="mode-tag">cadastro prévio</span></div></div>
@@ -451,14 +517,22 @@
   <div class="page">
     <div style="margin-bottom:1.5rem">
       <h2 class="section-title">🔗 Sites com Dados 100% Reais</h2>
-      <p class="section-sub">Links filtrados para seus critérios — apartamentos R$ 70–160k, região ABC</p>
+      <p class="section-sub">Acesso rápido aos portais — apartamentos em todo o estado de São Paulo</p>
     </div>
     <div class="links-grid">
-      <div class="link-card"><div class="link-card-title">🏦 Caixa Econômica Federal</div><div class="link-card-desc">Maior volume de leilões do Brasil. Dados oficiais. Filtre por cidade e faixa de preço.</div><div class="link-card-btns"><a class="lbtn pri" href="https://venda.caixa.gov.br/imoveis?estado=SP&tipo=2" target="_blank" rel="noopener">Buscar Apartamentos SP ↗</a><a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SANTO+ANDRE&tipo=2" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+BERNARDO+DO+CAMPO&tipo=2" target="_blank" rel="noopener">São Bernardo ↗</a><a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=MAUA&tipo=2" target="_blank" rel="noopener">Mauá ↗</a><a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+CAETANO+DO+SUL&tipo=2" target="_blank" rel="noopener">São Caetano ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">🏦 Caixa Econômica Federal</div><div class="link-card-desc">Maior volume de leilões do Brasil. Dados oficiais. Filtre por cidade e faixa de preço.</div><div class="link-card-btns">
+<a class="lbtn pri" href="https://venda.caixa.gov.br/imoveis?estado=SP&tipo=2" target="_blank" rel="noopener">Todo Estado SP ↗</a>
+<a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+PAULO&tipo=2" target="_blank" rel="noopener">São Paulo ↗</a>
+<a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SANTO+ANDRE&tipo=2" target="_blank" rel="noopener">Santo André ↗</a>
+<a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+BERNARDO+DO+CAMPO&tipo=2" target="_blank" rel="noopener">São Bernardo ↗</a>
+<a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=CAMPINAS&tipo=2" target="_blank" rel="noopener">Campinas ↗</a>
+<a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=GUARULHOS&tipo=2" target="_blank" rel="noopener">Guarulhos ↗</a>
+<a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SANTOS&tipo=2" target="_blank" rel="noopener">Santos ↗</a>
+</div></div>
       <div class="link-card"><div class="link-card-title">Sold Leilões</div><div class="link-card-desc">Plataforma com imóveis de bancos e particulares. Muitos apartamentos do ABC com bom deságio.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.sold.com.br/leiloes-de-imoveis" target="_blank" rel="noopener">Ver Imóveis na Sold ↗</a><a class="lbtn" href="https://www.sold.com.br" target="_blank" rel="noopener">Site principal ↗</a></div></div>
       <div class="link-card"><div class="link-card-title">Portal Zuk</div><div class="link-card-desc">Leilões judiciais e extrajudiciais com boa cobertura do ABC. Filtre por cidade e faixa de preço.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.portalzuk.com.br/leilao-de-imoveis/c/todos-imoveis/sp/grande-sao-paulo/santo-andre" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp" target="_blank" rel="noopener">Todo Estado SP ↗</a></div></div>
       <div class="link-card"><div class="link-card-title">Superbid Exchange</div><div class="link-card-desc">Maior marketplace de leilões do Brasil. Muitos imóveis do ABC e Grande SP.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.superbid.net/categorias/imoveis" target="_blank" rel="noopener">Ver Imóveis no Superbid ↗</a></div></div>
-      <div class="link-card"><div class="link-card-title">🏆 Leilão Imóvel</div><div class="link-card-desc">Agrega imóveis de mais de 400 leiloeiros numa só busca. Ideal para garimpar o ABC.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.leilaoimovel.com.br/leilao-de-imovel/santo-andre-sp" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-bernardo-do-campo-sp" target="_blank" rel="noopener">São Bernardo ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/maua-sp" target="_blank" rel="noopener">Mauá ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-caetano-do-sul-sp" target="_blank" rel="noopener">São Caetano ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">🏆 Leilão Imóvel</div><div class="link-card-desc">Agrega imóveis de mais de 400 leiloeiros numa só busca. Ideal para garimpar o ABC.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-paulo-sp" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-bernardo-do-campo-sp" target="_blank" rel="noopener">São Bernardo ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/maua-sp" target="_blank" rel="noopener">Mauá ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-caetano-do-sul-sp" target="_blank" rel="noopener">São Caetano ↗</a></div></div>
       <div class="link-card"><div class="link-card-title">Mega Leilões</div><div class="link-card-desc">Leiloeiro com muitos imóveis no ABC. Leilões judiciais com bons deságios em 2ª praça.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/santo-andre" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-bernardo-do-campo" target="_blank" rel="noopener">São Bernardo ↗</a><a class="lbtn" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/maua" target="_blank" rel="noopener">Mauá ↗</a></div></div>
       <div class="link-card"><div class="link-card-title">📋 Consultar Débitos — Prefeituras</div><div class="link-card-desc">Verifique o IPTU atrasado diretamente na prefeitura da cidade do imóvel antes de dar qualquer lance.</div><div class="link-card-btns"><a class="lbtn" href="https://www.santoandre.sp.gov.br/servicos" target="_blank" rel="noopener">Prefeitura Santo André ↗</a><a class="lbtn" href="https://www.saobernardo.sp.gov.br/web/sbc" target="_blank" rel="noopener">Prefeitura São Bernardo ↗</a><a class="lbtn" href="https://www.maua.sp.gov.br" target="_blank" rel="noopener">Prefeitura Mauá ↗</a><a class="lbtn" href="https://www.saocaetanodosul.sp.gov.br" target="_blank" rel="noopener">Prefeitura São Caetano ↗</a></div></div>
     </div>
@@ -467,7 +541,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <strong>ABC Leilões — Monitor Pessoal</strong> · Atualizado diariamente às 8h via GitHub Actions<br>
+  <strong>SP Leilões — Monitor Pessoal</strong> · Atualizado diariamente às 8h via GitHub Actions<br>
   Sempre leia o edital oficial antes de dar um lance ·
   <a href="https://venda.caixa.gov.br" target="_blank">Caixa</a> ·
   <a href="https://www.sold.com.br" target="_blank">Sold</a> ·

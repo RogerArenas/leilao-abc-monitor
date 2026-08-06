@@ -1,3 +1,30 @@
+
+// Mapa de regiões → cidades (para chips de região)
+var REGIOES_SP = {
+  'Capital':  ['São Paulo'],
+  'ABC':      ['Santo André','São Bernardo do Campo','São Caetano do Sul','Mauá','Diadema','Ribeirão Pires'],
+  'GrandeSP': ['Guarulhos','Osasco','Barueri','Carapicuíba','Mogi das Cruzes','Suzano','Taboão da Serra','Cotia','Poá','Arujá','Ferraz de Vasconcelos'],
+  'Litoral':  ['Santos','São Vicente','Guarujá','Praia Grande','Cubatão','Bertioga'],
+  'Vale':     ['São José dos Campos','Taubaté','Jacareí','Pindamonhangaba','Guaratinguetá'],
+  'Interior': ['Campinas','Sorocaba','Jundiaí','Ribeirão Preto','São José do Rio Preto','Bauru','Piracicaba','Americana','Araçatuba','Marília','São Carlos','Araraquara','Franca','Presidente Prudente','Limeira','Botucatu'],
+};
+var REGIAO_ATIVA = '';
+
+function setRegiao(r, el) {
+  REGIAO_ATIVA = r;
+  document.querySelectorAll('.chips-bar .chip').forEach(function(c) {
+    // Limpar chips de região apenas
+    if (c.getAttribute('onclick') && c.getAttribute('onclick').indexOf('setRegiao') >= 0) {
+      c.classList.remove('active');
+    }
+  });
+  el.classList.add('active');
+  // Limpar o select de cidade quando muda a região
+  var fc = document.getElementById('fc');
+  if (fc) fc.value = '';
+  aplicarFiltros();
+}
+
 var TODOS=[],FILT=[],FAVS={},FONTE='',LINKS=[];
 
 /* â”€â”€ TABS â”€â”€ */
@@ -100,6 +127,8 @@ function aplicarFiltros(){
 
   FILT=TODOS.filter(im=>{
     if(!im.lance||im.lance<=0)return false;
+    // Filtro por região
+    if(REGIAO_ATIVA&&REGIOES_SP[REGIAO_ATIVA]&&REGIOES_SP[REGIAO_ATIVA].indexOf(im.cidade)===-1)return false;
     if(c&&im.cidade!==c)return false;
     if(FONTE&&im.fonte!==FONTE)return false;
     if(im.lance<mn||im.lance>mx)return false;
@@ -426,8 +455,22 @@ function calcR(){
 
 /* â”€â”€ DEMO â”€â”€ */
 function demo(){
-  var cs=['Santo André','São Bernardo do Campo','Mauá','São Caetano do Sul'];
-  var bs={'Santo André':['Paraíso','Vila Bastos','Cidade São Jorge'],'São Bernardo do Campo':['Baeta Neves','Paulista','Ferrazópolis'],'Mauá':['Centro','Vila Bocaina','Apura'],'São Caetano do Sul':['Boa Vista','Santo Antônio','Cerâmica']};
+  var cs=['São Paulo','Santo André','São Bernardo do Campo','Mauá','São Caetano do Sul',
+          'Guarulhos','Campinas','Santos','São José dos Campos','Sorocaba','Ribeirão Preto','Osasco'];
+  var bs={
+    'São Paulo':['Tatuapé','Santana','Ipiranga','Vila Prudente','Penha'],
+    'Santo André':['Paraíso','Vila Bastos','Cidade São Jorge'],
+    'São Bernardo do Campo':['Baeta Neves','Paulista','Ferrazópolis'],
+    'Mauá':['Centro','Vila Bocaina','Apura'],
+    'São Caetano do Sul':['Boa Vista','Santo Antônio','Cerâmica'],
+    'Guarulhos':['Centro','Macedo','Jardim Angélica'],
+    'Campinas':['Cambuí','Taquaral','Jardim Aurélia'],
+    'Santos':['Boqueirão','José Menino','Embaré'],
+    'São José dos Campos':['Centro','Jardim Aquarius','Vila Adyana'],
+    'Sorocaba':['Centro','Além Ponte','Jardim Wanel Ville'],
+    'Ribeirão Preto':['Centro','Jardim Irajá','Higienópolis'],
+    'Osasco':['Centro','Presidente Altino','Jardim Veloso'],
+  };
   var fs=['Caixa','Sold','Zuk','Superbid','Banco do Brasil'];
   var us={'Caixa':'https://venda.caixa.gov.br/imoveis?estado=SP','Sold':'https://www.sold.com.br','Zuk':'https://www.portalzuk.com.br','Superbid':'https://www.superbid.net','Banco do Brasil':'https://leiloes.bb.com.br'};
   return Array.from({length:16},(_,i)=>{
@@ -454,6 +497,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){fecharModal();if(ty
 /* â”€â”€ FILTROS PERSISTENTES â”€â”€ */
 function salvarFiltros(){
   try{localStorage.setItem('leilao_filtros_v2',JSON.stringify({
+    regiao:REGIAO_ATIVA,
     c:document.getElementById('fc').value,
     mn:document.getElementById('fmi').value,
     mx:document.getElementById('fma').value,
@@ -468,6 +512,7 @@ function restaurarFiltros(){
   try{
     var fil=JSON.parse(localStorage.getItem('leilao_filtros_v2')||'{}');
     if(fil.c)document.getElementById('fc').value=fil.c;
+    if(fil.regiao!==undefined){REGIAO_ATIVA=fil.regiao;document.querySelectorAll('[onclick*="setRegiao"]').forEach(function(el){if(el.getAttribute('onclick').includes("'"+fil.regiao+"'")||(!fil.regiao&&el.getAttribute('onclick').includes("''"))){el.classList.add('active');}else{el.classList.remove('active');}});}
     if(fil.mn)document.getElementById('fmi').value=fil.mn;
     if(fil.mx)document.getElementById('fma').value=fil.mx;
     if(fil.q)document.getElementById('fq').value=fil.q;

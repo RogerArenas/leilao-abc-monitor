@@ -52,8 +52,15 @@ def montar_url_caixa(cidade: str, filtros: dict[str, Any]) -> str:
     )
 
 def montar_fontes_consulta(filtros: dict[str, Any]) -> list[FonteBusca]:
+    from .config import REGIOES
+    # Se cidades não especificadas, usar todas as cidades de SP
+    cidades_alvo = filtros["cidades"] or [c for r in REGIOES.values() for c in r]
+    # Remover duplicatas mantendo ordem
+    vistas: set[str] = set()
+    cidades_unicas = [c for c in cidades_alvo if not (c in vistas or vistas.add(c))]  # type: ignore
+
     fontes: list[FonteBusca] = []
-    for cidade in filtros["cidades"]:
+    for cidade in cidades_unicas:
         cidade_norm = normalizar_cidade(cidade)
         cidade_ui = cidade_para_interface(cidade_norm)
         cidade_url = urllib.parse.quote(cidade_ui)

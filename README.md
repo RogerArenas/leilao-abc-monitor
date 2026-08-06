@@ -91,7 +91,7 @@ No seu repositório GitHub:
 ## 📱 Exemplo de mensagem WhatsApp que você vai receber
 
 ```
-🏠 ABC Leilões — 15/06/2025
+🏠 SP Leilões — 15/06/2025
 
 📌 2 apartamento(s) na faixa 70–160k:
 
