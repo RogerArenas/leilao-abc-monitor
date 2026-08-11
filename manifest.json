@@ -1,7 +1,7 @@
 {
-  "name": "ABC Leilões — Monitor Pessoal",
-  "short_name": "ABC Leilões",
-  "description": "Monitor pessoal de apartamentos em leilão no ABC",
+  "name": "SP Leilões — Monitor Pessoal",
+  "short_name": "SP Leilões",
+  "description": "Monitor pessoal de apartamentos em leilão no SP Leilões",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0c1322",

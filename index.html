@@ -193,6 +193,17 @@
   </div>
 
   <!-- CHIPS -->
+  <!-- Seleções especiais -->
+  <div class="chips-bar" style="border-bottom:none;padding-bottom:.25rem">
+    <div class="chips-inner">
+      <span class="chip-label">Seleção:</span>
+      <div class="chip chip-selecao" onclick="setSelecao('airbnb',this)" title="Cidades com alto potencial Airbnb">🏖️ Airbnb</div>
+      <div class="chip chip-selecao" onclick="setSelecao('praia',this)" title="Cidades litorâneas">🌊 Praia</div>
+      <div class="chip chip-selecao" onclick="setSelecao('universitario',this)" title="Cidades com universidade pública — alta demanda de aluguel">🎓 Universitário</div>
+      <div class="chip chip-selecao" onclick="setSelecao('turistico',this)" title="Cidades com alto fluxo turístico">📸 Turístico</div>
+      <div class="chip chip-selecao" onclick="setSelecao('negativo',this)" title="2ª praça — imóveis que já foram a leilão sem lance. Preço pode ser bem menor.">🔁 2ª Praça</div>
+    </div>
+  </div>
   <!-- Chips de região -->
   <div class="chips-bar" style="border-bottom:none;padding-bottom:.25rem">
     <div class="chips-inner">
@@ -426,10 +437,10 @@
           <div class="al-link-name">🏦 Caixa — Links por cidade</div>
           <div class="al-link-desc">Marque como favorito no browser para conferir diariamente.</div>
           <div class="al-link-btns">
-            <a class="al-btn pri" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SANTO+ANDRE&tipo=2&vlMin=70000&vlMax=160000" target="_blank">Santo André ↗</a>
-            <a class="al-btn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+BERNARDO+DO+CAMPO&tipo=2&vlMin=70000&vlMax=160000" target="_blank">São Bernardo ↗</a>
-            <a class="al-btn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=MAUA&tipo=2&vlMin=70000&vlMax=160000" target="_blank">Mauá ↗</a>
-            <a class="al-btn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+CAETANO+DO+SUL&tipo=2&vlMin=70000&vlMax=160000" target="_blank">São Caetano ↗</a>
+            <a class="al-btn pri" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SANTO+ANDRE&tipo=2&vlMin=70000&vlMax=500000" target="_blank">Santo André ↗</a>
+            <a class="al-btn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+BERNARDO+DO+CAMPO&tipo=2&vlMin=70000&vlMax=500000" target="_blank">São Bernardo ↗</a>
+            <a class="al-btn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=MAUA&tipo=2&vlMin=70000&vlMax=500000" target="_blank">Mauá ↗</a>
+            <a class="al-btn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SAO+CAETANO+DO+SUL&tipo=2&vlMin=70000&vlMax=500000" target="_blank">São Caetano ↗</a>
           </div>
         </div>
         <div class="al-link-item">
@@ -529,11 +540,11 @@
 <a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=GUARULHOS&tipo=2" target="_blank" rel="noopener">Guarulhos ↗</a>
 <a class="lbtn" href="https://venda.caixa.gov.br/imoveis?estado=SP&cidade=SANTOS&tipo=2" target="_blank" rel="noopener">Santos ↗</a>
 </div></div>
-      <div class="link-card"><div class="link-card-title">Sold Leilões</div><div class="link-card-desc">Plataforma com imóveis de bancos e particulares. Muitos apartamentos do ABC com bom deságio.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.sold.com.br/leiloes-de-imoveis" target="_blank" rel="noopener">Ver Imóveis na Sold ↗</a><a class="lbtn" href="https://www.sold.com.br" target="_blank" rel="noopener">Site principal ↗</a></div></div>
-      <div class="link-card"><div class="link-card-title">Portal Zuk</div><div class="link-card-desc">Leilões judiciais e extrajudiciais com boa cobertura do ABC. Filtre por cidade e faixa de preço.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.portalzuk.com.br/leilao-de-imoveis/c/todos-imoveis/sp/grande-sao-paulo/santo-andre" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp" target="_blank" rel="noopener">Todo Estado SP ↗</a></div></div>
-      <div class="link-card"><div class="link-card-title">Superbid Exchange</div><div class="link-card-desc">Maior marketplace de leilões do Brasil. Muitos imóveis do ABC e Grande SP.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.superbid.net/categorias/imoveis" target="_blank" rel="noopener">Ver Imóveis no Superbid ↗</a></div></div>
-      <div class="link-card"><div class="link-card-title">🏆 Leilão Imóvel</div><div class="link-card-desc">Agrega imóveis de mais de 400 leiloeiros numa só busca. Ideal para garimpar o ABC.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-paulo-sp" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-bernardo-do-campo-sp" target="_blank" rel="noopener">São Bernardo ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/maua-sp" target="_blank" rel="noopener">Mauá ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-caetano-do-sul-sp" target="_blank" rel="noopener">São Caetano ↗</a></div></div>
-      <div class="link-card"><div class="link-card-title">Mega Leilões</div><div class="link-card-desc">Leiloeiro com muitos imóveis no ABC. Leilões judiciais com bons deságios em 2ª praça.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/santo-andre" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-bernardo-do-campo" target="_blank" rel="noopener">São Bernardo ↗</a><a class="lbtn" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/maua" target="_blank" rel="noopener">Mauá ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">Sold Leilões</div><div class="link-card-desc">Plataforma com imóveis de bancos e particulares. Muitos apartamentos de SP com bom deságio.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.sold.com.br/leiloes-de-imoveis" target="_blank" rel="noopener">Ver Imóveis na Sold ↗</a><a class="lbtn" href="https://www.sold.com.br" target="_blank" rel="noopener">Site principal ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">Portal Zuk</div><div class="link-card-desc">Leilões judiciais e extrajudiciais com boa cobertura de SP. Filtre por cidade e faixa de preço.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.portalzuk.com.br/leilao-de-imoveis/c/todos-imoveis/sp/grande-sao-paulo/santo-andre" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp" target="_blank" rel="noopener">Todo Estado SP ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">Superbid Exchange</div><div class="link-card-desc">Maior marketplace de leilões do Brasil. Muitos imóveis do estado de São Paulo.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.superbid.net/categorias/imoveis" target="_blank" rel="noopener">Ver Imóveis no Superbid ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">🏆 Leilão Imóvel</div><div class="link-card-desc">Agrega imóveis de mais de 400 leiloeiros numa só busca. Ideal para garimpar todo o estado de SP.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-paulo-sp" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-bernardo-do-campo-sp" target="_blank" rel="noopener">São Bernardo ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/maua-sp" target="_blank" rel="noopener">Mauá ↗</a><a class="lbtn" href="https://www.leilaoimovel.com.br/leilao-de-imovel/sao-caetano-do-sul-sp" target="_blank" rel="noopener">São Caetano ↗</a></div></div>
+      <div class="link-card"><div class="link-card-title">Mega Leilões</div><div class="link-card-desc">Leiloeiro com muitos imóveis em SP. Leilões judiciais com bons deságios em 2ª praça.</div><div class="link-card-btns"><a class="lbtn pri" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/santo-andre" target="_blank" rel="noopener">Santo André ↗</a><a class="lbtn" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-bernardo-do-campo" target="_blank" rel="noopener">São Bernardo ↗</a><a class="lbtn" href="https://www.megaleiloes.com.br/imoveis/apartamentos/sp/maua" target="_blank" rel="noopener">Mauá ↗</a></div></div>
       <div class="link-card"><div class="link-card-title">📋 Consultar Débitos — Prefeituras</div><div class="link-card-desc">Verifique o IPTU atrasado diretamente na prefeitura da cidade do imóvel antes de dar qualquer lance.</div><div class="link-card-btns"><a class="lbtn" href="https://www.santoandre.sp.gov.br/servicos" target="_blank" rel="noopener">Prefeitura Santo André ↗</a><a class="lbtn" href="https://www.saobernardo.sp.gov.br/web/sbc" target="_blank" rel="noopener">Prefeitura São Bernardo ↗</a><a class="lbtn" href="https://www.maua.sp.gov.br" target="_blank" rel="noopener">Prefeitura Mauá ↗</a><a class="lbtn" href="https://www.saocaetanodosul.sp.gov.br" target="_blank" rel="noopener">Prefeitura São Caetano ↗</a></div></div>
     </div>
   </div>
@@ -583,5 +594,6 @@
 </div>
 
 <script src="assets/app.js"></script>
+<button class="theme-toggle" onclick="toggleDark()" title="Alternar dark/light mode" id="themeBtn">🌙</button>
 </body>
 </html>

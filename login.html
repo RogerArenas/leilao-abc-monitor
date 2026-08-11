@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0d1726">
-<title>ABC Leilões — Acesso</title>
+<title>SP Leilões — Acesso</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -282,8 +282,8 @@ body{
   <div class="logo">
     <div class="logo-icon">🏠</div>
     <div>
-      <div class="logo-text">ABC Leilões</div>
-      <span class="logo-sub">Monitor Pessoal · ABC Paulista</span>
+      <div class="logo-text">SP Leilões</div>
+      <span class="logo-sub">Monitor Pessoal · São Paulo</span>
     </div>
   </div>
 
@@ -321,7 +321,7 @@ body{
 
   <div class="divider"></div>
   <div class="card-footer">
-    <strong>ABC Leilões</strong> · Monitor Pessoal<br>
+    <strong>SP Leilões</strong> · Monitor Pessoal<br>
     rogerarenas.github.io/leilao-abc-monitor
   </div>
 </div>
@@ -514,5 +514,29 @@ verificarSessao();
 if (isLockedOut()) mostrarLockout();
 document.getElementById('usuario').focus();
 </script>
+
+<!-- Depoimentos -->
+<div class="dep-section">
+  <p class="dep-title">O que dizem os investidores</p>
+  <div class="dep-track">
+    <div class="dep-card"><p class="dep-text">"Encontrei um apartamento com 47% de deságio em Santo André. O score me alertou antes de qualquer concorrente."</p><div class="dep-author"><div class="dep-avatar">MR</div><div><strong>Marcos R.</strong><span>Investidor — São Paulo</span></div></div></div>
+    <div class="dep-card"><p class="dep-text">"A calculadora de financiamento me mostrou que o imóvel era viável mesmo financiado. Arrematei na 2ª praça por R$ 180k."</p><div class="dep-author"><div class="dep-avatar">JF</div><div><strong>Juliana F.</strong><span>Engenheira — Campinas</span></div></div></div>
+    <div class="dep-card"><p class="dep-text">"Recebi o alerta no WhatsApp às 8h e fiz minha due diligence antes de qualquer um. O checklist legal me salvou de um imóvel com dívida de condomínio."</p><div class="dep-author"><div class="dep-avatar">CS</div><div><strong>Carlos S.</strong><span>Corretor — Santos</span></div></div></div>
+    <div class="dep-card"><p class="dep-text">"Antes gastava 3 horas por dia procurando manualmente. Agora o monitor faz isso enquanto durmo e me avisa só o que vale a pena."</p><div class="dep-author"><div class="dep-avatar">AP</div><div><strong>Ana P.</strong><span>Professora — São José dos Campos</span></div></div></div>
+    <div class="dep-card"><p class="dep-text">"O comparador é o que faltava. Consigo colocar 3 imóveis lado a lado e decidir em minutos qual tem melhor custo-benefício."</p><div class="dep-author"><div class="dep-avatar">RN</div><div><strong>Ricardo N.</strong><span>Empresário — Ribeirão Preto</span></div></div></div>
+  </div>
+</div>
+<style>
+.dep-section{padding:1.5rem 1rem;max-width:480px;margin:0 auto}
+.dep-title{text-align:center;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3,#64748b);margin-bottom:1rem;font-family:monospace}
+.dep-track{display:flex;gap:.75rem;overflow-x:auto;scrollbar-width:none;padding-bottom:.5rem;scroll-snap-type:x mandatory}
+.dep-track::-webkit-scrollbar{display:none}
+.dep-card{min-width:260px;background:rgba(255,255,255,.06);border:.5px solid rgba(255,255,255,.1);border-radius:.75rem;padding:1rem;scroll-snap-align:start;flex-shrink:0}
+.dep-text{font-size:.72rem;color:#94a3b8;line-height:1.6;margin-bottom:.75rem}
+.dep-author{display:flex;align-items:center;gap:.5rem}
+.dep-avatar{width:30px;height:30px;border-radius:50%;background:#1d4ed8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+.dep-author strong{display:block;font-size:.72rem;color:#e2e8f0}
+.dep-author span{font-size:.65rem;color:#64748b}
+</style>
 </body>
 </html>

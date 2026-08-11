@@ -1,4 +1,20 @@
 
+// ── Dark mode ─────────────────────────────────────────────────────────────
+(function(){
+  var saved=localStorage.getItem('sp_theme');
+  if(saved==='dark'||(!saved&&window.matchMedia('(prefers-color-scheme:dark)').matches)){
+    document.documentElement.classList.add('dark');
+  }
+})();
+function toggleDark(){
+  var isDark=document.documentElement.classList.toggle('dark');
+  localStorage.setItem('sp_theme',isDark?'dark':'light');
+  var btn=document.getElementById('themeBtn');
+  if(btn)btn.textContent=isDark?'☀️':'🌙';
+}
+
+// ── switchCalcTab com suporte a financiamento ─────────────────────────────
+
 // Mapa de regiões → cidades (para chips de região)
 var REGIOES_SP = {
   'Capital':  ['São Paulo'],
@@ -22,6 +38,21 @@ function setRegiao(r, el) {
   // Limpar o select de cidade quando muda a região
   var fc = document.getElementById('fc');
   if (fc) fc.value = '';
+  aplicarFiltros();
+}
+
+
+// ── Seleções especiais ────────────────────────────────────────────────────
+var SELECAO_ATIVA='';
+var CIDADES_PRAIA=['Santos','São Vicente','Guarujá','Praia Grande','Bertioga','Ubatuba','Caraguatatuba'];
+var CIDADES_UNIVERSITARIO=['Campinas','São Carlos','Ribeirão Preto','Botucatu','Piracicaba','Araraquara','Franca','Bauru','Americana','São José dos Campos','Sorocaba'];
+var CIDADES_TURISTICO=['São Paulo','Santos','Guarujá','Campos do Jordão','Atibaia'];
+var CIDADES_AIRBNB=['Santos','Guarujá','Praia Grande','São Paulo','Campos do Jordão'];
+
+function setSelecao(s,el){
+  SELECAO_ATIVA=SELECAO_ATIVA===s?'':s;
+  document.querySelectorAll('.chip-selecao').forEach(c=>c.classList.remove('active'));
+  if(SELECAO_ATIVA)el.classList.add('active');
   aplicarFiltros();
 }
 
@@ -129,6 +160,12 @@ function aplicarFiltros(){
     if(!im.lance||im.lance<=0)return false;
     // Filtro por região
     if(REGIAO_ATIVA&&REGIOES_SP[REGIAO_ATIVA]&&REGIOES_SP[REGIAO_ATIVA].indexOf(im.cidade)===-1)return false;
+    // Seleções especiais
+    if(SELECAO_ATIVA==='airbnb'&&CIDADES_AIRBNB.indexOf(im.cidade)===-1)return false;
+    if(SELECAO_ATIVA==='praia'&&CIDADES_PRAIA.indexOf(im.cidade)===-1)return false;
+    if(SELECAO_ATIVA==='universitario'&&CIDADES_UNIVERSITARIO.indexOf(im.cidade)===-1)return false;
+    if(SELECAO_ATIVA==='turistico'&&CIDADES_TURISTICO.indexOf(im.cidade)===-1)return false;
+    if(SELECAO_ATIVA==='negativo'&&im.praca!=='2')return false;
     if(c&&im.cidade!==c)return false;
     if(FONTE&&im.fonte!==FONTE)return false;
     if(im.lance<mn||im.lance>mx)return false;
@@ -289,6 +326,177 @@ function renderInteligencia(){
 }
 
 /* â”€â”€ MODAL â”€â”€ */
+
+
+// ── Calculadora de Financiamento (SAC/Price) ─────────────────────────────
+function calcFinanciamento(){
+  var lance=parseFloat(document.getElementById('clf-lance').value)||0;
+  var entrada=parseFloat(document.getElementById('clf-entrada').value)||20;
+  var taxa=parseFloat(document.getElementById('clf-taxa').value)||10;
+  var meses=parseInt(document.getElementById('clf-meses').value)||120;
+  var sist=document.getElementById('clf-sist').value||'price';
+  var venda=parseFloat(document.getElementById('clf-venda').value)||0;
+  var fAluguel=parseFloat(document.getElementById('clf-aluguel').value)||0;
+
+  var financed=lance*(1-entrada/100);
+  var taxaMes=taxa/12/100;
+  var parcela=0, totalPago=0;
+
+  if(sist==='price'){
+    parcela=financed*(taxaMes*Math.pow(1+taxaMes,meses))/(Math.pow(1+taxaMes,meses)-1);
+    totalPago=parcela*meses+(lance*entrada/100);
+  } else { // SAC
+    var amort=financed/meses;
+    var firstP=amort+financed*taxaMes;
+    var lastP=amort+amort*taxaMes;
+    totalPago=(firstP+lastP)/2*meses+(lance*entrada/100);
+    parcela=firstP;
+  }
+
+  var com=Math.round(lance*.05),itbi=Math.round(lance*.03),cart=3500,ref=15000;
+  var custoTotal=totalPago+com+itbi+cart+ref;
+  var roi=venda>0?Math.round(((venda-custoTotal)/custoTotal)*100):0;
+  var aluguelAnual=fAluguel*12;
+  var yieldAluguel=aluguelAnual>0?((aluguelAnual/custoTotal)*100).toFixed(1):0;
+
+  document.getElementById('clf-result').innerHTML=`
+    <div class="calc-result-grid">
+      <div class="calc-res-item"><span class="calc-res-label">1ª Parcela (${sist.toUpperCase()})</span><span class="calc-res-val">R$ ${f(Math.round(parcela))}</span></div>
+      <div class="calc-res-item"><span class="calc-res-label">Total financiado</span><span class="calc-res-val">R$ ${f(Math.round(financed))}</span></div>
+      <div class="calc-res-item"><span class="calc-res-label">Total pago (financ.)</span><span class="calc-res-val">R$ ${f(Math.round(totalPago))}</span></div>
+      <div class="calc-res-item"><span class="calc-res-label">Custo total real</span><span class="calc-res-val warn">R$ ${f(Math.round(custoTotal))}</span></div>
+      ${venda>0?`<div class="calc-res-item"><span class="calc-res-label">Lucro na revenda</span><span class="calc-res-val ${roi>=0?'green':'red'}">R$ ${f(Math.round(venda-custoTotal))} (${roi}%)</span></div>`:''}
+      ${yieldAluguel>0?`<div class="calc-res-item"><span class="calc-res-label">Yield locação anual</span><span class="calc-res-val green">${yieldAluguel}% a.a.</span></div>`:''}
+    </div>`;
+}
+
+// ── Exportar PDF do modal ─────────────────────────────────────────────────
+function exportarPDF(){
+  var m=document.getElementById('mbody');
+  if(!m)return;
+  var clone=m.cloneNode(true);
+  var w=window.open('','_blank');
+  w.document.write('<html><head><title>SP Leilões — Análise</title><style>body{font-family:system-ui;padding:20px;max-width:700px;margin:auto;color:#1e293b}.ipl-seg,.ql-wrap,.chk-legal{margin-bottom:16px;padding:12px;border:1px solid #e2e8f0;border-radius:8px}.modal-section{margin-bottom:16px}.modal-section-title{font-weight:700;margin-bottom:8px;color:#f97316}.modal-row{display:flex;justify-content:space-between;border-bottom:1px solid #f1f5f9;padding:4px 0}.cost-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9}.ipl-seg-bar{height:10px;background:#22c55e;border-radius:4px;display:inline-block}.ql-bar-bg{width:120px;height:6px;background:#e2e8f0;border-radius:3px;display:inline-block}.ql-bar-fill{height:100%;background:#3b82f6;border-radius:3px}.chk-row{padding:4px 0;display:flex;gap:8px}.green{color:#16a34a}.red{color:#dc2626}.warn{color:#d97706}</style></head><body>');
+  w.document.write('<h2 style="color:#1a2744">SP Leilões — Análise do Imóvel</h2>');
+  w.document.write('<p style="font-size:11px;color:#64748b">Gerado em '+new Date().toLocaleString('pt-BR')+'</p>');
+  w.document.write(clone.innerHTML);
+  w.document.write('</body></html>');
+  w.document.close();
+  setTimeout(()=>w.print(),400);
+}
+
+// ── IPL Segmentado (Ninja-style) ──────────────────────────────────────────
+function iplSegmentado(im){
+  var sc=im._sc||0;
+  // Decompor: Margem 60%, Risco 30%, Oportunidade 10%
+  var desagio=im.desagio||0;
+  var margemScore=Math.min(60,Math.round(desagio*1.5));   // máx 60
+  var riscoPts=0;
+  if(im.ocupado===false)riscoPts+=15;
+  if((im.debito_iptu||0)===0)riscoPts+=8;
+  if((im.debito_cond||0)===0)riscoPts+=7;
+  var riscoScore=Math.min(30,riscoPts);
+  var opPts=0;
+  if(im.praca==='1')opPts+=5;
+  if(im.novo)opPts+=3;
+  if((im.area||0)>=50)opPts+=2;
+  var opScore=Math.min(10,opPts);
+  var total=margemScore+riscoScore+opScore;
+  var cls=total>=70?'ipl-good':total>=45?'ipl-med':'ipl-bad';
+  return `<div class="ipl-seg">
+    <div class="ipl-seg-hd">
+      <span class="ipl-seg-label">IPL <span class="ipl-seg-num ${cls}">${total}/100</span></span>
+      <span class="ipl-seg-hint">Margem · Risco · Oportunidade</span>
+    </div>
+    <div class="ipl-bar-wrap">
+      <div class="ipl-seg-bar" style="width:${margemScore}%" title="Margem: ${margemScore}/60"></div>
+      <div class="ipl-seg-bar ipl-orange" style="width:${riscoScore/30*margemScore}%;margin-left:2px" title="Risco: ${riscoScore}/30"></div>
+      <div class="ipl-seg-bar ipl-blue" style="width:${opScore/10*margemScore*0.3}%;margin-left:2px" title="Oportunidade: ${opScore}/10"></div>
+    </div>
+    <div class="ipl-seg-detail">
+      <span title="Margem de lucro potencial (60% do score)">📈 Margem <b>${margemScore}</b><small>/60</small></span>
+      <span title="Risco jurídico e débitos (30% do score)">⚖️ Risco <b>${riscoScore}</b><small>/30</small></span>
+      <span title="Oportunidade de momento (10% do score)">⚡ Opor. <b>${opScore}</b><small>/10</small></span>
+    </div>
+  </div>`;
+}
+
+
+// ── Checklist legal visual (Ninja-style) ─────────────────────────────────
+function checklistLegal(im){
+  var items=[
+    {label:'Ocupação',   ok:im.ocupado===false, warn:im.ocupado===true,   icon:'🏠', detalhe:im.ocupado===false?'Desocupado':im.ocupado===true?'Ocupado — risco':'Verificar edital'},
+    {label:'Praça',      ok:im.praca==='1',     warn:im.praca==='2',      icon:'⚖️', detalhe:im.praca==='1'?'1ª Praça — preço inicial':im.praca==='2'?'2ª Praça — já sem lance antes, maior desconto':'Verificar'},
+    {label:'IPTU',       ok:!im.debito_iptu,    warn:(im.debito_iptu||0)>0,icon:'🏛️',detalhe:(im.debito_iptu||0)>0?'R$ '+f(im.debito_iptu)+' pendente':'Sem débito registrado'},
+    {label:'Condomínio', ok:!im.debito_cond,    warn:(im.debito_cond||0)>0,icon:'🏢',detalhe:(im.debito_cond||0)>0?'R$ '+f(im.debito_cond)+' pendente':'Sem débito registrado'},
+    {label:'Matrícula',  ok:!!im.matricula,     warn:false,               icon:'📄', detalhe:im.matricula?'Nº '+im.matricula:'Não informada — buscar no cartório'},
+  ];
+  var rows=items.map(it=>{
+    var st=it.warn?'chk-red':it.ok?'chk-green':'chk-gray';
+    var ic=it.warn?'❌':it.ok?'✅':'❓';
+    return `<div class="chk-row ${st}"><span class="chk-ico">${ic}</span><span class="chk-nm">${it.icon} ${it.label}</span><span class="chk-dt">${it.detalhe}</span></div>`;
+  }).join('');
+  // Badge 2ª praça especial
+  var praca2=im.praca==='2'?'<div class="praca2-badge">🔁 2ª Praça — preço geralmente 40–60% abaixo do valor de mercado. Lance pode ser menor que na 1ª praça.</div>':'';
+  return `<div class="chk-legal">${rows}</div>${praca2}`;
+}
+
+// ── Qualidade de localização visual ──────────────────────────────────────
+function qualidadeLocalizacao(im){
+  var base_ql={
+    'São Caetano do Sul':{seg:90,trp:80,srv:85,laz:78},
+    'São Paulo':{seg:68,trp:90,srv:92,laz:85},
+    'Santo André':{seg:72,trp:78,srv:80,laz:72},
+    'São Bernardo do Campo':{seg:70,trp:75,srv:78,laz:70},
+    'Mauá':{seg:62,trp:65,srv:65,laz:58},
+    'Guarulhos':{seg:65,trp:72,srv:75,laz:65},
+    'Campinas':{seg:68,trp:78,srv:82,laz:75},
+    'Santos':{seg:72,trp:75,srv:80,laz:82},
+    'São José dos Campos':{seg:74,trp:72,srv:78,laz:72},
+    'Sorocaba':{seg:70,trp:68,srv:72,laz:68},
+    'Ribeirão Preto':{seg:70,trp:70,srv:78,laz:72},
+    'Jundiaí':{seg:74,trp:72,srv:75,laz:70},
+  };
+  var ql=base_ql[im.cidade]||{seg:62,trp:60,srv:62,laz:58};
+  var total=Math.round((ql.seg+ql.trp+ql.srv+ql.laz)/4);
+  var cls=total>=75?'ipl-good':total>=60?'ipl-med':'ipl-bad';
+  function bar(v,label,icon){
+    return `<div class="ql-row"><span class="ql-label">${icon} ${label}</span><div class="ql-bar-bg"><div class="ql-bar-fill" style="width:${v}%"></div></div><span class="ql-val">${v}</span></div>`;
+  }
+  return `<div class="ql-wrap">
+    <div class="ql-score-hd">Qualidade da Localização <span class="ipl-seg-num ${cls}">${total}/100</span></div>
+    ${bar(ql.seg,'Segurança','🛡️')}
+    ${bar(ql.trp,'Transporte','🚌')}
+    ${bar(ql.srv,'Serviços','🏪')}
+    ${bar(ql.laz,'Lazer','🌳')}
+  </div>`;
+}
+
+
+// ── Sparkline histórico de lances ────────────────────────────────────────
+function sparklineHistorico(im){
+  if(!im.historico_lances||im.historico_lances.length<2) return '';
+  var vals=im.historico_lances.map(h=>h.lance||h);
+  var mn=Math.min(...vals),mx=Math.max(...vals);
+  var w=220,h=50,pad=4;
+  var pts=vals.map((v,i)=>{
+    var x=pad+i*(w-pad*2)/(vals.length-1);
+    var y=pad+(1-(v-mn)/(mx-mn||1))*(h-pad*2);
+    return x+','+y;
+  }).join(' ');
+  var last=vals[vals.length-1],first=vals[0];
+  var dir=last>first?'↑ subiu':'↓ caiu';
+  var clr=last<=first?'#22c55e':'#ef4444';
+  return `<div class="spark-wrap">
+    <div class="spark-hd">Histórico de lances <span style="color:${clr};font-size:11px">${dir} ${Math.round(Math.abs((last-first)/first*100))}%</span></div>
+    <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" class="sparkline">
+      <polyline points="${pts}" fill="none" stroke="${clr}" stroke-width="1.5"/>
+      <circle cx="${pts.split(' ').at(-1).split(',')[0]}" cy="${pts.split(' ').at(-1).split(',')[1]}" r="3" fill="${clr}"/>
+    </svg>
+    <div class="spark-range">R$ ${f(mn)} — R$ ${f(mx)}</div>
+  </div>`;
+}
+
 function abrirModal(idx){
   var im=FILT[idx];if(!im)return;
   var sc=im._sc,s=si(sc);
@@ -300,7 +508,9 @@ function abrirModal(idx){
   document.getElementById('mtit').textContent=im.titulo||(im.quartos+'q · '+im.area+'m² â€” '+im.cidade);
   document.getElementById('msub').textContent='ðŸ“ '+(im.bairro?im.bairro+' â€” ':'')+im.cidade+'  |  '+im.fonte+(im.data_leilao?'  |  ðŸ“… '+im.data_leilao:'');
   var favId=im.id||('_'+idx);
-  document.getElementById('mbody').innerHTML=`
+  var mapsUrl=im.lat&&im.lng?'https://www.google.com/maps?q='+im.lat+','+im.lng:'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent((im.bairro||im.titulo)+', '+im.cidade+' SP');
+  document.getElementById('mbody').innerHTML=
+    iplSegmentado(im)+checklistLegal(im)+qualidadeLocalizacao(im)+sparklineHistorico(im)+`
     <div class="modal-section">
       <div class="modal-section-title">ðŸ“Š Dados do Imóvel</div>
       ${im.quartos?`<div class="modal-row"><span class="modal-row-key">Quartos</span><span class="modal-row-val">${im.quartos}</span></div>`:''}
@@ -352,7 +562,9 @@ function abrirModal(idx){
     </div>
     <div class="modal-actions">
       <a href="${im.url}" target="_blank" rel="noopener" class="modal-btn modal-btn-primary">Ver Edital Oficial â†—</a>
-      <button class="modal-btn modal-btn-secondary" onclick="favModal('${favId}',${idx})">⭐ Salvar no Caderno</button>
+      <a href="${mapsUrl}" target="_blank" rel="noopener" class="modal-btn modal-btn-secondary">🗺️ Mapa</a>
+      <button class="modal-btn modal-btn-secondary" onclick="favModal('${favId}',${idx})">⭐ Caderno</button>
+      <button class="modal-btn modal-btn-secondary" onclick="exportarPDF()" title="Gerar PDF">📄 PDF</button>
     </div>`;
   document.getElementById('modal').classList.add('open');
 }
@@ -529,7 +741,7 @@ function restaurarFiltros(){
 function limparFiltros(){
   ['fc','fq','fo'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fmi').value='70000';
-  document.getElementById('fma').value='160000';
+  document.getElementById('fma').value='500000';
   var fte=document.getElementById('ftexto');if(fte)fte.value='';
   document.getElementById('fs').value='novo';
   FONTE='';
@@ -687,31 +899,20 @@ function carregarPerfil(){
 }
 
 /* â”€â”€ PDF / EXPORT â”€â”€ */
-function exportarPDF(){
-  var ks=Object.keys(FAVS);
-  if(!ks.length){alert('Caderno vazio â€” salve imóveis antes de exportar.');return;}
-  var cls={iptu:'â‘  IPTU Prefeitura',cond:'â‘¡ Condomínio',mat:'â‘¢ Matrícula',ocup:'â‘£ Ocupação',edital:'â‘¤ Edital',lmax:'â‘¥ Lance máximo'};
-  var linhas=ks.map(k=>{
-    var fv=FAVS[k];
-    var done=Object.values(fv.checks||{}).filter(Boolean).length;
-    var chks=Object.entries(fv.checks||{}).map(([c,v])=>(v?'[x]':'[ ]')+' '+cls[c]).join('  ');
-    return `
-${fv.titulo}
-ðŸ“ ${fv.cidade}${fv.bairro?' â€” '+fv.bairro:''} | ${fv.fonte} | R$ ${f(fv.lance)} | -${fv.desagio}% | Salvo ${fv.saved}
-Due diligence (${done}/6): ${chks}
-Anotações: ${fv.nota||'â€”'}
-Edital: ${fv.url}
-${'â”€'.repeat(55)}`;
+function switchCalcTab(id,el){
+  ['basica','reversa','financiamento','m2'].forEach(function(t){
+    var p=document.getElementById('tc-'+t);
+    if(p)p.style.display=(t===id)?'block':'none';
   });
-  var texto=`ABC LEILOES - MEU CADERNO
-Gerado em ${new Date().toLocaleString('pt-BR')}
-${'='.repeat(55)}${linhas.join('')}`;
-  var blob=new Blob([texto],{type:'text/plain;charset=utf-8'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='abc-caderno-'+new Date().toISOString().slice(0,10)+'.txt';a.click();URL.revokeObjectURL(a.href);
-}
-
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-initPerfil();
-carregarDados();
-
+  document.querySelectorAll('.calc-tabs .tab').forEach(function(t){t.classList.remove('active')});
+  if(el)el.classList.add('active');
+}// Mapa de regiões → cidades (para chips de região)
+var REGIOES_SP = {
+  'Capital':  ['São Paulo'],
+  'ABC':      ['Santo André','São Bernardo do Campo','São Caetano do Sul','Mauá','Diadema','Ribeirão Pires'],
+  'GrandeSP': ['Guarulhos','Osasco','Barueri','Carapicuíba','Mogi das Cruzes','Suzano','Taboão da Serra','Cotia','Poá','Arujá','Ferraz de Vasconcelos'],
+  'Litoral':  ['Santos','São Vicente','Guarujá','Praia Grande','Cubatão','Bertioga'],
+  'Vale':     ['São José dos Campos','Taubaté','Jacareí','Pindamonhangaba','Guaratinguetá'],
+  'Interior': ['Campinas','Sorocaba','Jundiaí','Ribeirão Preto','São José do Rio Preto','Bauru','Piracicaba','Americana','Araçatuba','Marília','São Carlos','Araraquara','Franca','Presidente Prudente','Limeira','Botucatu'],
+};
+var REGIAO_ATIVA = '';

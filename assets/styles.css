@@ -385,3 +385,154 @@ footer a{color:var(--primary);text-decoration:none}
 .m2-ref-val.ok{color:var(--green)}.m2-ref-val.med{color:var(--amber)}.m2-ref-val.high{color:var(--red)}
 
 @media(max-width:900px){.alertas-grid{grid-template-columns:1fr}}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FASE 1 — Novos componentes (Paridade com Leilão Ninja)
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── IPL Segmentado ────────────────────────────────────────────────── */
+.ipl-seg { padding:.625rem .75rem; background:var(--card); border:.5px solid var(--border); border-radius:.625rem; margin-bottom:.625rem }
+.ipl-seg-hd { display:flex; justify-content:space-between; align-items:center; margin-bottom:.4rem }
+.ipl-seg-label { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text3) }
+.ipl-seg-num { font-size:.8rem; font-weight:700; padding:.1rem .4rem; border-radius:.3rem }
+.ipl-seg-num.ipl-good { background:#dcfce7; color:#15803d }
+.ipl-seg-num.ipl-med  { background:#fef9c3; color:#a16207 }
+.ipl-seg-num.ipl-bad  { background:#fee2e2; color:#b91c1c }
+.ipl-seg-hint { font-size:.65rem; color:var(--text3); font-family:var(--mono) }
+.ipl-bar-wrap { display:flex; height:10px; background:var(--border); border-radius:5px; overflow:hidden; gap:1px; margin-bottom:.4rem }
+.ipl-seg-bar { height:100%; background:#22c55e; border-radius:4px; transition:width .5s ease }
+.ipl-seg-bar.ipl-orange { background:#f97316 }
+.ipl-seg-bar.ipl-blue   { background:#3b82f6 }
+.ipl-seg-detail { display:flex; gap:.75rem; font-size:.65rem; color:var(--text3) }
+.ipl-seg-detail span { display:flex; align-items:center; gap:.25rem }
+.ipl-seg-detail b { color:var(--text1) }
+.ipl-seg-detail small { color:var(--text3) }
+
+/* ── Checklist Legal ───────────────────────────────────────────────── */
+.chk-legal { display:flex; flex-direction:column; gap:.2rem; margin:.25rem 0 }
+.chk-row { display:flex; align-items:center; gap:.5rem; padding:.35rem .5rem; border-radius:.375rem; font-size:.75rem }
+.chk-green { background:#f0fdf4; color:#166534 }
+.chk-red   { background:#fff1f2; color:#991b1b }
+.chk-gray  { background:var(--bg2); color:var(--text2) }
+.chk-ico   { flex-shrink:0; font-size:.85rem }
+.chk-nm    { font-weight:600; min-width:90px; flex-shrink:0 }
+.chk-dt    { font-size:.68rem; color:inherit; opacity:.8 }
+.praca2-badge { margin-top:.4rem; padding:.5rem .625rem; background:#fefce8; border:.5px solid #ca8a04; border-radius:.375rem; font-size:.72rem; color:#854d0e; font-family:var(--mono); line-height:1.5 }
+
+/* ── Qualidade de Localização ──────────────────────────────────────── */
+.ql-wrap { padding:.625rem .75rem; background:var(--card); border:.5px solid var(--border); border-radius:.625rem; margin-bottom:.625rem }
+.ql-score-hd { font-size:.72rem; font-weight:700; color:var(--text2); margin-bottom:.5rem; display:flex; justify-content:space-between; align-items:center }
+.ql-row { display:flex; align-items:center; gap:.5rem; margin-bottom:.3rem; font-size:.72rem }
+.ql-label { width:90px; flex-shrink:0; color:var(--text2) }
+.ql-bar-bg { flex:1; height:5px; background:var(--border); border-radius:3px; overflow:hidden }
+.ql-bar-fill { height:100%; background:#3b82f6; border-radius:3px; transition:width .5s ease }
+.ql-val { width:28px; text-align:right; color:var(--text3); font-family:var(--mono); font-size:.65rem }
+
+/* ── Sparkline histórico ───────────────────────────────────────────── */
+.spark-wrap { padding:.5rem .75rem; background:var(--card); border:.5px solid var(--border); border-radius:.625rem; margin-bottom:.625rem }
+.spark-hd { font-size:.72rem; font-weight:600; color:var(--text2); margin-bottom:.3rem; display:flex; justify-content:space-between }
+.sparkline { display:block; width:100%; height:50px }
+.spark-range { font-size:.65rem; font-family:var(--mono); color:var(--text3); margin-top:.15rem }
+
+/* ── Calculadora de financiamento ─────────────────────────────────── */
+.calc-result-grid { display:grid; grid-template-columns:1fr 1fr; gap:.4rem; margin-top:.5rem }
+.calc-res-item { background:var(--bg2); border:.5px solid var(--border); border-radius:.375rem; padding:.4rem .6rem }
+.calc-res-label { font-size:.62rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text3); display:block; margin-bottom:.15rem }
+.calc-res-val { font-size:.85rem; font-weight:700; color:var(--text1) }
+.calc-res-val.warn { color:#d97706 }
+
+/* ── Modal botão outline ───────────────────────────────────────────── */
+.modal-btn-outline { background:transparent; border:1px solid var(--border); color:var(--text2) }
+.modal-btn-outline:hover { background:var(--bg2) }
+
+/* ── Chips de seleção especial ─────────────────────────────────────── */
+.chip-selecao { border-color:var(--border) }
+.chip-selecao.active { background:#7c3aed; border-color:#7c3aed; color:#fff }
+
+/* ─────────────────────────────────────────────────────────────────────
+   DARK MODE — prefers-color-scheme + toggle manual (.dark)
+   ───────────────────────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) { :root { --bg1:#0b1120; --bg2:#131e2e; --card:#131e2e; --border:#1e2d3d; --text1:#f1f5f9; --text2:#94a3b8; --text3:#475569; --primary:#1d4ed8; --accent:#f97316 } }
+.dark { --bg1:#0b1120; --bg2:#131e2e; --card:#131e2e; --border:#1e2d3d; --text1:#f1f5f9; --text2:#94a3b8; --text3:#475569 }
+.dark .chk-green { background:#14532d; color:#86efac }
+.dark .chk-red   { background:#450a0a; color:#fca5a5 }
+.dark .praca2-badge { background:#422006; border-color:#92400e; color:#fde68a }
+.dark .ipl-seg-num.ipl-good { background:#14532d; color:#86efac }
+.dark .ipl-seg-num.ipl-med  { background:#422006; color:#fde68a }
+.dark .ipl-seg-num.ipl-bad  { background:#450a0a; color:#fca5a5 }
+
+/* ── Botão dark mode toggle ────────────────────────────────────────── */
+.theme-toggle { position:fixed; bottom:1.25rem; right:1.25rem; width:38px; height:38px; border-radius:50%; background:var(--card); border:.5px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; z-index:999; box-shadow:0 2px 8px rgba(0,0,0,.15); transition:all .2s }
+.theme-toggle:hover { transform:scale(1.1) }
+
+/* ── DARK MODE TOGGLE CLASS ──────────────────────────────────────── */
+body.dark { --bg1:#0b1120;--bg2:#131e2e;--card:#131e2e;--border:#1e2d3d;
+  --text1:#f1f5f9;--text2:#94a3b8;--text3:#475569;--primary:#1d4ed8;--accent:#f97316; }
+body.dark .topbar{background:#0d1725;border-color:#1e2d3d}
+body.dark .chip{background:#131e2e;border-color:#1e2d3d;color:#94a3b8}
+body.dark .chip.active{background:#1d4ed8;border-color:#1d4ed8;color:#fff}
+body.dark .modal-content{background:#131e2e;border-color:#1e2d3d}
+body.dark .modal-section-title{color:#f97316}
+body.dark .card{background:#131e2e;border-color:#1e2d3d}
+body.dark input,body.dark select{background:#0d1725;border-color:#1e2d3d;color:#f1f5f9}
+
+/* ── IPL SEGMENTADO (Ninja-style) ────────────────────────────────── */
+.ipl-seg{padding:.875rem 1rem;background:var(--bg2);border:.5px solid var(--border);border-radius:.625rem;margin-bottom:.875rem}
+.ipl-seg-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:.625rem}
+.ipl-seg-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.ipl-seg-num{font-size:1.1rem;font-weight:700;padding:0 .4rem;border-radius:.25rem}
+.ipl-seg-num.ipl-good{color:#16a34a;background:#f0fdf4}
+.ipl-seg-num.ipl-med{color:#d97706;background:#fffbeb}
+.ipl-seg-num.ipl-bad{color:#dc2626;background:#fef2f2}
+.ipl-seg-hint{font-size:.65rem;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.ipl-bar-wrap{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--border);gap:1px;margin-bottom:.625rem}
+.ipl-seg-bar{height:100%;border-radius:4px;background:#22c55e;transition:width .5s ease}
+.ipl-orange{background:#f97316}
+.ipl-blue{background:#3b82f6}
+.ipl-seg-detail{display:flex;gap:1rem;font-size:.72rem;color:var(--text2)}
+.ipl-seg-detail span{cursor:default}
+.ipl-seg-detail b{color:var(--text1)}
+.ipl-seg-detail small{color:var(--text3)}
+
+/* ── CHECKLIST LEGAL ─────────────────────────────────────────────── */
+.chk-legal{padding:.875rem 1rem;background:var(--bg2);border:.5px solid var(--border);border-radius:.625rem;margin-bottom:.875rem}
+.chk-legal-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:.625rem;font-family:'JetBrains Mono',monospace}
+.chk-row{display:flex;align-items:center;gap:.625rem;padding:.3rem 0;border-bottom:.5px solid var(--border);font-size:.78rem}
+.chk-row:last-child{border-bottom:none}
+.chk-icon{font-size:.9rem;flex-shrink:0;width:1.25rem;text-align:center}
+.chk-label{color:var(--text2);flex:1}
+.chk-val{font-size:.72rem;font-weight:600;padding:1px 7px;border-radius:.25rem}
+.chk-ok{background:#f0fdf4;color:#16a34a}
+.chk-risco{background:#fef2f2;color:#dc2626}
+.chk-neutro{background:var(--bg1);color:var(--text3)}
+.praca2-badge{background:#7c3aed;color:#fff;border-radius:.375rem;padding:.5rem .75rem;font-size:.75rem;font-family:'JetBrains Mono',monospace;line-height:1.5;margin-top:.5rem}
+
+/* ── QUALIDADE LOCALIZACAO ───────────────────────────────────────── */
+.ql-wrap{padding:.875rem 1rem;background:var(--bg2);border:.5px solid var(--border);border-radius:.625rem;margin-bottom:.875rem}
+.ql-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:.625rem;font-family:'JetBrains Mono',monospace}
+.ql-total{font-size:1.1rem;font-weight:700;color:var(--primary);display:inline-block;margin-bottom:.5rem}
+.ql-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;font-size:.75rem;color:var(--text2)}
+.ql-row-label{width:80px;flex-shrink:0}
+.ql-bar-bg{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.ql-bar-fill{height:100%;border-radius:3px;background:var(--primary);transition:width .5s ease}
+.ql-row-val{width:32px;text-align:right;font-size:.7rem;color:var(--text3);font-family:'JetBrains Mono',monospace}
+
+/* ── SPARKLINE HISTÓRICO ─────────────────────────────────────────── */
+.sparkline-wrap{padding:.75rem 1rem;background:var(--bg2);border:.5px solid var(--border);border-radius:.625rem;margin-bottom:.875rem}
+.sparkline-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:.5rem;font-family:'JetBrains Mono',monospace}
+.sparkline{overflow:visible}
+.sparkline path{fill:none;stroke:#3b82f6;stroke-width:1.5px}
+.sparkline circle{fill:#3b82f6}
+
+/* ── BOTÃO DARK MODE ─────────────────────────────────────────────── */
+.theme-toggle{background:none;border:.5px solid var(--border);border-radius:.5rem;padding:.35rem .6rem;cursor:pointer;font-size:.85rem;color:var(--text2);transition:all .2s}
+.theme-toggle:hover{background:var(--bg2)}
+
+/* ── MODAL ACTIONS extras ────────────────────────────────────────── */
+.modal-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+.modal-btn{flex:1;min-width:100px;text-align:center;padding:.625rem .75rem;border-radius:.5rem;font-size:.78rem;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:all .2s}
+.modal-btn-primary{background:var(--primary);color:#fff}
+.modal-btn-primary:hover{opacity:.85}
+.modal-btn-secondary{background:var(--bg2);color:var(--text1);border:.5px solid var(--border)}
+.modal-btn-secondary:hover{border-color:var(--primary);color:var(--primary)}

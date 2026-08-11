@@ -37,6 +37,10 @@ jobs:
       - name: Rodar o monitor (coleta + gera dados.json + envia alertas)
         env:
           SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
+          LANCE_MIN:    ${{ vars.LANCE_MIN    || '70000'  }}
+          LANCE_MAX:    ${{ vars.LANCE_MAX    || '500000' }}
+          QUARTOS_MIN:  ${{ vars.QUARTOS_MIN  || '1'      }}
+          CIDADES:      ${{ vars.CIDADES      || ''       }}
           WA_NUMERO: ${{ secrets.WA_NUMERO }}
           WA_APIKEY: ${{ secrets.WA_APIKEY }}
           EMAIL_REMETENTE: ${{ secrets.EMAIL_REMETENTE }}
