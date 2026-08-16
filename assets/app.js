@@ -371,6 +371,9 @@ function calcFinanciamento(){
 }
 
 // ── Exportar PDF do modal ─────────────────────────────────────────────────
+function exportarPDF_old(){
+  window.print();
+}
 function exportarPDF(){
   var m=document.getElementById('mbody');
   if(!m)return;
@@ -510,7 +513,7 @@ function abrirModal(idx){
   var favId=im.id||('_'+idx);
   var mapsUrl=im.lat&&im.lng?'https://www.google.com/maps?q='+im.lat+','+im.lng:'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent((im.bairro||im.titulo)+', '+im.cidade+' SP');
   document.getElementById('mbody').innerHTML=
-    iplSegmentado(im)+checklistLegal(im)+qualidadeLocalizacao(im)+sparklineHistorico(im)+`
+    renderValorMercado(im)+iplSegmentado(im)+checklistLegal(im)+qualidadeLocalizacao(im)+renderLocaisProximos(im)+sparklineHistorico(im)+`
     <div class="modal-section">
       <div class="modal-section-title">ðŸ“Š Dados do Imóvel</div>
       ${im.quartos?`<div class="modal-row"><span class="modal-row-key">Quartos</span><span class="modal-row-val">${im.quartos}</span></div>`:''}
@@ -916,3 +919,123 @@ var REGIOES_SP = {
   'Interior': ['Campinas','Sorocaba','Jundiaí','Ribeirão Preto','São José do Rio Preto','Bauru','Piracicaba','Americana','Araçatuba','Marília','São Carlos','Araraquara','Franca','Presidente Prudente','Limeira','Botucatu'],
 };
 var REGIAO_ATIVA = '';
+
+
+// ── MAPA LEAFLET ──────────────────────────────────────────────────────────
+var _mapaInit = false;
+var _mapaObj  = null;
+var _mapaMarkers = [];
+
+function renderMapa(){
+  if(!window.L){ setTimeout(renderMapa, 300); return; }
+  var container = document.getElementById('mapa-leaflet');
+  if(!container) return;
+
+  if(!_mapaInit){
+    _mapaObj = L.map('mapa-leaflet').setView([-23.55, -46.63], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom:19
+    }).addTo(_mapaObj);
+    _mapaInit = true;
+  }
+
+  // Limpar marcadores anteriores
+  _mapaMarkers.forEach(m=>m.remove());
+  _mapaMarkers = [];
+
+  var imoveis = FILT.filter(im=>im.lat && im.lng && im.lance > 0);
+  if(!imoveis.length){
+    document.getElementById('mapa-leaflet').insertAdjacentHTML('beforeend',
+      '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:1rem 1.5rem;border-radius:.75rem;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1000;font-size:.85rem;text-align:center">'+
+      '📍 Nenhum imóvel com coordenadas.<br><small>Execute o coletor para geocodificar.</small></div>'
+    );
+    return;
+  }
+
+  var bounds = [];
+  imoveis.forEach(function(im,idx){
+    var sc   = im._sc || 0;
+    var cor  = sc >= 7 ? '#16a34a' : sc >= 4 ? '#d97706' : '#dc2626';
+    var icon = L.divIcon({
+      className:'',
+      html:'<div style="width:32px;height:32px;border-radius:50%;background:'+cor+';border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700">'+sc+'</div>',
+      iconSize:[32,32], iconAnchor:[16,16], popupAnchor:[0,-16]
+    });
+    var popup = '<div style="min-width:180px;font-size:.78rem">' +
+      '<strong style="display:block;margin-bottom:.3rem;font-size:.82rem">'+(im.titulo||im.cidade)+'</strong>'+
+      '<div style="color:#64748b;margin-bottom:.4rem">📍 '+(im.bairro||im.cidade)+'</div>'+
+      '<div style="font-size:1rem;font-weight:700;color:#1a2744">'+fr(im.lance)+'</div>'+
+      '<div style="font-size:.7rem;color:#64748b">Deságio: '+(im.desagio||0)+'%  |  IPL: '+(im._sc||'?')+'/10</div>'+
+      '<button onclick="abrirModal('+idx+')" style="margin-top:.5rem;width:100%;background:#1a2744;color:#fff;border:none;padding:.35rem;border-radius:.375rem;cursor:pointer;font-size:.75rem">Analisar →</button>'+
+      '</div>';
+    var marker = L.marker([im.lat, im.lng], {icon:icon}).addTo(_mapaObj).bindPopup(popup);
+    _mapaMarkers.push(marker);
+    bounds.push([im.lat, im.lng]);
+  });
+
+  if(bounds.length) _mapaObj.fitBounds(bounds, {padding:[30,30]});
+  setTimeout(()=>_mapaObj.invalidateSize(), 200);
+}
+
+
+  var el = document.getElementById('modal-content') || document.getElementById('mbody');
+  if(!el){ window.print(); return; }
+
+  if(window.html2pdf){
+    var titulo = (document.getElementById('mtit')||{}).textContent || 'imovel';
+    var nome   = 'SP-Leiloes-'+titulo.replace(/[^a-zA-Z0-9]/g,'-').slice(0,40)+'.pdf';
+    html2pdf().set({
+      margin:10, filename:nome, pagebreak:{mode:['avoid-all']},
+      image:{type:'jpeg',quality:.95},
+      html2canvas:{scale:2},
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+    }).from(el).save();
+  } else {
+    window.print();
+  }
+}
+
+// ── VALOR DE MERCADO (exibição no modal) ────────────────────────────────────
+function renderValorMercado(im){
+  var vm = im.valor_mercado;
+  if(!vm || !vm.estimado) return '';
+  var lance = im.lance || 0;
+  var pct   = vm.estimado > 0 ? Math.max(0, Math.min(100, (lance/vm.estimado)*100)) : 0;
+  var desagio = vm.estimado > 0 ? ((vm.estimado - lance)/vm.estimado*100).toFixed(1) : 0;
+  var cls = desagio >= 20 ? 'bom' : desagio >= 0 ? '' : 'ruim';
+  return '<div class="vm-wrap">'+
+    '<div class="vm-title">💹 Valor de Mercado Estimado</div>'+
+    '<div class="vm-range">'+
+      '<span class="vm-val">'+fr(vm.min)+'</span>'+
+      '<div class="vm-bar-bg">'+
+        '<div class="vm-bar-fill" style="left:0;width:'+pct+'%"></div>'+
+        '<div class="vm-lance" style="left:'+pct+'%"></div>'+
+      '</div>'+
+      '<span class="vm-val">'+fr(vm.max)+'</span>'+
+    '</div>'+
+    '<span class="vm-desagio '+cls+'">'+
+      (desagio >= 0 ? '🟢' : '🔴')+' '+desagio+'% abaixo do mercado'+
+      (vm.amostras ? ' ('+vm.amostras+' anúncios)' : '')+
+    '</span>'+
+    '<div class="vm-fonte">Fonte: '+(vm.fonte==='serper_olx_zap'?'OLX · ZAP · VivaReal':'estimativa local')+'</div>'+
+  '</div>';
+}
+
+// ── LOCAIS PRÓXIMOS (exibição no modal) ─────────────────────────────────────
+function renderLocaisProximos(im){
+  var lp = im.locais_proximos;
+  if(!lp || !Object.keys(lp).length) return '';
+  var rows = Object.values(lp).map(function(l){
+    var d = l.dist_m || 0;
+    var cls = d < 500 ? 'perto' : d < 1500 ? '' : 'longe';
+    var txt = d < 1000 ? d+'m' : (d/1000).toFixed(1)+'km';
+    return '<div class="lp-row">'+
+      '<span class="lp-icon">'+l.label.split(' ')[0]+'</span>'+
+      '<span class="lp-label">'+l.nome+'</span>'+
+      '<span class="lp-dist '+cls+'">'+txt+'</span>'+
+    '</div>';
+  }).join('');
+  return '<div class="lp-wrap">'+
+    '<div class="lp-title">📍 Locais Próximos</div>'+rows+'</div>';
+}

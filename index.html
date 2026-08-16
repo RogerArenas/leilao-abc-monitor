@@ -18,6 +18,9 @@
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -62,8 +65,16 @@
     <button class="ntab" onclick="showTab('guia',this)">🧭 Guia</button>
     <button class="ntab" onclick="showTab('intel',this)">📊 Inteligência</button>
     <button class="ntab" onclick="showTab('links',this)">🔗 Sites</button>
+    <button class="ntab" onclick="showTab('mapa',this);renderMapa()">🗺️ Mapa</button>
   </div>
 </nav>
+
+<!-- ═══ MAPA ═══ -->
+<div id="tab-mapa" class="sec">
+  <div class="page" style="padding:0">
+    <div id="mapa-leaflet" style="width:100%;height:calc(100vh - 110px);"></div>
+  </div>
+</div>
 
 <!-- ═══ BUSCA ═══ -->
 <div id="tab-busca" class="sec active">
